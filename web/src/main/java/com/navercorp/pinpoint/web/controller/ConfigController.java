@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.config.ExperimentalConfig;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.vo.User;
 import org.slf4j.Logger;
@@ -40,12 +41,15 @@ public class ConfigController {
     private final static String SSO_USER = "SSO_USER";
 
     private final ConfigProperties webProperties;
-    
+
+    private final ExperimentalConfig experimentalConfig;
+
     private final UserService userService;
 
     public ConfigController(ConfigProperties webProperties, UserService userService) {
         this.webProperties = Objects.requireNonNull(webProperties, "webProperties");
         this.userService = Objects.requireNonNull(userService, "userService");
+        this.experimentalConfig = new ExperimentalConfig();
     }
 
     @GetMapping(value="/configuration")
@@ -75,11 +79,23 @@ public class ConfigController {
                 result.put("userDepartment", user.getDepartment());
             }
         }
-        
+
         if (StringUtils.hasLength(webProperties.getSecurityGuideUrl())) {
             result.put("securityGuideUrl", webProperties.getSecurityGuideUrl());
         }
-        
+
+        return result;
+    }
+
+    @GetMapping(value="/configuration.experimental")
+    public Map<String, Object> getExperimentalProperties() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("enableServerSideScanForScatter", experimentalConfig.isEnableServerSideScanForScatter());
+        result.put("useStatisticsAgentState", experimentalConfig.isUseStatisticsAgentState());
+        result.put("enableServerMapRealTime", experimentalConfig.isEnableServerMapRealTime());
+        result.put("sampleScatter", experimentalConfig.isSampleScatter());
+
         return result;
     }
 }
