@@ -54,6 +54,13 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
     }
 
     public ServerInstanceList createServerInstanceList(Node node, Range range) {
+        AgentInfoFilter filter = new AgentInfoFilterChain(
+                new DefaultAgentInfoFilter(range.getFrom())
+        );
+        return createServerInstanceList(node, range, filter);
+    }
+
+    public ServerInstanceList createServerInstanceList(Node node, Range range, AgentInfoFilter filter) {
         Objects.requireNonNull(node, "node");
         Objects.requireNonNull(range, "timestamp");
         Instant timestamp = range.getToInstant();
@@ -69,7 +76,7 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
         }
 
         logger.debug("unfiltered agentInfos {}", agentInfos);
-        agentInfos = filterAgentInfos(agentInfos, range, node);
+        agentInfos = filterAgentInfos(agentInfos, range, filter);
         logger.debug("add agentInfos {} : {}", application, agentInfos);
 
         ServerBuilder builder = new ServerBuilder();
@@ -78,20 +85,18 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
     }
 
     // TODO Change to list of filters?
-    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, Range range, Node node) {
+    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, Range range, AgentInfoFilter filter) {
         Set<AgentInfo> filteredAgentInfos = new HashSet<>();
         List<AgentInfo> agentsToCheckStatus = new ArrayList<>(agentInfos);
+
         AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, range.getToInstant());
-
         List<Optional<AgentStatus>> agentStatusList = agentInfoService.getAgentStatus(query);
-        AgentInfoFilter filter = new AgentInfoFilterChain(
-                new DefaultAgentInfoFilter(range.getFrom())
-        );
-
+        logger.debug("agentStatus: {}", agentStatusList.toString());
         int idx = 0;
         for (AgentInfo agentInfo : agentsToCheckStatus) {
             Optional<AgentStatus> agentStatus = agentStatusList.get(idx++);
             if (agentStatus.isPresent()) {
+                agentInfo.setStatus(agentStatus.get());
                 if (filter.filter(agentInfo) == AgentInfoFilter.ACCEPT) {
                     filteredAgentInfos.add(agentInfo);
                 }

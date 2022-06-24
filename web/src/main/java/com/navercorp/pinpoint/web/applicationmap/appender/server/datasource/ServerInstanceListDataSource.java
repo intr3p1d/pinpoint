@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 
 /**
  * @author emeroad
@@ -28,4 +29,6 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 public interface ServerInstanceListDataSource {
 
     ServerInstanceList createServerInstanceList(Node node, Range range);
+
+    ServerInstanceList createServerInstanceList(Node node, Range range, AgentInfoFilter filter);
 }
