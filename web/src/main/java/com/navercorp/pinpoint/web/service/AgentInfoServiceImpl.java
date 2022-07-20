@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexPerTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
@@ -73,6 +74,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
+    private final ApplicationIndexPerTimeDao applicationIndexPerTimeDao;
+
     private final AgentInfoDao agentInfoDao;
 
     private final AgentLifeCycleDao agentLifeCycleDao;
@@ -80,12 +83,14 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final AgentStatDao<JvmGcBo> jvmGcDao;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
-                                AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
+                                AgentWarningStatService agentWarningStatService,
+                                ApplicationIndexDao applicationIndexDao, ApplicationIndexPerTimeDao applicationIndexPerTimeDao,
                                 AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
                                 AgentStatDao<JvmGcBo> jvmGcDao) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationIndexPerTimeDao = Objects.requireNonNull(applicationIndexPerTimeDao, "applicationIndexPerTimeDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
@@ -241,7 +246,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        // List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<String> agentIds = this.applicationIndexPerTimeDao.selectAgentIds(applicationName, Range.between(timestamp, timestamp));
         List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
 
         return agentInfos.stream()

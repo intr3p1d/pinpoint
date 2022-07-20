@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.collector.dao.ApplicationIndexPerTimeDao;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.springframework.stereotype.Service;
 
@@ -35,14 +36,18 @@ public class AgentInfoService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao) {
+    private final ApplicationIndexPerTimeDao applicationIndexPerTimeDao;
+
+    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, ApplicationIndexPerTimeDao applicationIndexPerTimeDao) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationIndexPerTimeDao = Objects.requireNonNull(applicationIndexPerTimeDao, "applicationIndexPerTimeDao");
     }
 
     public void insert(final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         applicationIndexDao.insert(agentInfoBo);
+        applicationIndexPerTimeDao.insert(agentInfoBo);
     }
 
     public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {
