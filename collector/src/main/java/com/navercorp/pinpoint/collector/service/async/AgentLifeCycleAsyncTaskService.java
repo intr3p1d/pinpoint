@@ -65,7 +65,7 @@ public class AgentLifeCycleAsyncTaskService {
 
         final long startTimestamp = agentProperty.getStartTime();
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
-        agentLifeCycleService.insert(agentLifeCycleBo);
+        agentLifeCycleService.insert(agentLifeCycleBo, agentProperty);
 
         final String applicationName = agentProperty.getApplicationName();
         if (applicationName == null) {

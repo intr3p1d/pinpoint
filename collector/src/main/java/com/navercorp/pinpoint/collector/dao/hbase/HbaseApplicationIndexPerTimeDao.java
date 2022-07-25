@@ -1,12 +1,13 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexPerTimeDao;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.TimestampUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -35,25 +36,25 @@ public class HbaseApplicationIndexPerTimeDao implements ApplicationIndexPerTimeD
     }
 
     @Override
-    public void insert(final AgentInfoBo agentInfo) {
-        Objects.requireNonNull(agentInfo, "agentInfo");
+    public void insert(final AgentLifeCycleBo agentLifeCycleBo, AgentProperty agentProperty) {
+        Objects.requireNonNull(agentLifeCycleBo, "agentLifeCycleBo");
 
         // Assert agentId
-        CollectorUtils.checkAgentId(agentInfo.getAgentId());
+        CollectorUtils.checkAgentId(agentLifeCycleBo.getAgentId());
         // Assert applicationName
-        CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
+        CollectorUtils.checkApplicationName(agentProperty.getApplicationName());
 
-        byte[] rowKey = createRowKey(agentInfo.getApplicationName());
+        byte[] rowKey = createRowKey(agentProperty.getApplicationName());
         final Put put = new Put(rowKey);
 
-        final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
-        final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
+        final byte[] qualifier = Bytes.toBytes(agentLifeCycleBo.getAgentId());
+        final byte[] value = Bytes.toBytes(agentProperty.getServiceType());
         put.addColumn(DESCRIPTOR.getName(), qualifier, value);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);
 
-        logger.debug("Insert ApplicationIndexPerTime: {}", agentInfo);
+        logger.debug("Insert ApplicationIndexPerTime: {}, {}", agentLifeCycleBo, agentProperty);
     }
 
     byte[] createRowKey(String applicationName) {

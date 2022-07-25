@@ -175,7 +175,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private List<String> getAgentIdList(String applicationName, int durationDays) {
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, durationDays * -1);
+        final long fromTimestamp = cal.getTimeInMillis();
+        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
+
+        List<String> agentIds = this.applicationIndexPerTimeDao.selectAgentIds(applicationName, queryRange);
+
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
@@ -185,13 +193,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> activeAgentIdList = new ArrayList<>();
-
-        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, durationDays * -1);
-        final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
 
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
@@ -254,6 +255,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> agentIds = this.applicationIndexPerTimeDao.selectAgentIds(applicationName, Range.between(timestamp, timestamp));
+        logger.debug("Got agentIds: {}", agentIds);
         List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, timestamp);
 
         return agentInfos.stream()

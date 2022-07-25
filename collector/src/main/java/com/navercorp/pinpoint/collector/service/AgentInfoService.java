@@ -36,18 +36,15 @@ public class AgentInfoService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final ApplicationIndexPerTimeDao applicationIndexPerTimeDao;
 
-    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, ApplicationIndexPerTimeDao applicationIndexPerTimeDao) {
+    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.applicationIndexPerTimeDao = Objects.requireNonNull(applicationIndexPerTimeDao, "applicationIndexPerTimeDao");
     }
 
     public void insert(final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         applicationIndexDao.insert(agentInfoBo);
-        applicationIndexPerTimeDao.insert(agentInfoBo);
     }
 
     public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {

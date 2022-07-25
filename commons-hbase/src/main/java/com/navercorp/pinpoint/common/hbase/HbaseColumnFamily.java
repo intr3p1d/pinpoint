@@ -88,7 +88,7 @@ public class HbaseColumnFamily {
         }
     }
 
-    public static final ApplicationIndexPerTime APPLICATION_INDEX_PER_TIME = new ApplicationIndexPerTime(HbaseTable.APPLICATION_INDEX_PER_TIME, Bytes.toBytes("Agents"));
+    public static final ApplicationIndexPerTime APPLICATION_INDEX_PER_TIME = new ApplicationIndexPerTime(HbaseTable.APPLICATION_INDEX_PER_TIME, Bytes.toBytes("A"));
     public static class ApplicationIndexPerTime extends HbaseColumnFamily {
         private ApplicationIndexPerTime(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
