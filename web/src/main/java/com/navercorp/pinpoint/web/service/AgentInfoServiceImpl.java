@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoProxy;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -73,7 +73,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentWarningStatService agentWarningStatService;
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDaoProxy applicationIndexDaoProxy;
 
     private final AgentInfoDao agentInfoDao;
 
@@ -83,14 +83,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final HyperLinkFactory hyperLinkFactory;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
-                                AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
+                                AgentWarningStatService agentWarningStatService,
+                                ApplicationIndexDaoProxy applicationIndexDaoProxy,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
                                 AgentStatDao<JvmGcBo> jvmGcDao,
                                 HyperLinkFactory hyperLinkFactory) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationIndexDaoProxy = Objects.requireNonNull(applicationIndexDaoProxy, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
@@ -104,7 +105,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
         ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy, filter, hyperLinkFactory);
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = applicationIndexDaoProxy.selectAllApplicationNames();
         for (Application application : applications) {
             applicationAgentList.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
         }
@@ -143,7 +144,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, int durationDays) {
-        List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
+        List<String> applicationNameList = getApplicationNameList(applicationIndexDaoProxy.selectAllApplicationNames());
         if (offset > applicationNameList.size()) {
             ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
             return builder.build();
@@ -170,7 +171,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private List<String> getAgentIdList(String applicationName, int durationDays) {
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, durationDays * -1);
+        final long fromTimestamp = cal.getTimeInMillis();
+        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
+
+        List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(applicationName, queryRange);
+
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
@@ -180,13 +189,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> activeAgentIdList = new ArrayList<>();
-
-        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, durationDays * -1);
-        final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
 
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
@@ -248,7 +250,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(applicationName, Range.between(timestamp, timestamp));
+        logger.debug("Got agentIds: {}", agentIds);
         List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, timestamp);
 
         return agentInfos.stream()

@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoProxy;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,14 +44,14 @@ public class AdminServiceImplTest {
     AdminService adminService;
 
     @Mock
-    ApplicationIndexDao applicationIndexDao;
+    ApplicationIndexDaoProxy applicationIndexDaoProxy;
 
     @Mock
     AgentInfoService agentInfoService;
 
     @BeforeEach
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationIndexDao, agentInfoService);
+        adminService = new AdminServiceImpl(applicationIndexDaoProxy, agentInfoService);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AdminServiceImplTest {
         }
 
         try {
-            new AdminServiceImpl(applicationIndexDao, null);
+            new AdminServiceImpl(applicationIndexDaoProxy, null);
             fail("agentInfoService can not be null");
         } catch (NullPointerException e) {
             assertThat(e.getMessage(), is("agentInfoService"));
@@ -81,25 +81,25 @@ public class AdminServiceImplTest {
     @Test
     public void removeApplicationName() {
         // given
-        doNothing().when(applicationIndexDao).deleteApplicationName(APPLICATION_NAME1);
+        doNothing().when(applicationIndexDaoProxy).deleteApplicationName(APPLICATION_NAME1);
 
         // when
         adminService.removeApplicationName(APPLICATION_NAME1);
 
         // then
-        verify(applicationIndexDao, times(1)).deleteApplicationName(APPLICATION_NAME1);
+        verify(applicationIndexDaoProxy, times(1)).deleteApplicationName(APPLICATION_NAME1);
     }
 
     @Test
     public void removeAgentId() {
         // given
-        doNothing().when(applicationIndexDao).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        doNothing().when(applicationIndexDaoProxy).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
 
         // when
         adminService.removeAgentId(APPLICATION_NAME1, AGENT_ID1);
 
         // then
-        verify(applicationIndexDao, times(1)).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        verify(applicationIndexDaoProxy, times(1)).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
     }
 
     @Test
@@ -125,15 +125,15 @@ public class AdminServiceImplTest {
         int durationDays = 31;
 
         //// mocking
-        when(applicationIndexDao.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1));
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
+        when(applicationIndexDaoProxy.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1));
+        when(applicationIndexDaoProxy.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
         when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
 
         // when
         adminService.removeInactiveAgents(durationDays);
 
         ArgumentCaptor<Map<String, List<String>>> inactiveAgentMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(applicationIndexDao).deleteAgentIds(inactiveAgentMapArgumentCaptor.capture());
+        verify(applicationIndexDaoProxy).deleteAgentIds(inactiveAgentMapArgumentCaptor.capture());
 
         List<String> actualInactiveAgentMapValues = inactiveAgentMapArgumentCaptor.getValue().get(APPLICATION_NAME1);
 
@@ -146,8 +146,8 @@ public class AdminServiceImplTest {
         // given
         int durationDays = 31;
         //// mocking
-        when(applicationIndexDao.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
+        when(applicationIndexDaoProxy.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));
+        when(applicationIndexDaoProxy.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
 
         when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
 
@@ -155,7 +155,7 @@ public class AdminServiceImplTest {
         adminService.removeInactiveAgents(durationDays);
 
         ArgumentCaptor<Map<String, List<String>>> inactiveAgentMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(applicationIndexDao).deleteAgentIds(inactiveAgentMapArgumentCaptor.capture());
+        verify(applicationIndexDaoProxy).deleteAgentIds(inactiveAgentMapArgumentCaptor.capture());
 
         // then
         List<String> actualInactiveAgentMapValues = inactiveAgentMapArgumentCaptor.getValue().get(APPLICATION_NAME1);
@@ -170,7 +170,7 @@ public class AdminServiceImplTest {
     public void whenApplicationDoesNotHaveAnyAgentIdsGetAgentIdMapReturnsEmptyMap() {
         // given
         List<Application> emptyApplicationList = new ArrayList<>();
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(emptyApplicationList);
+        when(applicationIndexDaoProxy.selectAllApplicationNames()).thenReturn(emptyApplicationList);
 
         // when
         Map<String, List<Application>> agentIdMap = adminService.getAgentIdMap();
@@ -183,17 +183,17 @@ public class AdminServiceImplTest {
     @Test
     public void testDuplicateAgentIdMap() {
         // given
-        when(applicationIndexDao.selectAllApplicationNames())
+        when(applicationIndexDaoProxy.selectAllApplicationNames())
                 .thenReturn(Arrays.asList(
                         new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME3, ServiceType.UNDEFINED)));
 
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1)))
+        when(applicationIndexDaoProxy.selectAgentIds(eq(APPLICATION_NAME1)))
                 .thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME2)))
+        when(applicationIndexDaoProxy.selectAgentIds(eq(APPLICATION_NAME2)))
                 .thenReturn(Arrays.asList(AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME3)))
+        when(applicationIndexDaoProxy.selectAgentIds(eq(APPLICATION_NAME3)))
                 .thenReturn(Arrays.asList(AGENT_ID1));
 
         // then

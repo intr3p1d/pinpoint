@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoProxy;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 
@@ -47,23 +48,23 @@ public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDaoProxy applicationIndexDaoProxy;
 
     private final AgentInfoService agentInfoService;
 
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoService agentInfoService) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    public AdminServiceImpl(ApplicationIndexDaoProxy applicationIndexDaoProxy, AgentInfoService agentInfoService) {
+        this.applicationIndexDaoProxy = Objects.requireNonNull(applicationIndexDaoProxy, "applicationIndexDao");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
     public void removeApplicationName(String applicationName) {
-        applicationIndexDao.deleteApplicationName(applicationName);
+        applicationIndexDaoProxy.deleteApplicationName(applicationName);
     }
 
     @Override
     public void removeAgentId(String applicationName, String agentId) {
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
+        applicationIndexDaoProxy.deleteAgentId(applicationName, agentId);
     }
 
     @Override
@@ -73,14 +74,14 @@ public class AdminServiceImpl implements AdminService {
         }
         Map<String, List<String>> inactiveAgentMap = new TreeMap<>(String::compareTo);
 
-        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = this.applicationIndexDaoProxy.selectAllApplicationNames();
         Set<String> applicationNames = new TreeSet<>(String::compareTo);
         // remove duplicates (same application name but different service type)
         for (Application application : applications) {
             applicationNames.add(application.getName());
         }
         for (String applicationName : applicationNames) {
-            List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+            List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(applicationName);
             Collections.sort(agentIds);
             List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
             if (CollectionUtils.hasLength(inactiveAgentIds)) {
@@ -90,15 +91,15 @@ public class AdminServiceImpl implements AdminService {
         // map may become big, but realistically won't cause OOM
         // if it becomes an issue, consider deleting inside the loop above
         logger.info("deleting {}", inactiveAgentMap);
-        this.applicationIndexDao.deleteAgentIds(inactiveAgentMap);
+        this.applicationIndexDaoProxy.deleteAgentIds(inactiveAgentMap);
     }
 
     @Override
     public Map<String, List<Application>> getAgentIdMap() {
         Map<String, List<Application>> agentIdMap = new TreeMap<>(String::compareTo);
-        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = this.applicationIndexDaoProxy.selectAllApplicationNames();
         for (Application application : applications) {
-            List<String> agentIds = this.applicationIndexDao.selectAgentIds(application.getName());
+            List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(application.getName());
             for (String agentId : agentIds) {
                 List<Application> applicationList = agentIdMap.computeIfAbsent(agentId, k -> new ArrayList<>());
                 applicationList.add(application);
@@ -128,7 +129,7 @@ public class AdminServiceImpl implements AdminService {
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(applicationName);
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyMap();
         }
