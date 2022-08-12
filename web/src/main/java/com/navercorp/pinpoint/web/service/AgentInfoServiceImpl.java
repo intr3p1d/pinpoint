@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoProxy;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -75,7 +75,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentWarningStatService agentWarningStatService;
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDaoProxy applicationIndexDaoProxy;
 
     private final AgentInfoDao agentInfoDao;
 
@@ -85,14 +85,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final HyperLinkFactory hyperLinkFactory;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
-                                AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
+                                AgentWarningStatService agentWarningStatService,
+                                ApplicationIndexDaoProxy applicationIndexDaoProxy,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
                                 AgentStatDao<JvmGcBo> jvmGcDao,
                                 HyperLinkFactory hyperLinkFactory) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationIndexDaoProxy = Objects.requireNonNull(applicationIndexDaoProxy, "applicationIndexDaoProxy");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
@@ -101,26 +102,26 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentsList getAllApplicationAgentsList(AgentInfoFilter filter, long timestamp) {
+    public ApplicationAgentsList getAllApplicationAgentsList(AgentInfoFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
         ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
         ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = applicationIndexDaoProxy.selectAllApplicationNames();
         for (Application application : applications) {
-            builder.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
+            builder.merge(getApplicationAgentsList(groupBy, filter, application.getName(), range));
         }
         return builder.build();
     }
 
     @Override
-    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, AgentInfoFilter filter, String applicationName, long timestamp) {
+    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, AgentInfoFilter filter, String applicationName, Range range) {
         Objects.requireNonNull(groupBy, "groupBy");
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
         ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
-        Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, timestamp);
+        Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, range);
         if (agentInfoAnsStatuss.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
             return builder.build();
@@ -145,7 +146,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, int durationDays) {
-        List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
+        List<String> applicationNameList = getApplicationNameList(applicationIndexDaoProxy.selectAllApplicationNames());
         if (offset > applicationNameList.size()) {
             ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
             return builder.build();
@@ -172,7 +173,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private List<String> getAgentIdList(String applicationName, int durationDays) {
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, durationDays * -1);
+        final long fromTimestamp = cal.getTimeInMillis();
+        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
+
+        List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(applicationName, queryRange);
+
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
@@ -182,13 +191,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> activeAgentIdList = new ArrayList<>();
-
-        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, durationDays * -1);
-        final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
 
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
@@ -221,12 +223,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp) {
-        List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+    public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, Range range) {
+        List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, range);
 
         List<AgentAndStatus> result = new ArrayList<>(agentInfos.size());
 
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, Instant.ofEpochMilli(timestamp));
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, Instant.ofEpochMilli(range.getTo()));
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
         for (int i = 0; i < agentStatus.size(); i++) {
             Optional<AgentStatus> status = agentStatus.get(i);
@@ -239,19 +241,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
 
     @Override
-    public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
-        List<AgentInfo> agentInfos = getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+    public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, Range range) {
+        List<AgentInfo> agentInfos = getAgentsByApplicationNameWithoutStatus0(applicationName, range);
         return new HashSet<>(agentInfos);
     }
 
-    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(String applicationName, long timestamp) {
+    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(String applicationName, Range range) {
         Objects.requireNonNull(applicationName, "applicationName");
-        if (timestamp < 0) {
-            throw new IllegalArgumentException("timestamp must not be less than 0");
-        }
 
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, timestamp);
+        List<String> agentIds = this.applicationIndexDaoProxy.selectAgentIds(applicationName, range);
+        logger.debug("Got agentIds: {}", agentIds);
+        List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo());
 
         return agentInfos.stream()
                 .filter(Objects::nonNull)
@@ -265,7 +265,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
         }
 
-        Set<AgentAndStatus> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
+        Set<AgentAndStatus> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, Range.between(timestamp, timestamp));
 
         final long eventTimestampFloor = timestamp - timeDiff;
 

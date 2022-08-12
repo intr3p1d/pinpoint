@@ -69,14 +69,13 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
-        long timestamp = to;
-        return this.agentInfoService.getAllApplicationAgentsList(filter, timestamp);
+        return this.agentInfoService.getAllApplicationAgentsList(filter, Range.between(from, to));
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
     public ApplicationAgentsList getAgentList(
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getAllApplicationAgentsList(AgentInfoFilter::accept, timestamp);
+        return this.agentInfoService.getAllApplicationAgentsList(AgentInfoFilter::accept, Range.between(timestamp, timestamp));
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
@@ -93,8 +92,7 @@ public class AgentInfoController {
         AgentInfoFilter currentRunnedFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
-        long timestamp = to;
-        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, currentRunnedFilter, applicationName, timestamp);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, currentRunnedFilter, applicationName, Range.between(from, to));
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
@@ -104,7 +102,7 @@ public class AgentInfoController {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
-        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningAgentFilter, applicationName, timestamp);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningAgentFilter, applicationName, Range.between(timestamp, timestamp));
     }
 
     @GetMapping(value = "/getAgentInfo")

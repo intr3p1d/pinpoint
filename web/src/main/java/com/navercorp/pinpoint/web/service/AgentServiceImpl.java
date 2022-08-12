@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.Future;
@@ -97,7 +98,7 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, Range.between(currentTime, currentTime));
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo == null) {
                 continue;
@@ -125,7 +126,7 @@ public class AgentServiceImpl implements AgentService {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
-            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, Range.between(currentTime, currentTime));
             for (AgentInfo agentInfo : agentInfos) {
                 if (agentInfo == null) {
                     continue;

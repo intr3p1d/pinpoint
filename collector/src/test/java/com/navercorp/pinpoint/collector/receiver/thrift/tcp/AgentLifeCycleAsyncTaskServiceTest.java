@@ -193,9 +193,10 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
         ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
         AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
+        ArgumentCaptor<AgentProperty> agentPropertyArgumentCaptor = ArgumentCaptor.forClass(AgentProperty.class);
         long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(TEST_SOCKET_ID, expectedEventCounter);
         this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, eventIdentifier);
-        verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
+        verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture(), agentPropertyArgumentCaptor.capture());
 
         // then
         AgentLifeCycleBo actualAgentLifeCycleBo = argCaptor.getValue();
