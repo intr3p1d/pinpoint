@@ -24,6 +24,7 @@ public class HbaseApplicationIndexDaoProxyTest {
     @Mock
     private ApplicationIndexPerTimeDao applicationIndexPerTimeDao;
 
+    private String applicationName = "applicationName";
 
     @Test
     public void selectAllApplicationNamesTest() {
@@ -36,25 +37,26 @@ public class HbaseApplicationIndexDaoProxyTest {
 
     @Test
     public void selectApplicationNameTest() {
-        doReturn(Collections.emptyList()).when(applicationIndexDao).selectApplicationName("");
+        doReturn(Collections.emptyList()).when(applicationIndexDao).selectApplicationName(applicationName);
         HbaseApplicationIndexDaoProxy hbaseApplicationIndexDaoProxy = new HbaseApplicationIndexDaoProxy(applicationIndexDao, applicationIndexPerTimeDao);
 
-        hbaseApplicationIndexDaoProxy.selectApplicationName("");
-        verify(applicationIndexDao, times(1)).selectApplicationName("");
+        hbaseApplicationIndexDaoProxy.selectApplicationName(applicationName);
+        verify(applicationIndexDao, times(1)).selectApplicationName(applicationName);
     }
 
     @Test
     public void selectAgentIdsTest() {
-        doReturn(Collections.emptyList()).when(applicationIndexDao).selectAgentIds("");
-        doReturn(Collections.emptyList()).when(applicationIndexPerTimeDao).selectAgentIds("", Range.between(0, Long.MAX_VALUE));
+        Range range = Range.between(0, 1);
+        doReturn(Collections.emptyList()).when(applicationIndexDao).selectAgentIds(applicationName);
+        doReturn(Collections.emptyList()).when(applicationIndexPerTimeDao).selectAgentIds(applicationName, range);
         HbaseApplicationIndexDaoProxy hbaseApplicationIndexDaoProxy = new HbaseApplicationIndexDaoProxy(applicationIndexDao, applicationIndexPerTimeDao);
 
         hbaseApplicationIndexDaoProxy.setUseIndexPerTime(false);
-        hbaseApplicationIndexDaoProxy.selectAgentIds("");
-        verify(applicationIndexDao, times(1)).selectAgentIds("");
+        hbaseApplicationIndexDaoProxy.selectAgentIds(applicationName);
+        verify(applicationIndexDao, times(1)).selectAgentIds(applicationName);
 
         hbaseApplicationIndexDaoProxy.setUseIndexPerTime(true);
-        hbaseApplicationIndexDaoProxy.selectAgentIds("");
-        verify(applicationIndexPerTimeDao, times(1)).selectAgentIds("", Range.between(0, Long.MAX_VALUE));
+        hbaseApplicationIndexDaoProxy.selectAgentIds(applicationName, range);
+        verify(applicationIndexPerTimeDao, times(1)).selectAgentIds(applicationName, range);
     }
 }

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.Future;
@@ -42,6 +41,7 @@ import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
+import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountFactory;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountList;
@@ -98,7 +98,7 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, Range.between(currentTime, currentTime));
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, TimeUtils.getExtendedRange(currentTime));
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo == null) {
                 continue;
@@ -126,7 +126,7 @@ public class AgentServiceImpl implements AgentService {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
-            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, Range.between(currentTime, currentTime));
+            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, TimeUtils.getExtendedRange(currentTime));
             for (AgentInfo agentInfo : agentInfos) {
                 if (agentInfo == null) {
                     continue;

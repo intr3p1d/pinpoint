@@ -51,7 +51,6 @@ public class HbaseApplicationIndexPerTimeDao implements ApplicationIndexPerTimeD
         Scan scan = new Scan();
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHE_SIZE);
-        // scan.setOneRowLimit();
 
         scan.withStartRow(createRowKey(applicationName, range.getTo(), EarlierLater.LATER));
         scan.withStopRow(createRowKey(applicationName, range.getFrom(), EarlierLater.EARLIER), true);

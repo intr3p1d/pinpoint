@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -75,7 +76,7 @@ public class AgentInfoController {
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
     public ApplicationAgentsList getAgentList(
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getAllApplicationAgentsList(AgentInfoFilter::accept, Range.between(timestamp, timestamp));
+        return this.agentInfoService.getAllApplicationAgentsList(AgentInfoFilter::accept, TimeUtils.getExtendedRange(timestamp));
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
@@ -102,7 +103,7 @@ public class AgentInfoController {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
-        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningAgentFilter, applicationName, Range.between(timestamp, timestamp));
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningAgentFilter, applicationName, TimeUtils.getExtendedRange(timestamp));
     }
 
     @GetMapping(value = "/getAgentInfo")

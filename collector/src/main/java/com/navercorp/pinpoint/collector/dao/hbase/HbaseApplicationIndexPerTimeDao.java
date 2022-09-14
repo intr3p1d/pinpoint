@@ -39,9 +39,7 @@ public class HbaseApplicationIndexPerTimeDao implements ApplicationIndexPerTimeD
     public void insert(final AgentLifeCycleBo agentLifeCycleBo, AgentProperty agentProperty) {
         Objects.requireNonNull(agentLifeCycleBo, "agentLifeCycleBo");
 
-        // Assert agentId
         CollectorUtils.checkAgentId(agentLifeCycleBo.getAgentId());
-        // Assert applicationName
         CollectorUtils.checkApplicationName(agentProperty.getApplicationName());
 
         byte[] rowKey = createRowKey(agentProperty.getApplicationName());

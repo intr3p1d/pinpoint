@@ -17,6 +17,7 @@ public class HbaseApplicationIndexDaoProxy implements ApplicationIndexDaoProxy {
 
     private ApplicationIndexDao applicationIndexDao;
     private ApplicationIndexPerTimeDao applicationIndexPerTimeDao;
+    private static final Range WHOLE_RANGE = Range.between(0, Long.MAX_VALUE);
 
     @Value("${web.enableApplicationIndexPerTimeTable:false}")
     private boolean useIndexPerTime;
@@ -39,13 +40,18 @@ public class HbaseApplicationIndexDaoProxy implements ApplicationIndexDaoProxy {
 
     @Override
     public List<String> selectAgentIds(String applicationName) {
-        return selectAgentIds(applicationName, Range.between(0, Long.MAX_VALUE));
+        return selectAgentIds(applicationName, WHOLE_RANGE);
     }
 
     @Override
     public List<String> selectAgentIds(String applicationName, Range range) {
-        if (useIndexPerTime) {
-            return applicationIndexPerTimeDao.selectAgentIds(applicationName, range);
+        if (useIndexPerTime && !range.equals(WHOLE_RANGE)) {
+            List<String> agentIds = applicationIndexPerTimeDao.selectAgentIds(applicationName, range);
+            if (agentIds.isEmpty()) {
+                // FIXME: need to clarify the case when agentIds is empty
+                return applicationIndexDao.selectAgentIds(applicationName);
+            }
+            return agentIds;
         } else {
             return applicationIndexDao.selectAgentIds(applicationName);
         }
@@ -67,7 +73,7 @@ public class HbaseApplicationIndexDaoProxy implements ApplicationIndexDaoProxy {
         applicationIndexDao.deleteAgentId(applicationName, agentId);
     }
 
-    public boolean isUseIndexPerTime() {
+    public boolean usesIndexPerTime() {
         return useIndexPerTime;
     }
 
