@@ -23,22 +23,22 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.AgentsList;
+import com.navercorp.pinpoint.web.vo.AgentsLists;
 
 /**
  * @author minwoo.jung
  * @author HyunGil Jeong
  */
-public class ApplicationAgentsListSerializer extends JsonSerializer<ApplicationAgentsList> {
+public class AgentsListsSerializer extends JsonSerializer<AgentsLists> {
 
     @Override
-    public void serialize(ApplicationAgentsList applicationAgentsList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(AgentsLists applicationAgentsLists, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-        List<ApplicationAgentList> applicationAgentLists = applicationAgentsList.getApplicationAgentLists();
-        for (ApplicationAgentList applicationAgentList : applicationAgentLists) {
-            jgen.writeFieldName(applicationAgentList.getGroupName());
-            jgen.writeObject(applicationAgentList.getAgentStatusAndLinks());
+        List<AgentsList> agentsLists = applicationAgentsLists.getApplicationAgentLists();
+        for (AgentsList agentsList : agentsLists) {
+            jgen.writeFieldName(agentsList.getGroupName());
+            jgen.writeObject(agentsList.getAgentStatusAndLinks());
         }
         jgen.writeEndObject();
     }

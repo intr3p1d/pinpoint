@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.AgentsLists;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -101,11 +101,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentsList getAllApplicationAgentsList(AgentInfoFilter filter, long timestamp) {
+    public AgentsLists getAllApplicationAgentsList(AgentInfoFilter filter, long timestamp) {
         Objects.requireNonNull(filter, "filter");
 
-        ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
-        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
+        AgentsLists.GroupBy groupBy = AgentsLists.GroupBy.APPLICATION_NAME;
+        AgentsLists.Builder builder = AgentsLists.newBuilder(groupBy, filter, hyperLinkFactory);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
             builder.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
@@ -114,12 +114,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, AgentInfoFilter filter, String applicationName, long timestamp) {
+    public AgentsLists getApplicationAgentsList(AgentsLists.GroupBy groupBy, AgentInfoFilter filter, String applicationName, long timestamp) {
         Objects.requireNonNull(groupBy, "groupBy");
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
+        AgentsLists.Builder builder = AgentsLists.newBuilder(groupBy, filter, hyperLinkFactory);
         Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAnsStatuss.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
