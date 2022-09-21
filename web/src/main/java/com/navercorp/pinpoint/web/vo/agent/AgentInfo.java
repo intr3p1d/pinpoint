@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServiceTypeDescView;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.Comparator;
 import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentInfo implements InformableAgent {
+public class AgentInfo implements AgentInfoSupplier {
 
     private String applicationName;
     private String agentId;
@@ -46,6 +45,7 @@ public class AgentInfo implements InformableAgent {
     }
 
     @Override
+    @JsonIgnore
     public AgentInfo getAgentInfo() {
         return this;
     }

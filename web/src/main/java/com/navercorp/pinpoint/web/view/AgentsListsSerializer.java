@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.AgentsList;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
 /**
  * @author minwoo.jung
@@ -35,10 +36,10 @@ public class AgentsListsSerializer extends JsonSerializer<AgentsLists> {
     @Override
     public void serialize(AgentsLists applicationAgentsLists, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-        List<AgentsList> agentsLists = applicationAgentsLists.getApplicationAgentLists();
+        List<AgentsList<AgentStatusAndLink>> agentsLists = applicationAgentsLists.getApplicationAgentLists();
         for (AgentsList agentsList : agentsLists) {
             jgen.writeFieldName(agentsList.getGroupName());
-            jgen.writeObject(agentsList.getInformableAgents());
+            jgen.writeObject(agentsList.getAgentSuppliersList());
         }
         jgen.writeEndObject();
     }

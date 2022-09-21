@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.web.vo.agent.InformableAgent;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
 
 import java.util.Comparator;
 import java.util.List;
@@ -26,24 +26,24 @@ import java.util.stream.Collectors;
 /**
  * @author HyunGil Jeong
  */
-public class AgentsList<T extends InformableAgent> {
+public class AgentsList<T extends AgentInfoSupplier> {
 
     private final String groupName;
-    private final List<T> informableAgents;
+    private final List<T> agentSuppliersList;
 
-    public AgentsList(String groupName, List<T> informableAgents, SortBy sortBy) {
+    public AgentsList(String groupName, List<T> agentSuppliersList, SortBy sortBy) {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
         Objects.requireNonNull(sortBy, "sortBy");
-        Objects.requireNonNull(informableAgents, "informableAgents");
-        this.informableAgents = sort(sortBy, informableAgents);
+        Objects.requireNonNull(agentSuppliersList, "informableAgents");
+        this.agentSuppliersList = sort(sortBy, agentSuppliersList);
     }
 
-    private List<T> sort(SortBy sortBy, List<T> informableAgents) {
-        return informableAgents.stream().sorted(sortBy.getComparator()).collect(Collectors.toList());
+    private List<T> sort(SortBy sortBy, List<T> agentSuppliersList) {
+        return agentSuppliersList.stream().sorted(sortBy.getComparator()).collect(Collectors.toList());
     }
 
     public AgentsList<T> sorted(SortBy sortBy) {
-        return new AgentsList<>(this.groupName, this.informableAgents, sortBy);
+        return new AgentsList<>(this.groupName, this.agentSuppliersList, sortBy);
     }
 
     public enum SortBy {
@@ -62,31 +62,31 @@ public class AgentsList<T extends InformableAgent> {
                 AGENT_ID_ASCENDING.getComparator().reversed()
         ),
         LAST_STARTED_TIME(
-                Comparator.<InformableAgent>comparingLong(SortBy::getStartTimestampFrom)
+                Comparator.<AgentInfoSupplier>comparingLong(SortBy::getStartTimestampFrom)
                         .reversed()
                         .thenComparing(SortBy::getAgentIdFrom)
         );
 
-        private final Comparator<InformableAgent> comparator;
+        private final Comparator<AgentInfoSupplier> comparator;
 
-        SortBy(Comparator<InformableAgent> comparator) {
+        SortBy(Comparator<AgentInfoSupplier> comparator) {
             this.comparator = comparator;
         }
 
-        public Comparator<InformableAgent> getComparator() {
+        public Comparator<AgentInfoSupplier> getComparator() {
             return comparator;
         }
 
-        private static String getAgentIdFrom(InformableAgent informableAgent) {
-            return informableAgent.getAgentInfo().getAgentId();
+        private static String getAgentIdFrom(AgentInfoSupplier agentInfoSupplier) {
+            return agentInfoSupplier.getAgentInfo().getAgentId();
         }
 
-        private static String getAgentNameFrom(InformableAgent informableAgent) {
-            return informableAgent.getAgentInfo().getAgentName();
+        private static String getAgentNameFrom(AgentInfoSupplier agentInfoSupplier) {
+            return agentInfoSupplier.getAgentInfo().getAgentName();
         }
 
-        private static long getStartTimestampFrom(InformableAgent informableAgent) {
-            return informableAgent.getAgentInfo().getStartTimestamp();
+        private static long getStartTimestampFrom(AgentInfoSupplier agentInfoSupplier) {
+            return agentInfoSupplier.getAgentInfo().getStartTimestamp();
         }
     }
 
@@ -94,15 +94,15 @@ public class AgentsList<T extends InformableAgent> {
         return groupName;
     }
 
-    public List<T> getInformableAgents() {
-        return informableAgents;
+    public List<T> getAgentSuppliersList() {
+        return agentSuppliersList;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
         sb.append('\'').append(groupName).append('\'');
-        sb.append(":").append(informableAgents);
+        sb.append(":").append(agentSuppliersList);
         sb.append('}');
         return sb.toString();
     }

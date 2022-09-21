@@ -44,20 +44,20 @@ public class AgentsListsTest {
         AgentAndStatus app2Agent2 = createAgentInfo("APP_2", "app2-agent2", "Host22", true);
         builder.addAll(shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2));
 
-        List<AgentsList> agentsLists = builder.build().getApplicationAgentLists();
+        List<AgentsList<AgentStatusAndLink>> agentsLists = builder.build().getApplicationAgentLists();
 
         Assertions.assertEquals(2, agentsLists.size());
 
         AgentsList app1AgentsList = agentsLists.get(0);
         Assertions.assertEquals("APP_1", app1AgentsList.getGroupName());
-        List<AgentStatusAndLink> app1AgentInfos = app1AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> app1AgentInfos = app1AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(2, app1AgentInfos.size());
         Assertions.assertEquals(app1Agent1.getAgentInfo(), app1AgentInfos.get(0).getAgentInfo());
         Assertions.assertEquals(app1Agent2.getAgentInfo(), app1AgentInfos.get(1).getAgentInfo());
 
         AgentsList app2AgentsList = agentsLists.get(1);
         Assertions.assertEquals("APP_2", app2AgentsList.getGroupName());
-        List<AgentStatusAndLink> app2AgentInfos = app2AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> app2AgentInfos = app2AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(2, app2AgentInfos.size());
         Assertions.assertEquals(app2Agent1.getAgentInfo(), app2AgentInfos.get(0).getAgentInfo());
         Assertions.assertEquals(app2Agent2.getAgentInfo(), app2AgentInfos.get(1).getAgentInfo());
@@ -72,26 +72,26 @@ public class AgentsListsTest {
         AgentAndStatus containerAgent2 = createAgentInfo("APP_1", "container-agent2", "Host4", true, 2);
         builder.addAll(shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2));
 
-        List<AgentsList> agentsLists = builder.build().getApplicationAgentLists();
+        List<AgentsList<AgentStatusAndLink>> agentsLists = builder.build().getApplicationAgentLists();
 
         Assertions.assertEquals(3, agentsLists.size());
 
         AgentsList containerAgentsList = agentsLists.get(0);
         Assertions.assertEquals(AgentsLists.Builder.CONTAINER, containerAgentsList.getGroupName());
-        List<AgentStatusAndLink> containerAgents = containerAgentsList.getInformableAgents();
+        List<AgentStatusAndLink> containerAgents = containerAgentsList.getAgentSuppliersList();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(0).getAgentInfo());
         Assertions.assertEquals(containerAgent1.getAgentInfo(), containerAgents.get(1).getAgentInfo());
 
         AgentsList host1AgentsList = agentsLists.get(1);
         Assertions.assertEquals("Host1", host1AgentsList.getGroupName());
-        List<AgentStatusAndLink> host1Agents = host1AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> host1Agents = host1AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, host1Agents.size());
         Assertions.assertEquals(host1Agent1.getAgentInfo(), host1Agents.get(0).getAgentInfo());
 
         AgentsList host2AgentsList = agentsLists.get(2);
         Assertions.assertEquals("Host2", host2AgentsList.getGroupName());
-        List<AgentStatusAndLink> host2Agents = host2AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> host2Agents = host2AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, host2Agents.size());
         Assertions.assertEquals(host2Agent1.getAgentInfo(), host2Agents.get(0).getAgentInfo());
     }
@@ -110,26 +110,26 @@ public class AgentsListsTest {
         builder2.addAll(agentInfos.subList(agentInfos.size() / 2, agentInfos.size()));
 
         builder1.merge(builder2.build());
-        List<AgentsList> agentsLists = builder1.build().getApplicationAgentLists();
+        List<AgentsList<AgentStatusAndLink>> agentsLists = builder1.build().getApplicationAgentLists();
 
         Assertions.assertEquals(3, agentsLists.size());
 
         AgentsList containerAgentsList = agentsLists.get(0);
         Assertions.assertEquals(AgentsLists.Builder.CONTAINER, containerAgentsList.getGroupName());
-        List<AgentStatusAndLink> containerAgents = containerAgentsList.getInformableAgents();
+        List<AgentStatusAndLink> containerAgents = containerAgentsList.getAgentSuppliersList();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(0).getAgentInfo());
         Assertions.assertEquals(containerAgent1.getAgentInfo(), containerAgents.get(1).getAgentInfo());
 
         AgentsList host1AgentsList = agentsLists.get(1);
         Assertions.assertEquals("Host1", host1AgentsList.getGroupName());
-        List<AgentStatusAndLink> host1Agents = host1AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> host1Agents = host1AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, host1Agents.size());
         Assertions.assertEquals(host1Agent1.getAgentInfo(), host1Agents.get(0).getAgentInfo());
 
         AgentsList host2AgentsList = agentsLists.get(2);
         Assertions.assertEquals("Host2", host2AgentsList.getGroupName());
-        List<AgentStatusAndLink> host2Agents = host2AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> host2Agents = host2AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, host2Agents.size());
         Assertions.assertEquals(host2Agent1.getAgentInfo(), host2Agents.get(0).getAgentInfo());
     }
@@ -146,25 +146,25 @@ public class AgentsListsTest {
         appBuilder.add(agent3);
 
         hostBuilder.merge(appBuilder.build());
-        List<AgentsList> agentsLists = hostBuilder.build().getApplicationAgentLists();
+        List<AgentsList<AgentStatusAndLink>> agentsLists = hostBuilder.build().getApplicationAgentLists();
 
         Assertions.assertEquals(3, agentsLists.size());
 
         AgentsList containerAgentsList = agentsLists.get(0);
         Assertions.assertEquals(AgentsLists.Builder.CONTAINER, containerAgentsList.getGroupName());
-        List<AgentStatusAndLink> containerAgents = containerAgentsList.getInformableAgents();
+        List<AgentStatusAndLink> containerAgents = containerAgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, containerAgents.size());
         Assertions.assertEquals(agent3.getAgentInfo(), containerAgents.get(0).getAgentInfo());
 
         AgentsList host1AgentsList = agentsLists.get(1);
         Assertions.assertEquals("Host1", host1AgentsList.getGroupName());
-        List<AgentStatusAndLink> host1Agents = host1AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> host1Agents = host1AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, host1Agents.size());
         Assertions.assertEquals(agent1.getAgentInfo(), host1Agents.get(0).getAgentInfo());
 
         AgentsList host2AgentsList = agentsLists.get(2);
         Assertions.assertEquals("Host2", host2AgentsList.getGroupName());
-        List<AgentStatusAndLink> host2Agents = host2AgentsList.getInformableAgents();
+        List<AgentStatusAndLink> host2Agents = host2AgentsList.getAgentSuppliersList();
         Assertions.assertEquals(1, host2Agents.size());
         Assertions.assertEquals(agent2.getAgentInfo(), host2Agents.get(0).getAgentInfo());
     }

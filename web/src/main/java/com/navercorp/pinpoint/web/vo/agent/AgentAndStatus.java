@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class AgentAndStatus implements InformableAgent {
+public class AgentAndStatus implements AgentInfoSupplier {
     private final AgentInfo agentInfo;
     private final AgentStatus status;
 
