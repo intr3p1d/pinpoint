@@ -27,10 +27,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-public class AgentInfo {
-
-    public static final Comparator<AgentInfo> AGENT_NAME_ASC_COMPARATOR
-            = Comparator.comparing(agentInfo -> StringUtils.defaultString(agentInfo.agentId));
+public class AgentInfo implements InformableAgent {
 
     private String applicationName;
     private String agentId;
@@ -46,6 +43,11 @@ public class AgentInfo {
     private boolean container;
 
     public AgentInfo() {
+    }
+
+    @Override
+    public AgentInfo getAgentInfo() {
+        return this;
     }
 
     public String getApplicationName() {
@@ -142,7 +144,6 @@ public class AgentInfo {
     }
 
 
-
     public boolean isContainer() {
         return container;
     }
@@ -189,7 +190,6 @@ public class AgentInfo {
         sb.append('}');
         return sb.toString();
     }
-
 
 
 }

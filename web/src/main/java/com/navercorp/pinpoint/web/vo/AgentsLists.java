@@ -26,10 +26,12 @@ import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.web.vo.agent.InformableAgent;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,18 +52,18 @@ public class AgentsLists {
     }
 
 
-    private final List<AgentsList> list;
+    private final List<AgentsList<AgentStatusAndLink>> list;
 
-    public AgentsLists(List<AgentsList> list) {
+    public AgentsLists(List<AgentsList<AgentStatusAndLink>> list) {
         this.list = Objects.requireNonNull(list, "list");
     }
 
-    public List<AgentsList> getApplicationAgentLists() {
+    public List<AgentsList<AgentStatusAndLink>> getApplicationAgentLists() {
         return list;
     }
 
-    public static Builder newBuilder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
-        return new Builder(groupBy, filter, hyperLinkFactory);
+    public static Builder newBuilder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory, AgentsList.SortBy sortBy) {
+        return new Builder(groupBy, filter, hyperLinkFactory, sortBy);
     }
 
 
@@ -83,7 +85,7 @@ public class AgentsLists {
         private final List<AgentAndStatus> list = new ArrayList<>();
 
 
-        Builder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
+        Builder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory, AgentsList.SortBy sortBy) {
             this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
             this.filter = Objects.requireNonNull(filter, "filter");
             this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
@@ -103,8 +105,8 @@ public class AgentsLists {
         }
 
         public void merge(AgentsLists applicationAgentList) {
-            for (AgentsList agentsList : applicationAgentList.getApplicationAgentLists()) {
-                for (AgentStatusAndLink agent : agentsList.getAgentStatusAndLinks()) {
+            for (AgentsList<AgentStatusAndLink> agentsList : applicationAgentList.getApplicationAgentLists()) {
+                for (AgentStatusAndLink agent : agentsList.getInformableAgents()) {
                     add(new AgentAndStatus(agent.getAgentInfo(), agent.getStatus()));
                 }
             }
@@ -124,7 +126,7 @@ public class AgentsLists {
             }
         }
 
-        private List<AgentsList> groupByApplicationName(List<AgentAndStatus> list) {
+        private List<AgentsList<AgentStatusAndLink>> groupByApplicationName(List<AgentAndStatus> list) {
             return groupBy0(list, this::byApplicationName);
         }
 
@@ -132,7 +134,7 @@ public class AgentsLists {
             return agentAndStatus.getAgentInfo().getApplicationName();
         }
 
-        private List<AgentsList> groupBy0(List<AgentAndStatus> list, Function<AgentAndStatus, String> groupBy) {
+        private List<AgentsList<AgentStatusAndLink>> groupBy0(List<AgentAndStatus> list, Function<AgentAndStatus, String> groupBy) {
             Stream<AgentAndStatus> stream = openStream(list);
             // groupby
             Map<String, List<AgentAndStatus>> map = stream.collect(Collectors.groupingBy(groupBy));
@@ -144,22 +146,28 @@ public class AgentsLists {
             return list.stream().filter(filter::filter);
         }
 
-        private List<AgentsList> groupByHostName(List<AgentAndStatus> agentList) {
-            List<AgentAndStatus> filteredContainerList = filter(agentList, agentAndStatus -> agentAndStatus.getAgentInfo().isContainer());
+        private List<AgentsList<AgentStatusAndLink>> groupByHostName(List<AgentAndStatus> agentList) {
+            List<AgentsList<AgentStatusAndLink>> containerAppList = containerList(agentList);
+            List<AgentsList<AgentStatusAndLink>> applicationGroup = nonContainerList(agentList);
+            return ListUtils.union(containerAppList, applicationGroup);
+        }
 
-            List<AgentStatusAndLink> containerList = filteredContainerList.stream()
+        private List<AgentsList<AgentStatusAndLink>> containerList(List<AgentAndStatus> agentAndStatusList) {
+            List<AgentAndStatus> filteredContainerList = filter(agentAndStatusList, agentAndStatus -> agentAndStatus.getAgentInfo().isContainer());
+
+            List<InformableAgent> containerList = filteredContainerList.stream()
                     .map(this::newAgentInfoAndLink)
                     .collect(Collectors.toList());
-            AgentsList containerAppList = new AgentsList(CONTAINER, containerList, AgentsList.SortBy.LAST_STARTED_TIME);
-
-            List<AgentAndStatus> nonContainerList = filter(agentList, agentAndStatus -> !agentAndStatus.getAgentInfo().isContainer());
-
-            List<AgentsList> applicationGroup = groupBy0(nonContainerList, this::byHostName);
-
-            if (containerAppList.getAgentStatusAndLinks().isEmpty()) {
-                return applicationGroup;
+            AgentsList<AgentStatusAndLink> containerAppList = new AgentsList(CONTAINER, containerList, AgentsList.SortBy.LAST_STARTED_TIME);
+            if (containerAppList.getInformableAgents().isEmpty()) {
+                return Collections.<AgentsList<AgentStatusAndLink>>emptyList();
             }
-            return ListUtils.union(List.of(containerAppList), applicationGroup);
+            return List.of(containerAppList);
+        }
+
+        private List<AgentsList<AgentStatusAndLink>> nonContainerList(List<AgentAndStatus> agentAndStatusList) {
+            List<AgentAndStatus> nonContainerList = filter(agentAndStatusList, agentAndStatus -> !agentAndStatus.getAgentInfo().isContainer());
+            return groupBy0(nonContainerList, this::byHostName);
         }
 
         private String byHostName(AgentAndStatus agentAndStatus) {
@@ -172,7 +180,7 @@ public class AgentsLists {
                     .collect(Collectors.toList());
         }
 
-        private List<AgentsList> toApplicationAgentList(Map<String, List<AgentAndStatus>> map, AgentsList.SortBy sortBy) {
+        private List<AgentsList<AgentStatusAndLink>> toApplicationAgentList(Map<String, List<AgentAndStatus>> map, AgentsList.SortBy sortBy) {
             return map.entrySet()
                     .stream()
                     .sorted(Map.Entry.comparingByKey())
@@ -181,13 +189,13 @@ public class AgentsLists {
         }
 
 
-        private AgentsList newApplicationAgentList(Map.Entry<String, List<AgentAndStatus>> entry, AgentsList.SortBy sortBy) {
+        private AgentsList<AgentStatusAndLink> newApplicationAgentList(Map.Entry<String, List<AgentAndStatus>> entry, AgentsList.SortBy sortBy) {
             String key = entry.getKey();
-            List<AgentStatusAndLink> list = entry.getValue()
+            List<AgentStatusAndLink> informableAgents = entry.getValue()
                     .stream()
                     .map(this::newAgentInfoAndLink)
                     .collect(Collectors.toList());
-            return new AgentsList(key, list, sortBy);
+            return new AgentsList<>(key, informableAgents, sortBy);
         }
 
         private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
