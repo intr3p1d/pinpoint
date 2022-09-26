@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
+import com.navercorp.pinpoint.web.vo.AgentsListMap;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
@@ -80,13 +81,13 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
-    public AgentsLists getAgentList(@RequestParam("application") String applicationName) {
+    public AgentsListMap getAgentList(@RequestParam("application") String applicationName) {
         long timestamp = System.currentTimeMillis();
         return getAgentList(applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
-    public AgentsLists getAgentList(
+    public AgentsListMap getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -94,17 +95,17 @@ public class AgentInfoController {
                 new DefaultAgentInfoFilter(from)
         );
         long timestamp = to;
-        return this.agentInfoService.getApplicationAgentsList(AgentsLists.GroupBy.HOST_NAME, currentRunnedFilter, applicationName, timestamp);
+        return this.agentInfoService.getInspectorAgentsLists(currentRunnedFilter, applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
-    public AgentsLists getAgentList(
+    public AgentsListMap getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
-        return this.agentInfoService.getApplicationAgentsList(AgentsLists.GroupBy.HOST_NAME, runningAgentFilter, applicationName, timestamp);
+        return this.agentInfoService.getInspectorAgentsLists(runningAgentFilter, applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentInfo")

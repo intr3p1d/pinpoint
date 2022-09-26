@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
+import com.navercorp.pinpoint.web.vo.AgentsListMap;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -120,15 +121,30 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(applicationName, "applicationName");
 
         AgentsLists.Builder builder = AgentsLists.newBuilder(groupBy, filter, hyperLinkFactory);
-        Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, timestamp);
-        if (agentInfoAnsStatuss.isEmpty()) {
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
             return builder.build();
         }
-        builder.addAll(agentInfoAnsStatuss);
+        builder.addAll(agentInfoAndStatuses);
         if (logger.isDebugEnabled()) {
             logger.debug("getApplicationAgentsList={}", builder);
         }
+        return builder.build();
+    }
+
+    @Override
+    public AgentsListMap getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp) {
+        Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(applicationName, "applicationName");
+
+        AgentsListMap.Builder builder = AgentsListMap.newBuilder(filter);
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfoAndStatuses.isEmpty()) {
+            logger.warn("agent list is empty for application:{}", applicationName);
+        }
+        builder.addAll(agentInfoAndStatuses);
+        logger.debug("getApplicationAgentsList={}", builder);
         return builder.build();
     }
 
@@ -322,7 +338,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
         Objects.requireNonNull(agentId, "agentId");
-        
+
         return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
     }
 
@@ -348,7 +364,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public boolean isActiveAgent(String agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
-        
+
         boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
         if (dataExists) {
             return true;
