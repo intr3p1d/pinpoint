@@ -10,11 +10,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class InspectorAgentsListMapTest {
+public class AgentsMapByHostnameTest {
 
     @Test
     public void groupByHostNameShouldHaveContainersFirstAndGroupedSeparatelyByAgentStartTimestampDescendingOrder() {
-        InspectorAgentsListMap.Builder builder = InspectorAgentsListMap.newBuilder(AgentInfoFilter::accept);
+        AgentsMapByHostname.Builder builder = AgentsMapByHostname.newBuilder(AgentInfoFilter::accept);
         AgentAndStatus host1Agent1 = createAgentInfo("APP_1", "host1-agent1", "Host1", false);
         AgentAndStatus host2Agent1 = createAgentInfo("APP_1", "host2-agent1", "Host2", false);
         AgentAndStatus containerAgent1 = createAgentInfo("APP_1", "container-agent1", "Host3", true, 1);
@@ -26,7 +26,7 @@ public class InspectorAgentsListMapTest {
         Assertions.assertEquals(3, agentsLists.size());
 
         AgentsList<AgentAndStatus> containerAgentsList = agentsLists.get(0);
-        Assertions.assertEquals(InspectorAgentsListMap.Builder.CONTAINER, containerAgentsList.getGroupName());
+        Assertions.assertEquals(AgentsMapByHostname.Builder.CONTAINER, containerAgentsList.getGroupName());
         List<AgentAndStatus> containerAgents = containerAgentsList.getAgentSuppliersList();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(0).getAgentInfo());
@@ -53,9 +53,9 @@ public class InspectorAgentsListMapTest {
         AgentAndStatus containerAgent2 = createAgentInfo("APP_1", "container-agent2", "Host4", true, 2);
         List<AgentAndStatus> agentInfos = shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2);
 
-        InspectorAgentsListMap.Builder builder1 = InspectorAgentsListMap.newBuilder(AgentInfoFilter::accept);
+        AgentsMapByHostname.Builder builder1 = AgentsMapByHostname.newBuilder(AgentInfoFilter::accept);
         builder1.addAll(agentInfos.subList(0, agentInfos.size() / 2));
-        InspectorAgentsListMap.Builder builder2 = InspectorAgentsListMap.newBuilder(AgentInfoFilter::accept);
+        AgentsMapByHostname.Builder builder2 = AgentsMapByHostname.newBuilder(AgentInfoFilter::accept);
         builder2.addAll(agentInfos.subList(agentInfos.size() / 2, agentInfos.size()));
 
         builder1.merge(builder2.build());
@@ -64,7 +64,7 @@ public class InspectorAgentsListMapTest {
         Assertions.assertEquals(3, agentsLists.size());
 
         AgentsList<AgentAndStatus> containerAgentsList = agentsLists.get(0);
-        Assertions.assertEquals(InspectorAgentsListMap.Builder.CONTAINER, containerAgentsList.getGroupName());
+        Assertions.assertEquals(AgentsMapByHostname.Builder.CONTAINER, containerAgentsList.getGroupName());
         List<AgentAndStatus> containerAgents = containerAgentsList.getAgentSuppliersList();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(0).getAgentInfo());

@@ -14,12 +14,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class InspectorAgentsListMap {
+public class AgentsMapByHostname {
 
     @JsonValue
     private final AgentsListMap<AgentAndStatus> maplist;
 
-    public InspectorAgentsListMap(AgentsListMap<AgentAndStatus> maplist) {
+    public AgentsMapByHostname(AgentsListMap<AgentAndStatus> maplist) {
         this.maplist = Objects.requireNonNull(maplist, "maplist");
     }
 
@@ -54,7 +54,7 @@ public class InspectorAgentsListMap {
             }
         }
 
-        public void merge(InspectorAgentsListMap applicationAgentList) {
+        public void merge(AgentsMapByHostname applicationAgentList) {
             for (AgentsList<AgentAndStatus> agentsList : applicationAgentList.getApplicationAgentLists()) {
                 for (AgentAndStatus agent : agentsList.getAgentSuppliersList()) {
                     add(agent);
@@ -62,11 +62,11 @@ public class InspectorAgentsListMap {
             }
         }
 
-        public InspectorAgentsListMap build() {
+        public AgentsMapByHostname build() {
             if (list.isEmpty()) {
-                return new InspectorAgentsListMap(AgentsListMap.emptyMap());
+                return new AgentsMapByHostname(AgentsListMap.emptyMap());
             }
-            return new InspectorAgentsListMap(groupByHostName(list));
+            return new AgentsMapByHostname(groupByHostName(list));
         }
 
         private AgentsListMap<AgentAndStatus> groupByHostName(List<AgentAndStatus> agentList) {

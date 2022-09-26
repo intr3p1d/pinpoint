@@ -18,12 +18,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class AnalysisAgentsList {
+public class AgentsMapByApplication {
 
     @JsonValue
     private final AgentsListMap<AgentStatusAndLink> maplist;
 
-    public AnalysisAgentsList(AgentsListMap<AgentStatusAndLink> maplist) {
+    public AgentsMapByApplication(AgentsListMap<AgentStatusAndLink> maplist) {
         this.maplist = Objects.requireNonNull(maplist, "maplist");
     }
 
@@ -31,8 +31,8 @@ public class AnalysisAgentsList {
         return new ArrayList<>(maplist.getListmap().values());
     }
 
-    public static AnalysisAgentsList.Builder newBuilder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
-        return new AnalysisAgentsList.Builder(filter, hyperLinkFactory);
+    public static AgentsMapByApplication.Builder newBuilder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
+        return new AgentsMapByApplication.Builder(filter, hyperLinkFactory);
     }
 
 
@@ -69,7 +69,7 @@ public class AnalysisAgentsList {
             }
         }
 
-        public void merge(AnalysisAgentsList applicationAgentList) {
+        public void merge(AgentsMapByApplication applicationAgentList) {
             for (AgentsList<AgentStatusAndLink> agentsList : applicationAgentList.getApplicationAgentLists()) {
                 for (AgentStatusAndLink agent : agentsList.getAgentSuppliersList()) {
                     add(new AgentAndStatus(agent.getAgentInfo(), agent.getStatus()));
@@ -77,11 +77,11 @@ public class AnalysisAgentsList {
             }
         }
 
-        public AnalysisAgentsList build() {
+        public AgentsMapByApplication build() {
             if (list.isEmpty()) {
-                return new AnalysisAgentsList(AgentsListMap.emptyMap());
+                return new AgentsMapByApplication(AgentsListMap.emptyMap());
             }
-            return new AnalysisAgentsList(groupByApplicationName(list));
+            return new AgentsMapByApplication(groupByApplicationName(list));
         }
 
         private AgentsListMap<AgentStatusAndLink> groupByApplicationName(List<AgentAndStatus> list) {

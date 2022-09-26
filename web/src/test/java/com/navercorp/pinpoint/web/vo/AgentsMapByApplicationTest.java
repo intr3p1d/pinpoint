@@ -12,13 +12,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AnalysisAgentsListTest {
+public class AgentsMapByApplicationTest {
 
     private final HyperLinkFactory hyperLinkFactory = HyperLinkFactory.empty();
 
     @Test
     public void groupByApplicationName() {
-        AnalysisAgentsList.Builder builder = AnalysisAgentsList.newBuilder(AgentInfoFilter::accept, hyperLinkFactory);
+        AgentsMapByApplication.Builder builder = AgentsMapByApplication.newBuilder(AgentInfoFilter::accept, hyperLinkFactory);
         AgentAndStatus app1Agent1 = createAgentInfo("APP_1", "app1-agent1", "Host11", true);
         AgentAndStatus app1Agent2 = createAgentInfo("APP_1", "app1-agent2", "Host12", false);
         AgentAndStatus app2Agent1 = createAgentInfo("APP_2", "app2-agent1", "Host21", false);

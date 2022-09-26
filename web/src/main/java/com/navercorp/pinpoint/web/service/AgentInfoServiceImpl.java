@@ -29,10 +29,10 @@ import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.AnalysisAgentsList;
+import com.navercorp.pinpoint.web.vo.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.InspectorAgentsListMap;
+import com.navercorp.pinpoint.web.vo.AgentsMapByHostname;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -102,10 +102,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AnalysisAgentsList getAllAgentsList(AgentInfoFilter filter, long timestamp) {
+    public AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, long timestamp) {
         Objects.requireNonNull(filter, "filter");
 
-        AnalysisAgentsList.Builder builder = AnalysisAgentsList.newBuilder(filter, hyperLinkFactory);
+        AgentsMapByApplication.Builder builder = AgentsMapByApplication.newBuilder(filter, hyperLinkFactory);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
             builder.merge(getAgentsList(filter, application.getName(), timestamp));
@@ -113,11 +113,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return builder.build();
     }
 
-    public AnalysisAgentsList getAgentsList(AgentInfoFilter filter, String applicationName, long timestamp) {
+    public AgentsMapByApplication getAgentsList(AgentInfoFilter filter, String applicationName, long timestamp) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        AnalysisAgentsList.Builder builder = AnalysisAgentsList.newBuilder(filter, hyperLinkFactory);
+        AgentsMapByApplication.Builder builder = AgentsMapByApplication.newBuilder(filter, hyperLinkFactory);
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
@@ -128,11 +128,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public InspectorAgentsListMap getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp) {
+    public AgentsMapByHostname getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        InspectorAgentsListMap.Builder builder = InspectorAgentsListMap.newBuilder(filter);
+        AgentsMapByHostname.Builder builder = AgentsMapByHostname.newBuilder(filter);
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);

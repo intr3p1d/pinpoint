@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.AnalysisAgentsList;
-import com.navercorp.pinpoint.web.vo.InspectorAgentsListMap;
+import com.navercorp.pinpoint.web.vo.AgentsMapByApplication;
+import com.navercorp.pinpoint.web.vo.AgentsMapByHostname;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
@@ -60,13 +60,13 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application"})
-    public AnalysisAgentsList getAgentList() {
+    public AgentsMapByApplication getAgentList() {
         long timestamp = System.currentTimeMillis();
         return getAgentList(timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application", "from", "to"})
-    public AnalysisAgentsList getAgentList(
+    public AgentsMapByApplication getAgentList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
@@ -75,19 +75,19 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
-    public AnalysisAgentsList getAgentList(
+    public AgentsMapByApplication getAgentList(
             @RequestParam("timestamp") long timestamp) {
         return this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
-    public InspectorAgentsListMap getAgentList(@RequestParam("application") String applicationName) {
+    public AgentsMapByHostname getAgentList(@RequestParam("application") String applicationName) {
         long timestamp = System.currentTimeMillis();
         return getAgentList(applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
-    public InspectorAgentsListMap getAgentList(
+    public AgentsMapByHostname getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -99,7 +99,7 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
-    public InspectorAgentsListMap getAgentList(
+    public AgentsMapByHostname getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
