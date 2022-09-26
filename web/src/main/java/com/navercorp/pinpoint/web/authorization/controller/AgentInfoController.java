@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
-import com.navercorp.pinpoint.web.vo.AgentsListMap;
+import com.navercorp.pinpoint.web.vo.InspectorAgentsListMap;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
@@ -81,13 +81,13 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
-    public AgentsListMap getAgentList(@RequestParam("application") String applicationName) {
+    public InspectorAgentsListMap getAgentList(@RequestParam("application") String applicationName) {
         long timestamp = System.currentTimeMillis();
         return getAgentList(applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
-    public AgentsListMap getAgentList(
+    public InspectorAgentsListMap getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -99,7 +99,7 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
-    public AgentsListMap getAgentList(
+    public InspectorAgentsListMap getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(

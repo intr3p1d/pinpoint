@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
-import com.navercorp.pinpoint.web.vo.AgentsListMap;
+import com.navercorp.pinpoint.web.vo.InspectorAgentsListMap;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -134,11 +134,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsListMap getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp) {
+    public InspectorAgentsListMap getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        AgentsListMap.Builder builder = AgentsListMap.newBuilder(filter);
+        InspectorAgentsListMap.Builder builder = InspectorAgentsListMap.newBuilder(filter);
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);

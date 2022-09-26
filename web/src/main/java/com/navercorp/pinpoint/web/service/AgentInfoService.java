@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
-import com.navercorp.pinpoint.web.vo.AgentsListMap;
+import com.navercorp.pinpoint.web.vo.InspectorAgentsListMap;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -44,7 +44,7 @@ public interface AgentInfoService {
 
     AgentsLists getApplicationAgentsList(AgentsLists.GroupBy key, AgentInfoFilter filter, String applicationName, long timestamp);
 
-    AgentsListMap getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp);
+    InspectorAgentsListMap getInspectorAgentsLists(AgentInfoFilter filter, String applicationName, long timestamp);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 
