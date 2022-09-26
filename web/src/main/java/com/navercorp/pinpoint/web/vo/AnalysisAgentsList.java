@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.vo;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
@@ -12,22 +13,21 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AnalysisAgentsList {
 
-    private final List<AgentsList<AgentStatusAndLink>> list;
+    @JsonValue
+    private final AgentsListMap<AgentStatusAndLink> maplist;
 
-    public AnalysisAgentsList(List<AgentsList<AgentStatusAndLink>> list) {
-        this.list = Objects.requireNonNull(list, "list");
+    public AnalysisAgentsList(AgentsListMap<AgentStatusAndLink> maplist) {
+        this.maplist = Objects.requireNonNull(maplist, "maplist");
     }
 
     public List<AgentsList<AgentStatusAndLink>> getApplicationAgentLists() {
-        return list;
+        return new ArrayList<>(maplist.getListmap().values());
     }
 
     public static AnalysisAgentsList.Builder newBuilder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
@@ -38,7 +38,7 @@ public class AnalysisAgentsList {
     @Override
     public String toString() {
         return "AgentsLists{" +
-                "list=" + list +
+                "list=" + maplist +
                 '}';
     }
 
@@ -68,7 +68,7 @@ public class AnalysisAgentsList {
             }
         }
 
-        public void merge(AgentsLists applicationAgentList) {
+        public void merge(AnalysisAgentsList applicationAgentList) {
             for (AgentsList<AgentStatusAndLink> agentsList : applicationAgentList.getApplicationAgentLists()) {
                 for (AgentStatusAndLink agent : agentsList.getAgentSuppliersList()) {
                     add(new AgentAndStatus(agent.getAgentInfo(), agent.getStatus()));
@@ -76,48 +76,26 @@ public class AnalysisAgentsList {
             }
         }
 
-        public AgentsLists build() {
+        public AnalysisAgentsList build() {
             if (list.isEmpty()) {
-                return new AgentsLists(List.of());
+                return new AnalysisAgentsList(AgentsListMap.emptyMap());
             }
-            return new AgentsLists(groupByApplicationName(list));
+            return new AnalysisAgentsList(groupByApplicationName(list));
         }
 
-        private List<AgentsList<AgentStatusAndLink>> groupByApplicationName(List<AgentAndStatus> list) {
-            return groupBy0(list, this::byApplicationName);
-        }
-
-        private String byApplicationName(AgentAndStatus agentAndStatus) {
-            return agentAndStatus.getAgentInfo().getApplicationName();
-        }
-
-        private List<AgentsList<AgentStatusAndLink>> groupBy0(List<AgentAndStatus> list, Function<AgentAndStatus, String> groupBy) {
+        private AgentsListMap<AgentStatusAndLink> groupByApplicationName(List<AgentAndStatus> list) {
             Stream<AgentAndStatus> stream = openStream(list);
-            Map<String, List<AgentAndStatus>> map = stream.collect(Collectors.groupingBy(groupBy));
+            List<AgentStatusAndLink> agentStatusAndLinks = stream.map(this::newAgentInfoAndLink).collect(Collectors.toList());
 
-            return toApplicationAgentList(map, AgentsList.SortBy.AGENT_ID_ASCENDING);
+            return AgentsListMap.newAgentsListMap(agentStatusAndLinks, this::byApplicationName, AgentsList.SortBy.AGENT_ID_ASCENDING);
+        }
+
+        private String byApplicationName(AgentStatusAndLink agentStatusAndLink) {
+            return agentStatusAndLink.getAgentInfo().getApplicationName();
         }
 
         private Stream<AgentAndStatus> openStream(List<AgentAndStatus> list) {
             return list.stream().filter(filter::filter);
-        }
-
-        private List<AgentsList<AgentStatusAndLink>> toApplicationAgentList(Map<String, List<AgentAndStatus>> map, AgentsList.SortBy sortBy) {
-            return map.entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .map(ele -> this.newApplicationAgentList(ele, sortBy))
-                    .collect(Collectors.toList());
-        }
-
-
-        private AgentsList<AgentStatusAndLink> newApplicationAgentList(Map.Entry<String, List<AgentAndStatus>> entry, AgentsList.SortBy sortBy) {
-            String key = entry.getKey();
-            List<AgentStatusAndLink> informableAgents = entry.getValue()
-                    .stream()
-                    .map(this::newAgentInfoAndLink)
-                    .collect(Collectors.toList());
-            return new AgentsList<>(key, informableAgents, sortBy);
         }
 
         private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {

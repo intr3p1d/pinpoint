@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
+import com.navercorp.pinpoint.web.vo.AnalysisAgentsList;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.AgentsLists;
@@ -139,6 +140,32 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(applicationName, "applicationName");
 
         InspectorAgentsListMap.Builder builder = InspectorAgentsListMap.newBuilder(filter);
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfoAndStatuses.isEmpty()) {
+            logger.warn("agent list is empty for application:{}", applicationName);
+        }
+        builder.addAll(agentInfoAndStatuses);
+        logger.debug("getApplicationAgentsList={}", builder);
+        return builder.build();
+    }
+
+    @Override
+    public AnalysisAgentsList getAllAgentsList(AgentInfoFilter filter, long timestamp) {
+        Objects.requireNonNull(filter, "filter");
+
+        AnalysisAgentsList.Builder builder = AnalysisAgentsList.newBuilder(filter, hyperLinkFactory);
+        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        for (Application application : applications) {
+            builder.merge(getAgentsList(filter, application.getName(), timestamp));
+        }
+        return builder.build();
+    }
+
+    public AnalysisAgentsList getAgentsList(AgentInfoFilter filter, String applicationName, long timestamp) {
+        Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(applicationName, "applicationName");
+
+        AnalysisAgentsList.Builder builder = AnalysisAgentsList.newBuilder(filter, hyperLinkFactory);
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
