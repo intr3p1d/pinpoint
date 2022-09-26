@@ -13,15 +13,15 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AgentsListMap<T extends AgentInfoSupplier> {
 
     @JsonValue
     private final SortedMap<String, AgentsList<T>> listmap;
 
-
-    private AgentsListMap(SortedMap<String, AgentsList<T>> maplist) {
-        this.listmap = Objects.requireNonNull(maplist, "listmap");
+    private AgentsListMap(SortedMap<String, AgentsList<T>> listmap) {
+        this.listmap = Objects.requireNonNull(listmap, "listmap");
     }
 
     public static <T extends AgentInfoSupplier> AgentsListMap<T> newAgentsListMap(Collection<T> collection,
@@ -50,12 +50,20 @@ public class AgentsListMap<T extends AgentInfoSupplier> {
         return listmap;
     }
 
-    public void put(String key, AgentsList<T> value) {
-        listmap.put(key, value);
-    }
+    public static <T extends AgentInfoSupplier> AgentsListMap<T> merge(AgentsListMap<T> map1, AgentsListMap<T> map2, Comparator<String> keyComparator) {
+        Stream<Map.Entry<String, AgentsList<T>>> stream1 = map1.getListmap().entrySet().stream();
+        Stream<Map.Entry<String, AgentsList<T>>> stream2 = map2.getListmap().entrySet().stream();
+        Stream<Map.Entry<String, AgentsList<T>>> mergedStream = Stream.concat(stream1, stream2);
 
-    public void putAll(AgentsListMap<T> agentsListMap) {
-        Map<? extends java.lang.String, ? extends AgentsList<T>> map = agentsListMap.getListmap();
-        listmap.putAll(map);
+        SortedMap<String, AgentsList<T>> agentsListMap = mergedStream.collect(
+                Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (v1, v2) -> v2,
+                        () -> new TreeMap<>(keyComparator)
+                )
+        );
+
+        return new AgentsListMap<>(agentsListMap);
     }
 }

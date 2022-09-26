@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +41,7 @@ public class AgentsList<T extends AgentInfoSupplier> {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
         Objects.requireNonNull(sortBy, "sortBy");
         Objects.requireNonNull(agentSuppliersList, "informableAgents");
-        this.agentSuppliersList = sort(sortBy, agentSuppliersList);
+        this.agentSuppliersList = Collections.unmodifiableList(sort(sortBy, agentSuppliersList));
     }
 
     private List<T> sort(SortBy sortBy, List<T> agentSuppliersList) {

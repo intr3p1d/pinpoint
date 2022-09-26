@@ -70,11 +70,9 @@ public class AgentsMapByHostname {
         }
 
         private AgentsListMap<AgentAndStatus> groupByHostName(List<AgentAndStatus> agentList) {
-
             AgentsListMap<AgentAndStatus> containerAppList = containerList(agentList);
             AgentsListMap<AgentAndStatus> applicationGroup = nonContainerList(agentList);
-            applicationGroup.putAll(containerAppList);  // FIXME -> merge?
-            return applicationGroup;
+            return AgentsListMap.merge(containerAppList, applicationGroup, containerGoesUp());
         }
 
         private AgentsListMap<AgentAndStatus> containerList(List<AgentAndStatus> agentInfoList) {
@@ -83,7 +81,7 @@ public class AgentsMapByHostname {
                 return AgentsListMap.emptyMap();
             }
 
-            return AgentsListMap.<AgentAndStatus>newAgentsListMap(
+            return AgentsListMap.newAgentsListMap(
                     filteredContainerList,
                     ele -> CONTAINER,
                     containerGoesUp(),
@@ -95,7 +93,12 @@ public class AgentsMapByHostname {
             List<AgentAndStatus> nonContainerList = filter(agentAndStatusList, agentAndStatus -> !agentAndStatus.getAgentInfo().isContainer());
             Function<AgentAndStatus, String> hostnameClassifier = (agentInfoSupplier -> agentInfoSupplier.getAgentInfo().getHostName());
 
-            return AgentsListMap.newAgentsListMap(nonContainerList, hostnameClassifier, containerGoesUp(), AgentsList.SortBy.AGENT_ID_ASCENDING);
+            return AgentsListMap.newAgentsListMap(
+                    nonContainerList,
+                    hostnameClassifier,
+                    containerGoesUp(),
+                    AgentsList.SortBy.AGENT_ID_ASCENDING
+            );
         }
 
         private Comparator<String> containerGoesUp() {
