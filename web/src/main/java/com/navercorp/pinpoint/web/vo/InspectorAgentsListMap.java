@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -85,6 +86,7 @@ public class InspectorAgentsListMap {
             return AgentsListMap.<AgentAndStatus>newAgentsListMap(
                     filteredContainerList,
                     ele -> CONTAINER,
+                    containerGoesUp(),
                     AgentsList.SortBy.LAST_STARTED_TIME
             );
         }
@@ -93,7 +95,12 @@ public class InspectorAgentsListMap {
             List<AgentAndStatus> nonContainerList = filter(agentAndStatusList, agentAndStatus -> !agentAndStatus.getAgentInfo().isContainer());
             Function<AgentAndStatus, String> hostnameClassifier = (agentInfoSupplier -> agentInfoSupplier.getAgentInfo().getHostName());
 
-            return AgentsListMap.newAgentsListMap(nonContainerList, hostnameClassifier, AgentsList.SortBy.AGENT_ID_ASCENDING);
+            return AgentsListMap.newAgentsListMap(nonContainerList, hostnameClassifier, containerGoesUp(), AgentsList.SortBy.AGENT_ID_ASCENDING);
+        }
+
+        private Comparator<String> containerGoesUp() {
+            return Comparator.comparing((String s) -> !s.equals(CONTAINER))
+                    .thenComparing(Comparator.naturalOrder());
         }
 
         private List<AgentAndStatus> filter(List<AgentAndStatus> agentList, Predicate<AgentAndStatus> filter) {

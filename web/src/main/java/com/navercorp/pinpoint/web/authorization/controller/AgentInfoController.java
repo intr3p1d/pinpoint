@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.AgentsLists;
 import com.navercorp.pinpoint.web.vo.AnalysisAgentsList;
 import com.navercorp.pinpoint.web.vo.InspectorAgentsListMap;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;

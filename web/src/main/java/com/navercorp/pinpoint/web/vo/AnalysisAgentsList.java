@@ -12,6 +12,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class AnalysisAgentsList {
             Stream<AgentAndStatus> stream = openStream(list);
             List<AgentStatusAndLink> agentStatusAndLinks = stream.map(this::newAgentInfoAndLink).collect(Collectors.toList());
 
-            return AgentsListMap.newAgentsListMap(agentStatusAndLinks, this::byApplicationName, AgentsList.SortBy.AGENT_ID_ASCENDING);
+            return AgentsListMap.newAgentsListMap(agentStatusAndLinks, this::byApplicationName, Comparator.naturalOrder(), AgentsList.SortBy.AGENT_ID_ASCENDING);
         }
 
         private String byApplicationName(AgentStatusAndLink agentStatusAndLink) {
