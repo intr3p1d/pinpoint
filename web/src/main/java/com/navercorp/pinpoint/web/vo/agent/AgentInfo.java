@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-public class AgentInfo implements AgentInfoSupplier {
+public class AgentInfo {
 
     private String applicationName;
     private String agentId;
@@ -42,12 +42,6 @@ public class AgentInfo implements AgentInfoSupplier {
     private boolean container;
 
     public AgentInfo() {
-    }
-
-    @Override
-    @JsonIgnore
-    public AgentInfo getAgentInfo() {
-        return this;
     }
 
     public String getApplicationName() {
