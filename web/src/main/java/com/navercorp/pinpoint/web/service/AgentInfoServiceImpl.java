@@ -118,7 +118,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        AgentsMapByHost.Builder builder = AgentsMapByHost.newBuilder(filter);
+        AgentsMapByHost.Builder builder = AgentsMapByHost.newBuilder(filter, hyperLinkFactory);
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);

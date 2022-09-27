@@ -1,7 +1,13 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.navercorp.pinpoint.web.hyperlink.HyperLink;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 
 import java.util.ArrayList;
@@ -18,18 +24,18 @@ import java.util.stream.Stream;
 public class AgentsMapByHost {
 
     @JsonValue
-    private final AgentsListMap<AgentAndStatus> agentsListMap;
+    private final AgentsListMap<AgentStatusAndLink> agentsListMap;
 
-    public AgentsMapByHost(AgentsListMap<AgentAndStatus> agentsListMap) {
+    public AgentsMapByHost(AgentsListMap<AgentStatusAndLink> agentsListMap) {
         this.agentsListMap = Objects.requireNonNull(agentsListMap, "agentsListMap");
     }
 
-    public List<AgentsList<AgentAndStatus>> getAgentsListsList() {
+    public List<AgentsList<AgentStatusAndLink>> getAgentsListsList() {
         return new ArrayList<>(agentsListMap.getListMap().values());
     }
 
-    public static Builder newBuilder(AgentInfoFilter filter) {
-        return new Builder(filter);
+    public static Builder newBuilder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
+        return new Builder(filter, hyperLinkFactory);
     }
 
     @Override
@@ -43,12 +49,14 @@ public class AgentsMapByHost {
         public static final String CONTAINER = "Container";
 
         private final AgentInfoFilter filter;
+        private final HyperLinkFactory hyperLinkFactory;
         private final List<AgentAndStatus> list = new ArrayList<>();
 
         private AgentsList.SortBy sortByOptional = null;
 
-        Builder(AgentInfoFilter filter) {
+        Builder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
             this.filter = Objects.requireNonNull(filter, "filter");
+            this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         }
 
         public void add(AgentAndStatus agentInfo) {
@@ -74,15 +82,16 @@ public class AgentsMapByHost {
             return new AgentsMapByHost(groupByHost(list));
         }
 
-        private AgentsListMap<AgentAndStatus> groupByHost(List<AgentAndStatus> agentList) {
-            AgentsListMap<AgentAndStatus> containerListMap = containerList(agentList);
-            AgentsListMap<AgentAndStatus> nonContainerListMap = nonContainerList(agentList);
+        private AgentsListMap<AgentStatusAndLink> groupByHost(List<AgentAndStatus> agentList) {
+            AgentsListMap<AgentStatusAndLink> containerListMap = containerList(agentList);
+            AgentsListMap<AgentStatusAndLink> nonContainerListMap = nonContainerList(agentList);
             return AgentsListMap.merge(containerListMap, nonContainerListMap, containerGoesUp());
         }
 
-        private AgentsListMap<AgentAndStatus> containerList(List<AgentAndStatus> agentInfoList) {
-            List<AgentAndStatus> containerList = filter(agentInfoList, agentInfo -> agentInfo.getAgentInfo().isContainer());
-            Function<AgentAndStatus, String> alwaysContainer = (agentInfoSupplier -> CONTAINER);
+        private AgentsListMap<AgentStatusAndLink> containerList(List<AgentAndStatus> agentInfoList) {
+            List<AgentAndStatus> containers = filter(agentInfoList, agentInfo -> agentInfo.getAgentInfo().isContainer());
+            List<AgentStatusAndLink> containerList = toAgentsStatusAndLinksList(containers.stream());
+            Function<AgentStatusAndLink, String> alwaysContainer = (agentInfoSupplier -> CONTAINER);
 
             return AgentsListMap.newAgentsListMap(
                     containerList,
@@ -92,9 +101,10 @@ public class AgentsMapByHost {
             );
         }
 
-        private AgentsListMap<AgentAndStatus> nonContainerList(List<AgentAndStatus> agentAndStatusList) {
-            List<AgentAndStatus> nonContainerList = filter(agentAndStatusList, agentAndStatus -> !agentAndStatus.getAgentInfo().isContainer());
-            Function<AgentAndStatus, String> byHostname = (agentInfoSupplier -> agentInfoSupplier.getAgentInfo().getHostName());
+        private AgentsListMap<AgentStatusAndLink> nonContainerList(List<AgentAndStatus> agentAndStatusList) {
+            List<AgentAndStatus> nonContainers = filter(agentAndStatusList, agentAndStatus -> !agentAndStatus.getAgentInfo().isContainer());
+            List<AgentStatusAndLink> nonContainerList = toAgentsStatusAndLinksList(nonContainers.stream());
+            Function<AgentStatusAndLink, String> byHostname = (agentInfoSupplier -> agentInfoSupplier.getAgentInfo().getHostName());
 
             return AgentsListMap.newAgentsListMap(
                     nonContainerList,
@@ -102,6 +112,17 @@ public class AgentsMapByHost {
                     containerGoesUp(),
                     Optional.ofNullable(sortByOptional).orElse(AgentsList.SortBy.AGENT_ID_ASCENDING)
             );
+        }
+
+        private List<AgentStatusAndLink> toAgentsStatusAndLinksList(Stream<AgentAndStatus> stream) {
+            return stream.map(this::newAgentInfoAndLink).collect(Collectors.toList());
+        }
+
+        private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
+            AgentInfo agentInfo = agentAndStatus.getAgentInfo();
+            AgentStatus status = agentAndStatus.getStatus();
+            List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
+            return new AgentStatusAndLink(agentInfo, status, hyperLinks);
         }
 
         private Comparator<String> containerGoesUp() {
