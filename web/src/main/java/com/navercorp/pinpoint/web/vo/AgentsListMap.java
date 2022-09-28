@@ -23,14 +23,14 @@ public class AgentsListMap<T extends AgentInfoSupplier> {
     }
 
     public static <T extends AgentInfoSupplier> AgentsListMap<T> newAgentsListMap(Collection<T> collection,
-                                                                                  Function<T, String> keyGenerator,
+                                                                                  Function<T, String> keyExtractor,
                                                                                   Comparator<String> keyComparator,
                                                                                   AgentsList.SortBy sortBy) {
         if (collection.isEmpty()) {
             return emptyMap();
         }
 
-        Collector<T, ?, Map<String, List<T>>> collector = Collectors.groupingBy(keyGenerator);
+        Collector<T, ?, Map<String, List<T>>> collector = Collectors.groupingBy(keyExtractor);
         Map<String, List<T>> mapByGivenClassifier = collection.stream().collect(collector);
 
         List<AgentsList<T>> agentsListMap = new ArrayList<>(mapByGivenClassifier.entrySet().stream().collect(

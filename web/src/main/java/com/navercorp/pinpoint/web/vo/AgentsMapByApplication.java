@@ -16,8 +16,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Function;
 
 @JsonSerialize(using = AgentsMapByApplicationSerializer.class)
 public class AgentsMapByApplication {
@@ -44,15 +43,21 @@ public class AgentsMapByApplication {
     }
 
     public static class Builder {
+        private static final Function<AgentStatusAndLink, String> BY_APPLICATION_NAME = (AgentStatusAndLink a) -> a.getAgentInfo().getApplicationName();
+
         private final AgentInfoFilter filter;
         private final HyperLinkFactory hyperLinkFactory;
-
         private final List<AgentAndStatus> list = new ArrayList<>();
+
+
+        private final AgentsListMapBuilder<AgentAndStatus, AgentStatusAndLink> agentsListMapBuilder;
 
 
         Builder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
             this.filter = Objects.requireNonNull(filter, "filter");
             this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+
+            this.agentsListMapBuilder = new AgentsListMapBuilder<>(this.filter::filter, this::newAgentInfoAndLink);
         }
 
         public void add(AgentAndStatus agentInfoAndStatus) {
@@ -68,30 +73,11 @@ public class AgentsMapByApplication {
         }
 
         public AgentsMapByApplication build() {
-            if (list.isEmpty()) {
-                return new AgentsMapByApplication(AgentsListMap.emptyMap());
-            }
-            return new AgentsMapByApplication(groupByApplicationName(list));
-        }
-
-        private AgentsListMap<AgentStatusAndLink> groupByApplicationName(List<AgentAndStatus> list) {
-            Stream<AgentAndStatus> stream = openFilteredStream(list);
-            List<AgentStatusAndLink> agentStatusAndLinks = toAgentsStatusAndLinksList(stream);
-
-            return AgentsListMap.newAgentsListMap(
-                    agentStatusAndLinks,
-                    this::byApplicationName,
-                    Comparator.naturalOrder(),
-                    AgentsList.SortBy.AGENT_ID_ASCENDING
-            );
-        }
-
-        private Stream<AgentAndStatus> openFilteredStream(List<AgentAndStatus> list) {
-            return list.stream().filter(filter::filter);
-        }
-
-        private List<AgentStatusAndLink> toAgentsStatusAndLinksList(Stream<AgentAndStatus> stream) {
-            return stream.map(this::newAgentInfoAndLink).collect(Collectors.toList());
+            agentsListMapBuilder.withKeyExtractor(BY_APPLICATION_NAME)
+                    .withKeyComparator(Comparator.naturalOrder())
+                    .sortBy(AgentsList.SortBy.AGENT_ID_ASCENDING)
+                    .withCollection(list);
+            return new AgentsMapByApplication(agentsListMapBuilder.build());
         }
 
         private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
@@ -101,16 +87,12 @@ public class AgentsMapByApplication {
             return new AgentStatusAndLink(agentInfo, status, hyperLinks);
         }
 
-        private String byApplicationName(AgentStatusAndLink agentStatusAndLink) {
-            return agentStatusAndLink.getAgentInfo().getApplicationName();
-        }
-
         @Override
         public String toString() {
             return "Builder{" +
                     ", filter=" + filter +
                     ", hyperLinkFactory=" + hyperLinkFactory +
-                    ", agentsMap=" + list +
+                    ", agentsMap=" + agentsListMapBuilder +
                     '}';
         }
     }
