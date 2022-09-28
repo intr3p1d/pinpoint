@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
 
 import java.util.Collections;
@@ -31,10 +29,8 @@ import java.util.stream.Collectors;
  */
 public class AgentsList<T extends AgentInfoSupplier> {
 
-    @JsonIgnore
     private final String groupName;
 
-    @JsonValue
     private final List<T> agentSuppliersList;
 
     public AgentsList(String groupName, List<T> agentSuppliersList, SortBy sortBy) {

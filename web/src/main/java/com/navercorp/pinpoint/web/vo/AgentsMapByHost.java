@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.view.AgentsMapByHostSerializer;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 
@@ -15,9 +16,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@JsonSerialize(using = AgentsMapByHostSerializer.class)
 public class AgentsMapByHost {
 
-    @JsonValue
     private final AgentsListMap<AgentAndStatus> agentsListMap;
 
     public AgentsMapByHost(AgentsListMap<AgentAndStatus> agentsListMap) {
@@ -25,7 +26,7 @@ public class AgentsMapByHost {
     }
 
     public List<AgentsList<AgentAndStatus>> getAgentsListsList() {
-        return new ArrayList<>(agentsListMap.getListMap().values());
+        return new ArrayList<>(agentsListMap.getListMap());
     }
 
     public static Builder newBuilder(AgentInfoFilter filter) {
@@ -41,6 +42,8 @@ public class AgentsMapByHost {
 
     public static class Builder {
         public static final String CONTAINER = "Container";
+        private static final Comparator<String> CONTAINER_GOES_UP = Comparator.comparing((String s) -> !s.equals(CONTAINER))
+                .thenComparing(Comparator.naturalOrder());
 
         private final AgentInfoFilter filter;
         private final List<AgentAndStatus> list = new ArrayList<>();
@@ -77,7 +80,7 @@ public class AgentsMapByHost {
         private AgentsListMap<AgentAndStatus> groupByHost(List<AgentAndStatus> agentList) {
             AgentsListMap<AgentAndStatus> containerListMap = containerList(agentList);
             AgentsListMap<AgentAndStatus> nonContainerListMap = nonContainerList(agentList);
-            return AgentsListMap.merge(containerListMap, nonContainerListMap, containerGoesUp());
+            return AgentsListMap.concat(containerListMap, nonContainerListMap);
         }
 
         private AgentsListMap<AgentAndStatus> containerList(List<AgentAndStatus> agentInfoList) {
@@ -87,7 +90,7 @@ public class AgentsMapByHost {
             return AgentsListMap.newAgentsListMap(
                     containerList,
                     alwaysContainer,
-                    containerGoesUp(),
+                    CONTAINER_GOES_UP,
                     Optional.ofNullable(sortByOptional).orElse(AgentsList.SortBy.LAST_STARTED_TIME)
             );
         }
@@ -99,14 +102,9 @@ public class AgentsMapByHost {
             return AgentsListMap.newAgentsListMap(
                     nonContainerList,
                     byHostname,
-                    containerGoesUp(),
+                    CONTAINER_GOES_UP,
                     Optional.ofNullable(sortByOptional).orElse(AgentsList.SortBy.AGENT_ID_ASCENDING)
             );
-        }
-
-        private Comparator<String> containerGoesUp() {
-            return Comparator.comparing((String s) -> !s.equals(CONTAINER))
-                    .thenComparing(Comparator.naturalOrder());
         }
 
         private List<AgentAndStatus> filter(List<AgentAndStatus> agentList, Predicate<AgentAndStatus> filter) {

@@ -1,9 +1,10 @@
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
+import com.navercorp.pinpoint.web.view.AgentsMapByApplicationSerializer;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -18,9 +19,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@JsonSerialize(using = AgentsMapByApplicationSerializer.class)
 public class AgentsMapByApplication {
 
-    @JsonValue
     private final AgentsListMap<AgentStatusAndLink> agentsListMap;
 
     public AgentsMapByApplication(AgentsListMap<AgentStatusAndLink> agentsListMap) {
@@ -28,7 +29,7 @@ public class AgentsMapByApplication {
     }
 
     public List<AgentsList<AgentStatusAndLink>> getAgentsListsList() {
-        return new ArrayList<>(agentsListMap.getListMap().values());
+        return new ArrayList<>(agentsListMap.getListMap());
     }
 
     public static AgentsMapByApplication.Builder newBuilder(AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
