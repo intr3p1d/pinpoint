@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -18,14 +19,14 @@ public class AgentsMapByApplicationTest {
 
     @Test
     public void groupByApplicationName() {
-        AgentsMapByApplication.Builder builder = AgentsMapByApplication.newBuilder(AgentInfoFilter::accept, hyperLinkFactory);
         AgentAndStatus app1Agent1 = createAgentInfo("APP_1", "app1-agent1", "Host11", true);
         AgentAndStatus app1Agent2 = createAgentInfo("APP_1", "app1-agent2", "Host12", false);
         AgentAndStatus app2Agent1 = createAgentInfo("APP_2", "app2-agent1", "Host21", false);
         AgentAndStatus app2Agent2 = createAgentInfo("APP_2", "app2-agent2", "Host22", true);
-        builder.addAll(shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2));
+        List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2);
 
-        List<AgentsList<AgentStatusAndLink>> agentsLists = builder.build().getAgentsListsList();
+        AgentsMapByApplication agentsMapByApplication = AgentsMapByApplication.newAgentsMapByApplication(AgentInfoFilter::accept, hyperLinkFactory, agentAndStatusList);
+        List<AgentsList<AgentStatusAndLink>> agentsLists = agentsMapByApplication.getAgentsListsList();
 
         Assertions.assertEquals(2, agentsLists.size());
 

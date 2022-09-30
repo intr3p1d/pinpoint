@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
+import com.navercorp.pinpoint.web.vo.AgentsList;
 import com.navercorp.pinpoint.web.vo.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
@@ -105,12 +106,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, long timestamp) {
         Objects.requireNonNull(filter, "filter");
 
-        AgentsMapByApplication.Builder builder = AgentsMapByApplication.newBuilder(filter, hyperLinkFactory);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<AgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            builder.addAll(getAgentsByApplicationName(application.getName(), timestamp));
+            agents.addAll(getAgentsByApplicationName(application.getName(), timestamp));
         }
-        return builder.build();
+
+        return AgentsMapByApplication.newAgentsMapByApplication(
+                filter,
+                hyperLinkFactory,
+                agents
+        );
     }
 
     @Override
@@ -118,14 +124,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        AgentsMapByHost.Builder builder = AgentsMapByHost.newBuilder(filter);
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
         }
-        builder.addAll(agentInfoAndStatuses);
-        logger.debug("getAgentsMapByHostname={}", builder);
-        return builder.build();
+
+        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
+                AgentsList.SortBy.AGENT_ID_ASCENDING,
+                agentInfoAndStatuses);
+
+        logger.debug("getAgentsMapByHostname={}", agentsMapByHost);
+        return agentsMapByHost;
     }
 
     @Override
