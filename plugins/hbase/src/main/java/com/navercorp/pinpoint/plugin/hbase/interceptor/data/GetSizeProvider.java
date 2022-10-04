@@ -30,6 +30,6 @@ public class GetSizeProvider implements ReadSizeProvider {
     @Override
     public int getDataSize(Object param) {
         Result result = (Result) param;
-        return DataSizeUtils.sumOfCells(result.rawCells());
+        return DataSizeUtils.sizeOfResult(result);
     }
 }

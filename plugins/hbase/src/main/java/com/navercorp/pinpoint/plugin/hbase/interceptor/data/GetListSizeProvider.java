@@ -32,7 +32,7 @@ public class GetListSizeProvider implements ReadSizeProvider {
         Result[] results = (Result[]) param;
         int sizeInByte = 0;
         for (Result result : results) {
-            sizeInByte += DataSizeUtils.sumOfCells(result.rawCells());
+            sizeInByte += DataSizeUtils.sizeOfResult(result);
         }
         return sizeInByte;
     }

@@ -33,7 +33,7 @@ public class DeleteListSizeProvider implements WriteSizeProvider {
         List<Delete> deletes = (List<Delete>) param;
         int sizeInByte = 0;
         for (Delete delete : deletes) {
-            sizeInByte += DataSizeUtils.sumOfFamilyCellMap(delete.getFamilyCellMap());
+            sizeInByte += DataSizeUtils.sizeOfMutation(delete);
         }
         return sizeInByte;
     }

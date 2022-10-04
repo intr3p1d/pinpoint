@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 public class DataSizeHelper {
 
     private static final WriteSizeProvider[] WRITE_SIZE_PROVIDERS = new WriteSizeProvider[] {
-            new MutateSizeProvider(),
             new PutListSizeProvider(),
             new DeleteListSizeProvider(),
-            new RowMutationSizeProvider()
+            new RowMutationSizeProvider(),
+            new MutateSizeProvider()
     };
 
     private static final ReadSizeProvider[] READ_SIZE_PROVIDERS = new ReadSizeProvider[] {

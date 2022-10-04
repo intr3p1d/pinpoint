@@ -30,8 +30,9 @@ public class RowMutationSizeProvider implements WriteSizeProvider {
     public int getDataSize(Object param) {
         RowMutations mutation = (RowMutations) param;
         int sizeInByte = 0;
+        sizeInByte += mutation.getRow().length;
         for (Mutation m : mutation.getMutations()) {
-            sizeInByte += DataSizeUtils.sumOfFamilyCellMap(m.getFamilyCellMap());
+            sizeInByte += DataSizeUtils.sizeOfMutation(m);
         }
         return sizeInByte;
     }

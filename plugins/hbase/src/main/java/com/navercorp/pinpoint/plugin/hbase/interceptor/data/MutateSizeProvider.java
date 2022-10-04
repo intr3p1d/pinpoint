@@ -29,6 +29,6 @@ public class MutateSizeProvider implements WriteSizeProvider {
     @Override
     public int getDataSize(Object param) {
         Mutation mutation = (Mutation) param;
-        return DataSizeUtils.sumOfFamilyCellMap(mutation.getFamilyCellMap());
+        return DataSizeUtils.sizeOfMutation(mutation);
     }
 }

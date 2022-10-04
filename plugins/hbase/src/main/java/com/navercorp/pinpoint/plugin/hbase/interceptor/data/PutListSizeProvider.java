@@ -33,7 +33,7 @@ public class PutListSizeProvider implements WriteSizeProvider {
         List<Put> puts = (List<Put>) param;
         int sizeInByte = 0;
         for (Put put : puts) {
-            sizeInByte += DataSizeUtils.sumOfFamilyCellMap(put.getFamilyCellMap());
+            sizeInByte += DataSizeUtils.sizeOfMutation(put);
         }
         return sizeInByte;
     }
