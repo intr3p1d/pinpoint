@@ -16,21 +16,17 @@
 
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServiceTypeDescView;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.Comparator;
 import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentInfo {
-
-    public static final Comparator<AgentInfo> AGENT_NAME_ASC_COMPARATOR
-            = Comparator.comparing(agentInfo -> StringUtils.defaultString(agentInfo.agentId));
+public class AgentInfo implements AgentInfoSupplier {
 
     private String applicationName;
     private String agentId;
@@ -46,6 +42,12 @@ public class AgentInfo {
     private boolean container;
 
     public AgentInfo() {
+    }
+
+    @Override
+    @JsonIgnore
+    public AgentInfo getAgentInfo() {
+        return this;
     }
 
     public String getApplicationName() {
@@ -142,7 +144,6 @@ public class AgentInfo {
     }
 
 
-
     public boolean isContainer() {
         return container;
     }
@@ -189,7 +190,6 @@ public class AgentInfo {
         sb.append('}');
         return sb.toString();
     }
-
 
 
 }

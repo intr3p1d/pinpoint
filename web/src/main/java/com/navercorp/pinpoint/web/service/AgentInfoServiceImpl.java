@@ -29,9 +29,11 @@ import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
+import com.navercorp.pinpoint.web.vo.AgentsList;
+import com.navercorp.pinpoint.web.vo.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -101,35 +103,38 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentsList getAllApplicationAgentsList(AgentInfoFilter filter, long timestamp) {
+    public AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, long timestamp) {
         Objects.requireNonNull(filter, "filter");
 
-        ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
-        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<AgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            builder.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
+            agents.addAll(getAgentsByApplicationName(application.getName(), timestamp));
         }
-        return builder.build();
+
+        return AgentsMapByApplication.newAgentsMapByApplication(
+                filter,
+                hyperLinkFactory,
+                agents
+        );
     }
 
     @Override
-    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, AgentInfoFilter filter, String applicationName, long timestamp) {
-        Objects.requireNonNull(groupBy, "groupBy");
+    public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
-        Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, timestamp);
-        if (agentInfoAnsStatuss.isEmpty()) {
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
-            return builder.build();
         }
-        builder.addAll(agentInfoAnsStatuss);
-        if (logger.isDebugEnabled()) {
-            logger.debug("getApplicationAgentsList={}", builder);
-        }
-        return builder.build();
+
+        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
+                AgentsList.SortBy.AGENT_ID_ASCENDING,
+                agentInfoAndStatuses);
+
+        logger.debug("getAgentsMapByHostname={}", agentsMapByHost);
+        return agentsMapByHost;
     }
 
     @Override
@@ -322,7 +327,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
         Objects.requireNonNull(agentId, "agentId");
-        
+
         return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
     }
 
@@ -348,7 +353,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public boolean isActiveAgent(String agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
-        
+
         boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
         if (dataExists) {
             return true;
