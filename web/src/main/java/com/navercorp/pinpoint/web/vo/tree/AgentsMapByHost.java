@@ -1,7 +1,5 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.tree;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.AgentsMapByHostSerializer;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 
@@ -11,7 +9,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@JsonSerialize(using = AgentsMapByHostSerializer.class)
 public class AgentsMapByHost {
     private final AgentsListMap<AgentAndStatus> agentsListMap;
 

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.tree;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
 
@@ -35,7 +35,7 @@ public class AgentsListMap<T extends AgentInfoSupplier> {
         List<AgentsList<T>> agentsListMap = new ArrayList<>(mapByGivenClassifier.entrySet().stream().collect(
                 Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> new AgentsList<>(e.getKey(), e.getValue(), sortBy),
+                        e -> AgentsList.sort(e.getKey(), e.getValue(), sortBy),
                         (left, right) -> left,
                         () -> new TreeMap<>(keyComparator)
                 )

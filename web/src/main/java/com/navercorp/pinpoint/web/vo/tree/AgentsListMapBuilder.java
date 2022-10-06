@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.tree;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
 

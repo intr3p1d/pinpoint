@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.tree;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
 
@@ -33,19 +33,23 @@ public class AgentsList<T extends AgentInfoSupplier> {
 
     private final List<T> agentSuppliersList;
 
-    public AgentsList(String groupName, List<T> agentSuppliersList, SortBy sortBy) {
-        this.groupName = Objects.requireNonNull(groupName, "groupName");
+    public static <T extends AgentInfoSupplier> AgentsList<T> sort(String groupName, List<T> agentSuppliersList, SortBy sortBy) {
+        Objects.requireNonNull(groupName, "groupName");
         Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
         Objects.requireNonNull(sortBy, "sortBy");
-        this.agentSuppliersList = Collections.unmodifiableList(sort(sortBy, agentSuppliersList));
+
+        List<T> list = Collections.unmodifiableList(sort(sortBy, agentSuppliersList));
+        return new AgentsList<>(groupName, list);
     }
 
-    private List<T> sort(SortBy sortBy, List<T> agentSuppliersList) {
-        return agentSuppliersList.stream().sorted(sortBy.getComparator()).collect(Collectors.toList());
+    private static <T extends AgentInfoSupplier> List<T> sort(SortBy sortBy, List<T> agentSuppliersList) {
+        Comparator<AgentInfoSupplier> comparator = sortBy.getComparator();
+        return agentSuppliersList.stream().sorted(comparator).collect(Collectors.toList());
     }
 
-    public AgentsList<T> sorted(SortBy sortBy) {
-        return new AgentsList<>(this.groupName, this.agentSuppliersList, sortBy);
+    public AgentsList(String groupName, List<T> agentSuppliersList) {
+        this.groupName = Objects.requireNonNull(groupName, "groupName");
+        this.agentSuppliersList = Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
     }
 
     public enum SortBy {
