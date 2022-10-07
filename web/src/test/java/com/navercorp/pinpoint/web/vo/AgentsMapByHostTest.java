@@ -24,7 +24,7 @@ public class AgentsMapByHostTest {
         List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2);
 
 
-        SortBy<AgentAndStatus> sortBy = SortBy.agentNameAsc(AgentAndStatus::getAgentInfo);
+        SortBy<AgentAndStatus> sortBy = SortBy.agentIdAsc(AgentAndStatus::getAgentInfo);
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentInfoFilter::accept, sortBy, agentAndStatusList);
         List<AgentsList<AgentAndStatus>> agentsLists = agentsMapByHost.getAgentsListsList();
 
