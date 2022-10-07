@@ -20,9 +20,9 @@ public class AgentsListMap<T> {
     }
 
     public static <T> AgentsListMap<T> newAgentsListMap(Collection<T> collection,
-                                                                                  Function<T, String> keyExtractor,
-                                                                                  Comparator<String> keyComparator,
-                                                                                    SortBy<T> sortBy) {
+                                                        Function<T, String> keyExtractor,
+                                                        Comparator<String> keyComparator,
+                                                        SortBy<T> sortBy) {
         if (collection.isEmpty()) {
             return empty();
         }
@@ -33,7 +33,7 @@ public class AgentsListMap<T> {
         Map<String, AgentsList<T>> map = mapByGivenClassifier.entrySet().stream().collect(
                 Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> AgentsList.sort(e.getKey(), e.getValue(), sortBy.getComparator()),
+                        e -> AgentsList.sorted(e.getKey(), e.getValue(), sortBy.getComparator()),
                         (left, right) -> left,
                         () -> new TreeMap<>(keyComparator)
                 )

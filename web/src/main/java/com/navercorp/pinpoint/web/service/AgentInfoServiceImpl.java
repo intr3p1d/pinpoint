@@ -214,13 +214,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private List<String> getApplicationNameList(List<Application> applications) {
-        List<String> applicationNameList = new ArrayList<>(applications.size());
-        for (Application application : applications) {
-            if (!applicationNameList.contains(application.getName())) {
-                applicationNameList.add(application.getName());
-            }
-        }
-
+        List<String> applicationNameList;
+        applicationNameList = applications.stream().map(Application::getName).distinct().collect(Collectors.toList());
         applicationNameList.sort(String::compareTo);
         return applicationNameList;
     }

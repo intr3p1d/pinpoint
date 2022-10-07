@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo.tree;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author HyunGil Jeong
@@ -31,19 +29,17 @@ public class AgentsList<T> {
 
     private final List<T> agentSuppliersList;
 
-    public static <T> AgentsList<T> sort(String groupName, List<T> agentSuppliersList, Comparator<T> sortBy) {
+    public static <T> AgentsList<T> sorted(String groupName, List<T> agentSuppliersList, Comparator<T> sortBy) {
         Objects.requireNonNull(groupName, "groupName");
         Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
         Objects.requireNonNull(sortBy, "sortBy");
 
-        List<T> list = Collections.unmodifiableList(sort(sortBy, agentSuppliersList));
-        return new AgentsList<>(groupName, list);
+        sort(agentSuppliersList, sortBy);
+        return new AgentsList<>(groupName, agentSuppliersList);
     }
 
-    private static <T> List<T> sort(Comparator<T> comparator, List<T> agentSuppliersList) {
-        return agentSuppliersList.stream()
-                .sorted(comparator)
-                .collect(Collectors.toList());
+    private static <T> void sort(List<T> agentSuppliersList, Comparator<T> comparator) {
+        agentSuppliersList.sort(comparator);
     }
 
     public AgentsList(String groupName, List<T> agentSuppliersList) {
