@@ -38,7 +38,7 @@ public class AgentsMapByApplication {
                 new AgentsListMapBuilder<>(
                         AgentsMapByApplication::byApplicationName,
                         Comparator.naturalOrder(),
-                        AgentsList.SortBy.AGENT_ID_ASCENDING,
+                        SortBy.agentIdAsc(AgentStatusAndLink::getAgentInfo),
                         agentCollection
                 );
 

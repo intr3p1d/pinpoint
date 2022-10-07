@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.web.vo.tree;
 
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -10,19 +8,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class AgentsListMapBuilder<T extends AgentInfoSupplier, R extends AgentInfoSupplier> {
+public class AgentsListMapBuilder<T, R> {
     private final Collection<T> agentCollection;
 
     private final Function<R, String> keyExtractor;
     private final Comparator<String> keyComparator;
-    private final AgentsList.SortBy sortAgentsListBy;
+    private final SortBy<R> sortAgentsListBy;
 
     private Predicate<T> agentFilter = x -> true;
     private Function<T, R> finisher = this::castingIdentity;
 
     AgentsListMapBuilder(Function<R, String> keyExtractor,
                          Comparator<String> keyComparator,
-                         AgentsList.SortBy sortAgentsListBy,
+                         SortBy<R> sortAgentsListBy,
                          Collection<T> agentCollection) {
         this.keyExtractor = Objects.requireNonNull(keyExtractor, "keyExtractor");
         this.keyComparator = Objects.requireNonNull(keyComparator, "keyComparator");

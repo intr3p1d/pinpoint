@@ -25,7 +25,7 @@ public class AgentsMapByHost {
     }
 
     public static AgentsMapByHost newAgentsMapByHost(AgentInfoFilter filter,
-                                                     AgentsList.SortBy sortBy,
+                                                     SortBy<AgentAndStatus> sortBy,
                                                      Collection<AgentAndStatus> agentCollection) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(sortBy, "sortBy");

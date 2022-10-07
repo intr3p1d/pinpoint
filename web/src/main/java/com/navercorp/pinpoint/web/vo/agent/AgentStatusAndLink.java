@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-public class AgentStatusAndLink implements AgentInfoSupplier {
+public class AgentStatusAndLink {
     private final AgentInfo agentInfo;
     private final AgentStatus agentStatus;
     private final List<HyperLink> hyperLinkList;

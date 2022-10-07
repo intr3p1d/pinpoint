@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.tree.AgentsList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
+import com.navercorp.pinpoint.web.vo.tree.SortBy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,9 @@ public class AgentsMapByHostTest {
         AgentAndStatus containerAgent2 = createAgentInfo("APP_1", "container-agent2", "Host4", true, 2);
         List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2);
 
-        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentInfoFilter::accept, AgentsList.SortBy.AGENT_ID_ASCENDING, agentAndStatusList);
+
+        SortBy<AgentAndStatus> sortBy = SortBy.agentNameAsc(AgentAndStatus::getAgentInfo);
+        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentInfoFilter::accept, sortBy, agentAndStatusList);
         List<AgentsList<AgentAndStatus>> agentsLists = agentsMapByHost.getAgentsListsList();
 
         Assertions.assertEquals(3, agentsLists.size());

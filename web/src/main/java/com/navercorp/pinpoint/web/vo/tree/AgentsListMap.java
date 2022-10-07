@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.web.vo.tree;
 
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,7 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class AgentsListMap<T extends AgentInfoSupplier> {
+public class AgentsListMap<T> {
 
     private final List<AgentsList<T>> listMap;
 
@@ -21,10 +19,10 @@ public class AgentsListMap<T extends AgentInfoSupplier> {
         this.listMap = Objects.requireNonNull(listMap, "listMap");
     }
 
-    public static <T extends AgentInfoSupplier> AgentsListMap<T> newAgentsListMap(Collection<T> collection,
+    public static <T> AgentsListMap<T> newAgentsListMap(Collection<T> collection,
                                                                                   Function<T, String> keyExtractor,
                                                                                   Comparator<String> keyComparator,
-                                                                                  AgentsList.SortBy sortBy) {
+                                                                                    SortBy<T> sortBy) {
         if (collection.isEmpty()) {
             return empty();
         }
@@ -32,18 +30,20 @@ public class AgentsListMap<T extends AgentInfoSupplier> {
         Collector<T, ?, Map<String, List<T>>> collector = Collectors.groupingBy(keyExtractor);
         Map<String, List<T>> mapByGivenClassifier = collection.stream().collect(collector);
 
-        List<AgentsList<T>> agentsListMap = new ArrayList<>(mapByGivenClassifier.entrySet().stream().collect(
+        Map<String, AgentsList<T>> map = mapByGivenClassifier.entrySet().stream().collect(
                 Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> AgentsList.sort(e.getKey(), e.getValue(), sortBy),
+                        e -> AgentsList.sort(e.getKey(), e.getValue(), sortBy.getComparator()),
                         (left, right) -> left,
                         () -> new TreeMap<>(keyComparator)
                 )
-        ).values());
+        );
+
+        List<AgentsList<T>> agentsListMap = new ArrayList<>(map.values());
         return new AgentsListMap<>(agentsListMap);
     }
 
-    public static <T extends AgentInfoSupplier> AgentsListMap<T> empty() {
+    public static <T> AgentsListMap<T> empty() {
         return new AgentsListMap<>(new ArrayList<>());
     }
 

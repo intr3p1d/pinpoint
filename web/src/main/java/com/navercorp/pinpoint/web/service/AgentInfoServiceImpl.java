@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.tree.AgentsList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
@@ -47,6 +46,7 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
+import com.navercorp.pinpoint.web.vo.tree.SortBy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -130,7 +130,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
-                AgentsList.SortBy.AGENT_ID_ASCENDING,
+                SortBy.agentIdAsc(AgentAndStatus::getAgentInfo),
                 agentInfoAndStatuses);
 
         logger.debug("getAgentsMapByHostname={}", agentsMapByHost);

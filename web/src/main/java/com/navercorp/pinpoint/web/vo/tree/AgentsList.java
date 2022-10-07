@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.tree;
 
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoSupplier;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -27,13 +25,13 @@ import java.util.stream.Collectors;
 /**
  * @author HyunGil Jeong
  */
-public class AgentsList<T extends AgentInfoSupplier> {
+public class AgentsList<T> {
 
     private final String groupName;
 
     private final List<T> agentSuppliersList;
 
-    public static <T extends AgentInfoSupplier> AgentsList<T> sort(String groupName, List<T> agentSuppliersList, SortBy sortBy) {
+    public static <T> AgentsList<T> sort(String groupName, List<T> agentSuppliersList, Comparator<T> sortBy) {
         Objects.requireNonNull(groupName, "groupName");
         Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
         Objects.requireNonNull(sortBy, "sortBy");
@@ -42,58 +40,15 @@ public class AgentsList<T extends AgentInfoSupplier> {
         return new AgentsList<>(groupName, list);
     }
 
-    private static <T extends AgentInfoSupplier> List<T> sort(SortBy sortBy, List<T> agentSuppliersList) {
-        Comparator<AgentInfoSupplier> comparator = sortBy.getComparator();
-        return agentSuppliersList.stream().sorted(comparator).collect(Collectors.toList());
+    private static <T> List<T> sort(Comparator<T> comparator, List<T> agentSuppliersList) {
+        return agentSuppliersList.stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
     }
 
     public AgentsList(String groupName, List<T> agentSuppliersList) {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
         this.agentSuppliersList = Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
-    }
-
-    public enum SortBy {
-        AGENT_NAME_ASCENDING(
-                Comparator.comparing(SortBy::getAgentNameFrom)
-                        .thenComparing(SortBy::getAgentIdFrom)
-        ),
-        AGENT_NAME_DESCENDING(
-                AGENT_NAME_ASCENDING.getComparator().reversed()
-        ),
-        AGENT_ID_ASCENDING(
-                Comparator.comparing(SortBy::getAgentIdFrom)
-                        .thenComparing(SortBy::getAgentNameFrom)
-        ),
-        AGENT_ID_DESCENDING(
-                AGENT_ID_ASCENDING.getComparator().reversed()
-        ),
-        LAST_STARTED_TIME(
-                Comparator.comparingLong(SortBy::getStartTimestampFrom)
-                        .reversed()
-                        .thenComparing(SortBy::getAgentIdFrom)
-        );
-
-        private final Comparator<AgentInfoSupplier> comparator;
-
-        SortBy(Comparator<AgentInfoSupplier> comparator) {
-            this.comparator = comparator;
-        }
-
-        public Comparator<AgentInfoSupplier> getComparator() {
-            return comparator;
-        }
-
-        private static String getAgentIdFrom(AgentInfoSupplier agentInfoSupplier) {
-            return agentInfoSupplier.getAgentInfo().getAgentId();
-        }
-
-        private static String getAgentNameFrom(AgentInfoSupplier agentInfoSupplier) {
-            return agentInfoSupplier.getAgentInfo().getAgentName();
-        }
-
-        private static long getStartTimestampFrom(AgentInfoSupplier agentInfoSupplier) {
-            return agentInfoSupplier.getAgentInfo().getStartTimestamp();
-        }
     }
 
     public String getGroupName() {
