@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.client.RowMutations;
 /**
  * @author jimo
  **/
-public class RowMutationSizeProvider implements WriteSizeProvider {
+public class RowMutationSizeProvider implements DataSizeProvider {
     @Override
     public boolean isProviderOf(Object param) {
         return param instanceof RowMutations;

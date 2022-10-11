@@ -17,19 +17,23 @@ package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 import org.apache.hadoop.hbase.client.Result;
 
 /**
- * HTable.get(Get)
+ * Result[] HTable.get(List<Get>)
  *
  * @author jimo
  **/
-public class GetSizeProvider implements ReadSizeProvider {
+public class ResultListSizeProvider implements DataSizeProvider {
     @Override
     public boolean isProviderOf(Object param) {
-        return param instanceof Result;
+        return param instanceof Result[];
     }
 
     @Override
     public int getDataSize(Object param) {
-        Result result = (Result) param;
-        return DataSizeUtils.sizeOfResult(result);
+        Result[] results = (Result[]) param;
+        int sizeInByte = 0;
+        for (Result result : results) {
+            sizeInByte += DataSizeUtils.sizeOfResult(result);
+        }
+        return sizeInByte;
     }
 }

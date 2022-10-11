@@ -14,8 +14,27 @@
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
+import org.apache.hadoop.hbase.client.Mutation;
+
+import java.util.List;
+
 /**
  * @author jimo
  **/
-public interface ReadSizeProvider extends DataSizeProvider {
+public class MutationListSizeProvider implements DataSizeProvider {
+    @Override
+    public boolean isProviderOf(Object param) {
+        return param instanceof List && !((List<?>) param).isEmpty() && ((List<?>) param).get(0) instanceof Mutation;
+    }
+
+    @Override
+    public int getDataSize(Object param) {
+        @SuppressWarnings("unchecked")
+        List<? extends Mutation> mutations = (List<? extends Mutation>) param;
+        int sizeInByte = 0;
+        for (Mutation mutation : mutations) {
+            sizeInByte += DataSizeUtils.sizeOfMutation(mutation);
+        }
+        return sizeInByte;
+    }
 }

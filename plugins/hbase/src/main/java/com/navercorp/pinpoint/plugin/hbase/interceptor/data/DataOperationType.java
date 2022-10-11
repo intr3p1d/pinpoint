@@ -4,9 +4,11 @@ package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
  * @author Woonduk Kang(emeroad)
  */
 public class DataOperationType {
-    public static int DISABLE = 0;
-    public static int WRITE = 1;
-    public static int READ = 2;
+    public static final int DISABLE = 0;
+    public static final int MUTATION = 1;
+    public static final int ROW_MUTATION = 2;
+    public static final int RESULT = 3;
+
 
     private DataOperationType() {
     }
@@ -15,10 +17,12 @@ public class DataOperationType {
         if (!enable) {
             return DISABLE;
         }
-        if (DataSizeHelper.checkIfWriteOp(methodName)) {
-            return WRITE;
-        } else if(DataSizeHelper.checkIfReadOp(methodName)) {
-            return READ;
+        if (DataSizeHelper.checkIfMutationOp(methodName)) {
+            return MUTATION;
+        } else if (DataSizeHelper.checkIfRowMutationOp(methodName)) {
+            return ROW_MUTATION;
+        } else if (DataSizeHelper.checkIfGetResultOp(methodName)) {
+            return RESULT;
         }
         return DISABLE;
     }

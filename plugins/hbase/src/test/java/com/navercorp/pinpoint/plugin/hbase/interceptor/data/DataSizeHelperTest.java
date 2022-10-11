@@ -37,7 +37,7 @@ public class DataSizeHelperTest {
         Object[] args = new Object[]{};
 
         Result result = Result.create(new Cell[]{new KeyValue(rowKey, columnFamily, qualifier, value)});
-        int actualSize = DataSizeHelper.getDataSizeFrom("get", args, result);
+        int actualSize = DataSizeHelper.getResultSize(result);
 
         int expectedSize = KEYVALUE_SIZE;
 
@@ -52,7 +52,7 @@ public class DataSizeHelperTest {
         int expectedSize = (KEYVALUE_SIZE) * 2;
 
         assertEquals(expectedSize,
-                DataSizeHelper.getDataSizeFrom("get", args, getAllResult));
+                DataSizeHelper.getResultSize(getAllResult));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DataSizeHelperTest {
         int expectedSize = KEYVALUE_SIZE;
 
         assertEquals(expectedSize,
-                DataSizeHelper.getDataSizeFrom("put", args, result));
+                DataSizeHelper.getMutationSize(args));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class DataSizeHelperTest {
         int expectedSize = ROWKEY_SIZE + COLUMNFAMILY_SIZE + 2 * (QUALIFIER_SIZE + VALUE_SIZE);
 
         assertEquals(expectedSize,
-                DataSizeHelper.getDataSizeFrom("put", args, result));
+                DataSizeHelper.getMutationSize(args));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class DataSizeHelperTest {
         int expectedSize = (KEYVALUE_SIZE) * 2;
 
         assertEquals(expectedSize,
-                DataSizeHelper.getDataSizeFrom("put", args, result));
+                DataSizeHelper.getMutationSize(args));
     }
 
     @Test
@@ -102,13 +102,13 @@ public class DataSizeHelperTest {
         int expectedSize = ROWKEY_SIZE + COLUMNFAMILY_SIZE + 2 * (QUALIFIER_SIZE + VALUE_SIZE);
 
         assertEquals(expectedSize,
-                DataSizeHelper.getDataSizeFrom("append", args, result));
+                DataSizeHelper.getMutationSize(args));
     }
 
     @Test
     public void testDeleteDataSize() {
         Object[] args = new Object[]{new Delete(rowKey)};
-        assertEquals(ROWKEY_SIZE, DataSizeHelper.getDataSizeFrom("delete", args, result));
+        assertEquals(ROWKEY_SIZE, DataSizeHelper.getMutationSize(args));
     }
 
 
@@ -118,7 +118,7 @@ public class DataSizeHelperTest {
         deletes.add(new Delete(rowKey));
         deletes.add(new Delete(rowKey));
         Object[] args = new Object[]{deletes};
-        assertEquals(ROWKEY_SIZE * 2, DataSizeHelper.getDataSizeFrom("delete", args, result));
+        assertEquals(ROWKEY_SIZE * 2, DataSizeHelper.getMutationSize(args));
     }
 
     @Test
@@ -133,7 +133,7 @@ public class DataSizeHelperTest {
         int expectedSize = ROWKEY_SIZE + (ROWKEY_SIZE) + (KEYVALUE_SIZE);
 
         Object[] args = new Object[]{rowMutations};
-        assertEquals(expectedSize, DataSizeHelper.getDataSizeFrom("mutateRow", args, result));
+        assertEquals(expectedSize, DataSizeHelper.getRowMutationSize(args));
     }
 
 }

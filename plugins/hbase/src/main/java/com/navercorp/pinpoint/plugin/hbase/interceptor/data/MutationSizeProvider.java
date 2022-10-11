@@ -14,27 +14,21 @@
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
-import org.apache.hadoop.hbase.client.Put;
-
-import java.util.List;
+import org.apache.hadoop.hbase.client.Mutation;
 
 /**
  * @author jimo
  **/
-public class PutListSizeProvider implements WriteSizeProvider {
+public class MutationSizeProvider implements DataSizeProvider {
+
     @Override
     public boolean isProviderOf(Object param) {
-        return param instanceof List && !((List<?>) param).isEmpty() && ((List<?>) param).get(0) instanceof Put;
+        return param instanceof Mutation;
     }
 
     @Override
     public int getDataSize(Object param) {
-        @SuppressWarnings("unchecked")
-        List<Put> puts = (List<Put>) param;
-        int sizeInByte = 0;
-        for (Put put : puts) {
-            sizeInByte += DataSizeUtils.sizeOfMutation(put);
-        }
-        return sizeInByte;
+        Mutation mutation = (Mutation) param;
+        return DataSizeUtils.sizeOfMutation(mutation);
     }
 }
