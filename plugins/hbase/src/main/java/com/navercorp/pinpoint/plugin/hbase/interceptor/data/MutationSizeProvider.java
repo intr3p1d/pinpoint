@@ -20,12 +20,6 @@ import org.apache.hadoop.hbase.client.Mutation;
  * @author jimo
  **/
 public class MutationSizeProvider implements DataSizeProvider {
-
-    @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof Mutation;
-    }
-
     @Override
     public int getDataSize(Object param) {
         Mutation mutation = (Mutation) param;

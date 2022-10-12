@@ -23,11 +23,6 @@ import java.util.List;
  **/
 public class MutationListSizeProvider implements DataSizeProvider {
     @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof List && !((List<?>) param).isEmpty() && ((List<?>) param).get(0) instanceof Mutation;
-    }
-
-    @Override
     public int getDataSize(Object param) {
         @SuppressWarnings("unchecked")
         List<? extends Mutation> mutations = (List<? extends Mutation>) param;

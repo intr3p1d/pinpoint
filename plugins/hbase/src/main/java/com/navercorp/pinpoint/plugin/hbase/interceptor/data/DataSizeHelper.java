@@ -14,27 +14,12 @@
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 
 /**
  * @author jimo
  **/
 public class DataSizeHelper {
-
-    private static final DataSizeProvider[] MUTATION_SIZE_PROVIDERS = new DataSizeProvider[]{
-            new MutationListSizeProvider(),
-            new MutationSizeProvider()
-    };
-
-    private static final DataSizeProvider[] ROW_MUTATION_SIZE_PROVIDERS = new DataSizeProvider[]{
-            new RowMutationSizeProvider(),
-    };
-
-    private static final DataSizeProvider[] RESULT_SIZE_PROVIDERS = new DataSizeProvider[]{
-            new ResultSizeProvider(),
-            new ResultListSizeProvider()
-    };
 
     private DataSizeHelper() {
     }
@@ -51,42 +36,28 @@ public class DataSizeHelper {
         return HbasePluginConstants.getResultMethodNames.contains(methodName);
     }
 
+    public static boolean parameterTypesIncludesList(String[] parameterTypes) {
+        if (parameterTypes.length <= 0) {
+            return false;
+        }
+        String lastParameter = parameterTypes[parameterTypes.length - 1];
+        return lastParameter.contains("List");
+    }
+
     /**
      * Calculate the last arg data size of write method.
      */
-    public static int getMutationSize(Object[] args) {
-        if (ArrayUtils.getLength(args) == 0) {
-            return 0;
-        }
+    public static int getDataSizeFromArgument(Object[] args, int dataOperationType) {
+        DataSizeProvider dataSizeProvider = DataSizeProviderFactory.getDataSizeProvider(dataOperationType);
         Object arg = args[args.length - 1];
-        return getDataSizeFrom(arg, MUTATION_SIZE_PROVIDERS);
-    }
-
-    public static int getRowMutationSize(Object[] args) {
-        if (ArrayUtils.getLength(args) == 0) {
-            return 0;
-        }
-        Object arg = args[args.length - 1];
-        return getDataSizeFrom(arg, ROW_MUTATION_SIZE_PROVIDERS);
+        return dataSizeProvider.getDataSize(arg);
     }
 
     /**
      * Calculate the result data size of read method
      */
-    public static int getResultSize(Object result) {
-        if (result == null) {
-            return 0;
-        }
-        return getDataSizeFrom(result, RESULT_SIZE_PROVIDERS);
+    public static int getDataSizeFromResult(Object result, int dataOperationType) {
+        DataSizeProvider dataSizeProvider = DataSizeProviderFactory.getDataSizeProvider(dataOperationType);
+        return dataSizeProvider.getDataSize(result);
     }
-
-    private static int getDataSizeFrom(Object o, DataSizeProvider[] dataSizeProviders) {
-        for (DataSizeProvider dp : dataSizeProviders) {
-            if (dp.isProviderOf(o)) {
-                return dp.getDataSize(o);
-            }
-        }
-        return 0;
-    }
-
 }

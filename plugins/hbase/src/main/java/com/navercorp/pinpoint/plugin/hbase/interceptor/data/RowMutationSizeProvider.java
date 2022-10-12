@@ -22,11 +22,6 @@ import org.apache.hadoop.hbase.client.RowMutations;
  **/
 public class RowMutationSizeProvider implements DataSizeProvider {
     @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof RowMutations;
-    }
-
-    @Override
     public int getDataSize(Object param) {
         RowMutations mutation = (RowMutations) param;
         int sizeInByte = 0;

@@ -23,11 +23,6 @@ import org.apache.hadoop.hbase.client.Result;
  **/
 public class ResultListSizeProvider implements DataSizeProvider {
     @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof Result[];
-    }
-
-    @Override
     public int getDataSize(Object param) {
         Result[] results = (Result[]) param;
         int sizeInByte = 0;
