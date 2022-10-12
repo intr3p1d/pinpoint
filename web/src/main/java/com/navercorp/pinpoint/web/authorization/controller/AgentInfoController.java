@@ -103,11 +103,11 @@ public class AgentInfoController {
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        AgentInfoFilter currentRunnedFilter = new AgentInfoFilterChain(
+        AgentInfoFilter currentRunFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
         long timestamp = to;
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(currentRunnedFilter, applicationName, timestamp);
+        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(currentRunFilter, applicationName, timestamp);
         return treeView(list);
     }
 
