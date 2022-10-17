@@ -108,9 +108,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
 
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
-        List<AgentAndStatus> agents = new ArrayList<>();
+        List<DetailedAgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            agents.addAll(getAgentsByApplicationName(application.getName(), timestamp));
+            agents.addAll(getDetailedAgentsByApplicationName(application.getName(), timestamp));
         }
 
         return AgentsMapByApplication.newAgentsMapByApplication(
@@ -215,12 +215,27 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private List<String> getApplicationNameList(List<Application> applications) {
-        List<String> applicationNameList = applications.stream()
+        return applications.stream()
                 .map(Application::getName)
                 .distinct()
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
-        return applicationNameList;
+    }
+
+    public Set<DetailedAgentAndStatus> getDetailedAgentsByApplicationName(String applicationName, long timestamp) {
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+
+        return agentIds.stream().map(
+                (String a) -> {
+                    AgentInfo agentInfo = getAgentInfoWithoutStatus(a, timestamp);
+                    DetailedAgentInfo detailedAgentInfo = this.agentInfoDao.getDetailedAgentInfo(a, timestamp);
+                    AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(a, timestamp);
+                    if (agentInfo != null && detailedAgentInfo != null && agentStatus != null) {
+                        return new DetailedAgentAndStatus(this.agentInfoDao.getDetailedAgentInfo(a, timestamp), this.agentLifeCycleDao.getAgentStatus(a, timestamp));
+                    }
+                    return null;
+                }
+        ).collect(Collectors.toSet());
     }
 
     @Override

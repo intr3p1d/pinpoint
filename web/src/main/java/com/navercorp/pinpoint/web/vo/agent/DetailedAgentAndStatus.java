@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import java.util.Objects;
@@ -19,6 +20,11 @@ public class DetailedAgentAndStatus {
     @JsonUnwrapped
     public DetailedAgentInfo getDetailedAgentInfo() {
         return detailedAgentInfo;
+    }
+
+    @JsonIgnore
+    public AgentInfo getAgentInfo() {
+        return detailedAgentInfo.getAgentInfo();
     }
 
     public AgentStatus getStatus() {

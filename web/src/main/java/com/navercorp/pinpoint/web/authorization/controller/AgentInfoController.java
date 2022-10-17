@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.tree.AgentsList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
@@ -64,13 +65,13 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application"})
-    public TreeView<AgentStatusAndLink> getAgentList() {
+    public TreeView<DetailedAgentAndStatus> getAgentList() {
         long timestamp = System.currentTimeMillis();
         return getAgentList(timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application", "from", "to"})
-    public TreeView<AgentStatusAndLink> getAgentList(
+    public TreeView<DetailedAgentAndStatus> getAgentList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
@@ -81,14 +82,14 @@ public class AgentInfoController {
 
 
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
-    public TreeView<AgentStatusAndLink> getAgentList(
+    public TreeView<DetailedAgentAndStatus> getAgentList(
             @RequestParam("timestamp") long timestamp) {
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
         return treeView(allAgentsList);
     }
 
-    private static TreeView<AgentStatusAndLink> treeView(AgentsMapByApplication agentsListsList) {
-        List<AgentsList<AgentStatusAndLink>> list = agentsListsList.getAgentsListsList();
+    private static TreeView<DetailedAgentAndStatus> treeView(AgentsMapByApplication agentsListsList) {
+        List<AgentsList<DetailedAgentAndStatus>> list = agentsListsList.getAgentsListsList();
         return new SimpleTreeView<>(list, AgentsList::getGroupName, AgentsList::getAgentSuppliersList);
     }
 
