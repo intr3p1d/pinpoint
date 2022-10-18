@@ -33,7 +33,7 @@ public class SortBy<T> {
 
     private final Comparator<T> comparator;
 
-    private SortBy(Comparator<T> comparator) {
+    public SortBy(Comparator<T> comparator) {
         this.comparator = Objects.requireNonNull(comparator, "comparator");
     }
 

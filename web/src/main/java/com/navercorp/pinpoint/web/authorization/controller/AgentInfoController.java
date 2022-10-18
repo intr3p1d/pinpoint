@@ -63,13 +63,13 @@ public class AgentInfoController {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
     }
 
-    @GetMapping(value = "/getAgentList", params = {"!application"})
+    @GetMapping(value = "/getAgentList_", params = {"!application"})
     public TreeView<AgentStatusAndLink> getAgentList() {
         long timestamp = System.currentTimeMillis();
         return getAgentList(timestamp);
     }
 
-    @GetMapping(value = "/getAgentList", params = {"!application", "from", "to"})
+    @GetMapping(value = "/getAgentList_", params = {"!application", "from", "to"})
     public TreeView<AgentStatusAndLink> getAgentList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -80,7 +80,7 @@ public class AgentInfoController {
     }
 
 
-    @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
+    @GetMapping(value = "/getAgentList_", params = {"!application", "timestamp"})
     public TreeView<AgentStatusAndLink> getAgentList(
             @RequestParam("timestamp") long timestamp) {
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
@@ -92,13 +92,13 @@ public class AgentInfoController {
         return new SimpleTreeView<>(list, AgentsList::getGroupName, AgentsList::getAgentSuppliersList);
     }
 
-    @GetMapping(value = "/getAgentList", params = {"application"})
+    @GetMapping(value = "/getAgentList_", params = {"application"})
     public TreeView<AgentAndStatus> getAgentList(@RequestParam("application") String applicationName) {
         long timestamp = System.currentTimeMillis();
         return getAgentList(applicationName, timestamp);
     }
 
-    @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
+    @GetMapping(value = "/getAgentList_", params = {"application", "from", "to"})
     public TreeView<AgentAndStatus> getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
@@ -111,7 +111,7 @@ public class AgentInfoController {
         return treeView(list);
     }
 
-    @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
+    @GetMapping(value = "/getAgentList_", params = {"application", "timestamp"})
     public TreeView<AgentAndStatus> getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {

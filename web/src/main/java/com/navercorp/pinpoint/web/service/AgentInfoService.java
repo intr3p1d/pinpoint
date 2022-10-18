@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
+import com.navercorp.pinpoint.web.vo.tree.SimpleAgentsMapByApplication;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,8 @@ public interface AgentInfoService {
     int NO_DURATION = -1;
 
     AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, long timestamp);
+
+    SimpleAgentsMapByApplication getAllAgentsListInSimple(AgentInfoFilter filter, long timestamp);
 
     AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp);
 

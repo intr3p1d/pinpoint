@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.SimpleAgentInfoWithVersion;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
@@ -46,6 +47,7 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
+import com.navercorp.pinpoint.web.vo.tree.SimpleAgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.SortBy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,6 +57,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -118,6 +121,34 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                 hyperLinkFactory,
                 agents
         );
+    }
+
+    @Override
+    public SimpleAgentsMapByApplication getAllAgentsListInSimple(AgentInfoFilter filter, long timestamp) {
+        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<SimpleAgentInfoWithVersion> agents = new ArrayList<>();
+        for (Application application : applications) {
+            agents.addAll(getSimpleAgentsByApplicationName(application.getName(), timestamp));
+        }
+
+        return SimpleAgentsMapByApplication.newAgentsMapByApplication(
+                filter,
+                agents
+        );
+    }
+
+    private Collection<SimpleAgentInfoWithVersion> getSimpleAgentsByApplicationName(String applicationName, long timestamp) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<SimpleAgentInfoWithVersion> agentInfos = this.agentInfoDao.getSimpleAgentInfosWithVersion(agentIds, timestamp);
+
+        return agentInfos.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
