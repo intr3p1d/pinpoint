@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web.vo.agent;
 
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 
 public class SimpleAgentInfoWithVersion {
 
@@ -10,7 +9,6 @@ public class SimpleAgentInfoWithVersion {
     private String agentName;
 
     private String agentVersion;
-    private ServerMetaDataBo serverMetaData;
     private JvmInfoBo jvmInfo;
 
 
@@ -39,14 +37,6 @@ public class SimpleAgentInfoWithVersion {
 
     public void setAgentName(String agentName) {
         this.agentName = agentName;
-    }
-
-    public ServerMetaDataBo getServerMetaData() {
-        return serverMetaData;
-    }
-
-    public void setServerMetaData(ServerMetaDataBo serverMetaData) {
-        this.serverMetaData = serverMetaData;
     }
 
     public JvmInfoBo getJvmInfo() {

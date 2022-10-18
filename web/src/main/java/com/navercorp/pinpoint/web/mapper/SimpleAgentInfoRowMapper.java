@@ -46,7 +46,6 @@ public class SimpleAgentInfoRowMapper implements RowMapper<SimpleAgentInfoWithVe
         simpleAgentInfoWithVersion.setApplicationName(agentInfoBo.getApplicationName());
         simpleAgentInfoWithVersion.setAgentVersion(agentInfoBo.getAgentVersion());
         simpleAgentInfoWithVersion.setJvmInfo(agentInfoBo.getJvmInfo());
-        simpleAgentInfoWithVersion.setServerMetaData(agentInfoBo.getServerMetaData());
 
         return simpleAgentInfoWithVersion;
     }

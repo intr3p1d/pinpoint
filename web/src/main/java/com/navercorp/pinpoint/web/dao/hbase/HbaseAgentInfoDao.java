@@ -157,7 +157,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             return Collections.emptyList();
         }
 
-        AgentInfoColumn column = AgentInfoColumn.all();
+        AgentInfoColumn column = AgentInfoColumn.jvm();
         List<Scan> scans = new ArrayList<>(agentIds.size());
         for (String agentId : agentIds) {
             scans.add(createScan(agentId, timestamp, column));
