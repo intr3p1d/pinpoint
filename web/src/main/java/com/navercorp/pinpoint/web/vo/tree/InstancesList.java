@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.tree;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -25,8 +27,10 @@ import java.util.Objects;
  */
 public class InstancesList<T> {
 
+    @JsonProperty
     private final String groupName;
 
+    @JsonProperty
     private final List<T> instancesList;
 
     public static <T> InstancesList<T> sorted(String groupName, List<T> instancesList, Comparator<T> sortBy) {

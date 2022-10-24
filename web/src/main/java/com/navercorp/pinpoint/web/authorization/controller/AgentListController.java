@@ -32,13 +32,13 @@ public class AgentListController {
     }
 
     @GetMapping(value = "/all")
-    public TreeView<AgentStatusAndLink> getAllAgentsList() {
+    public TreeView<InstancesList<AgentStatusAndLink>> getAllAgentsList() {
         long timestamp = System.currentTimeMillis();
         return getAllAgentsList(timestamp);
     }
 
     @GetMapping(value = "/all", params = {"from", "to"})
-    public TreeView<AgentStatusAndLink> getAllAgentsList(
+    public TreeView<InstancesList<AgentStatusAndLink>> getAllAgentsList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
@@ -48,26 +48,26 @@ public class AgentListController {
     }
 
     @GetMapping(value = "/all", params = {"timestamp"})
-    public TreeView<AgentStatusAndLink> getAllAgentsList(
+    public TreeView<InstancesList<AgentStatusAndLink>> getAllAgentsList(
             @RequestParam("timestamp") long timestamp) {
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
         return treeView(allAgentsList);
     }
 
-    private static TreeView<AgentStatusAndLink> treeView(AgentsMapByApplication agentsListsList) {
+    private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByApplication agentsListsList) {
         List<InstancesList<AgentStatusAndLink>> list = agentsListsList.getAgentsListsList();
-        return new StaticTreeView<>(list, InstancesList::getGroupName, InstancesList::getInstancesList);
+        return new StaticTreeView<>(list);
     }
 
 
     @GetMapping(params = {"application"})
-    public TreeView<AgentAndStatus> getAgentsList(@RequestParam("application") String applicationName) {
+    public TreeView<InstancesList<AgentAndStatus>> getAgentsList(@RequestParam("application") String applicationName) {
         long timestamp = System.currentTimeMillis();
         return getAgentsList(applicationName, timestamp);
     }
 
     @GetMapping(params = {"application", "from", "to"})
-    public TreeView<AgentAndStatus> getAgentsList(
+    public TreeView<InstancesList<AgentAndStatus>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -80,7 +80,7 @@ public class AgentListController {
     }
 
     @GetMapping(params = {"application", "timestamp"})
-    public TreeView<AgentAndStatus> getAgentsList(
+    public TreeView<InstancesList<AgentAndStatus>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
@@ -90,9 +90,9 @@ public class AgentListController {
         return treeView(list);
     }
 
-    private static TreeView<AgentAndStatus> treeView(AgentsMapByHost agentsMapByHost) {
+    private static TreeView<InstancesList<AgentAndStatus>> treeView(AgentsMapByHost agentsMapByHost) {
         List<InstancesList<AgentAndStatus>> list = agentsMapByHost.getAgentsListsList();
-        return new StaticTreeView<>(list, InstancesList::getGroupName, InstancesList::getInstancesList);
+        return new StaticTreeView<>(list);
     }
 
 }

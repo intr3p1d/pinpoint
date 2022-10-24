@@ -1,38 +1,23 @@
 package com.navercorp.pinpoint.web.view.tree;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
-@JsonSerialize(using = StaticTreeViewSerializer.class)
-public class StaticTreeView<I, C> implements TreeView<C> {
+public class StaticTreeView<C> implements TreeView<C> {
+    @JsonValue
+    private final List<C> nodeList;
 
-    private final List<I> nodeList;
-    private final Function<I, String> valueMapper;
-    private final Function<I, List<C>> childMapper;
-
-    public StaticTreeView(List<I> nodeList,
-                          Function<I, String> valueMapper,
-                          Function<I, List<C>> childMapper) {
+    public StaticTreeView(List<C> nodeList) {
         this.nodeList = Objects.requireNonNull(nodeList, "nodeList");
-        this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");
-        this.childMapper = Objects.requireNonNull(childMapper, "childMapper");
     }
 
     @Override
-    public Iterator<TreeNode<C>> nodes() {
-        return nodeList.stream()
-                .map(this::toTreeNode)
-                .iterator();
+    public Iterator<C> nodes() {
+        return nodeList.stream().iterator();
     }
-
-    private TreeNode<C> toTreeNode(I item) {
-        return new TreeNodeView<>(item, valueMapper, childMapper);
-    }
-
 
     @Override
     public String toString() {
