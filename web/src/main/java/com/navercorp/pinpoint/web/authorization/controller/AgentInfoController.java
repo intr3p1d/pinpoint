@@ -94,13 +94,13 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
-    public TreeView<TreeNode<AgentAndStatus>> getAgentList(@RequestParam("application") String applicationName) {
+    public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(@RequestParam("application") String applicationName) {
         long timestamp = System.currentTimeMillis();
         return getAgentList(applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
-    public TreeView<TreeNode<AgentAndStatus>> getAgentList(
+    public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -113,7 +113,7 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
-    public TreeView<TreeNode<AgentAndStatus>> getAgentList(
+    public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
@@ -123,8 +123,8 @@ public class AgentInfoController {
         return treeView(list);
     }
 
-    private static TreeView<TreeNode<AgentAndStatus>> treeView(AgentsMapByHost agentsMapByHost) {
-        List<InstancesList<AgentAndStatus>> list = agentsMapByHost.getAgentsListsList();
+    private static TreeView<TreeNode<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {
+        List<InstancesList<AgentStatusAndLink>> list = agentsMapByHost.getAgentsListsList();
         return new SimpleTreeView<>(list, InstancesList::getGroupName, InstancesList::getInstancesList);
     }
 

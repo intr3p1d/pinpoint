@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -131,7 +132,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
-                SortByAgentInfo.agentIdAsc(AgentAndStatus::getAgentInfo),
+                SortByAgentInfo.agentIdAsc(AgentStatusAndLink::getAgentInfo),
+                hyperLinkFactory,
                 agentInfoAndStatuses);
 
         logger.debug("getAgentsMapByHostname={}", agentsMapByHost);
