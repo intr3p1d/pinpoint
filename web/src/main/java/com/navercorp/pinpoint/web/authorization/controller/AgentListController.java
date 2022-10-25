@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,7 +64,7 @@ public class AgentListController {
     @GetMapping(params = {"application", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
-            @RequestParam("sortBy") String sortBy) {
+            @RequestParam("sortBy") Comparator<AgentInfo> sortBy) {
         long timestamp = System.currentTimeMillis();
         return getAgentsList(applicationName, timestamp, sortBy);
     }
@@ -72,7 +74,7 @@ public class AgentListController {
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam("sortBy") String sortBy) {
+            @RequestParam("sortBy") Comparator<AgentInfo> sortBy) {
         AgentInfoFilter currentRunFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
@@ -85,7 +87,7 @@ public class AgentListController {
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp,
-            @RequestParam("sortBy") String sortBy) {
+            @RequestParam("sortBy") Comparator<AgentInfo> sortBy) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
