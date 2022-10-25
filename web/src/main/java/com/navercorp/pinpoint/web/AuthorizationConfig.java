@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.service.AgentDownLoadService;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.AgentListService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
@@ -71,8 +72,8 @@ public class AuthorizationConfig {
     }
 
     @Bean
-    public AgentListController createAgentListController(AgentInfoService agentInfoService) {
-        return new AgentListController(agentInfoService);
+    public AgentListController createAgentListController(AgentInfoService agentInfoService, AgentListService agentListService) {
+        return new AgentListController(agentInfoService, agentListService);
     }
 
     @Bean

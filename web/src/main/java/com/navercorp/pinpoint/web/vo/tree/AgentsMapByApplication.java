@@ -15,21 +15,21 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class AgentsMapByApplication {
+public class AgentsMapByApplication<T> {
 
-    private final InstancesListMap<AgentStatusAndLink> instancesListMap;
+    private final InstancesListMap<T> instancesListMap;
 
-    private AgentsMapByApplication(InstancesListMap<AgentStatusAndLink> instancesListMap) {
+    private AgentsMapByApplication(InstancesListMap<T> instancesListMap) {
         this.instancesListMap = Objects.requireNonNull(instancesListMap, "agentsListMap");
     }
 
-    public List<InstancesList<AgentStatusAndLink>> getAgentsListsList() {
+    public List<InstancesList<T>> getAgentsListsList() {
         return new ArrayList<>(instancesListMap.getListMap());
     }
 
-    public static AgentsMapByApplication newAgentsMapByApplication(AgentInfoFilter filter,
-                                                                   HyperLinkFactory hyperLinkFactory,
-                                                                   Collection<AgentAndStatus> agentCollection) {
+    public static AgentsMapByApplication<AgentStatusAndLink> newAgentsMapWithStatusAndLink(AgentInfoFilter filter,
+                                                                                           HyperLinkFactory hyperLinkFactory,
+                                                                                           Collection<AgentAndStatus> agentCollection) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         Objects.requireNonNull(agentCollection, "agentCollection");
@@ -44,7 +44,7 @@ public class AgentsMapByApplication {
 
         instancesListMapBuilder.withFilter(filter::filter)
                 .withFinisher(x -> newAgentStatusAndLink(x, hyperLinkFactory));
-        return new AgentsMapByApplication(instancesListMapBuilder.build());
+        return new AgentsMapByApplication<>(instancesListMapBuilder.build());
     }
 
     private static String byApplicationName(AgentStatusAndLink agentStatusAndLink) {
@@ -57,6 +57,19 @@ public class AgentsMapByApplication {
         List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
         return new AgentStatusAndLink(agentInfo, status, hyperLinks);
     }
+
+    public static AgentsMapByApplication<AgentInfo> newAgentsMap(Collection<AgentInfo> agentInfos) {
+        Objects.requireNonNull(agentInfos, "agentInfos");
+        InstancesListMapBuilder<AgentInfo, AgentInfo> instancesListMapBuilder =
+                new InstancesListMapBuilder<>(
+                        AgentInfo::getApplicationName,
+                        Comparator.naturalOrder(),
+                        SortByAgentInfo.AGENT_ID_ASC,
+                        agentInfos
+                );
+        return new AgentsMapByApplication<>(instancesListMapBuilder.build());
+    }
+
 
     @Override
     public String toString() {
