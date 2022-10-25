@@ -113,7 +113,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             agents.addAll(getAgentsByApplicationName(application.getName(), timestamp));
         }
 
-        return AgentsMapByApplication.newAgentsMapWithStatusAndLink(
+        return AgentsMapByApplication.newAgentsMapByApplication(
                 filter,
                 hyperLinkFactory,
                 agents
