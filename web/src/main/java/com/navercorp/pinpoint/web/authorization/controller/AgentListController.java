@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
-import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
@@ -60,17 +59,20 @@ public class AgentListController {
     }
 
 
-    @GetMapping(params = {"application"})
-    public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(@RequestParam("application") String applicationName) {
+    @GetMapping(params = {"application", "sortBy"})
+    public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
+            @RequestParam("application") String applicationName,
+            @RequestParam("sortBy") String sortBy) {
         long timestamp = System.currentTimeMillis();
-        return getAgentsList(applicationName, timestamp);
+        return getAgentsList(applicationName, timestamp, sortBy);
     }
 
-    @GetMapping(params = {"application", "from", "to"})
+    @GetMapping(params = {"application", "from", "to", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("to") long to,
+            @RequestParam("sortBy") String sortBy) {
         AgentInfoFilter currentRunFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
@@ -79,10 +81,11 @@ public class AgentListController {
         return treeView(list);
     }
 
-    @GetMapping(params = {"application", "timestamp"})
+    @GetMapping(params = {"application", "timestamp", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
-            @RequestParam("timestamp") long timestamp) {
+            @RequestParam("timestamp") long timestamp,
+            @RequestParam("sortBy") String sortBy) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
