@@ -7,28 +7,41 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class SortByAgentInfo<T> {
-    public static Comparator<AgentInfo> AGENT_NAME_ASC = Comparator.comparing(AgentInfo::getAgentName)
-            .thenComparing(AgentInfo::getAgentId);
 
-    public static Comparator<AgentInfo> AGENT_NAME_DESC = AGENT_NAME_ASC.reversed();
+    public enum Rules {
+        AGENT_NAME_ASC(Comparator.comparing(AgentInfo::getAgentName)
+                .thenComparing(AgentInfo::getAgentId)),
 
-    public static Comparator<AgentInfo> AGENT_ID_ASC = Comparator.comparing(AgentInfo::getAgentId)
-            .thenComparing(AgentInfo::getAgentName);
+        AGENT_NAME_DESC(AGENT_NAME_ASC.getRule().reversed()),
 
-    public static Comparator<AgentInfo> AGENT_ID_DESC = AGENT_ID_ASC.reversed();
+        AGENT_ID_ASC(Comparator.comparing(AgentInfo::getAgentId)
+                .thenComparing(AgentInfo::getAgentName)),
 
-    public static Comparator<AgentInfo> LAST_STARTED_TIME = Comparator.comparingLong(AgentInfo::getStartTimestamp)
-            .reversed()
-            .thenComparing(AgentInfo::getAgentId);
+        AGENT_ID_DESC(AGENT_ID_ASC.getRule().reversed()),
+
+        LAST_STARTED_TIME(Comparator.comparingLong(AgentInfo::getStartTimestamp)
+                .reversed()
+                .thenComparing(AgentInfo::getAgentId));
+
+        private final Comparator<AgentInfo> rule;
+
+        Rules(Comparator<AgentInfo> rule) {
+            this.rule = rule;
+        }
+
+        public Comparator<AgentInfo> getRule() {
+            return rule;
+        }
+    }
 
     public static <T> SortByAgentInfo<T> agentNameAsc(Function<T, AgentInfo> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor");
-        return new SortByAgentInfo<>(Comparator.comparing(keyExtractor, AGENT_NAME_ASC));
+        return comparing(keyExtractor, Rules.AGENT_NAME_ASC.getRule());
     }
 
     public static <T> SortByAgentInfo<T> agentIdAsc(Function<T, AgentInfo> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor");
-        return new SortByAgentInfo<>(Comparator.comparing(keyExtractor, AGENT_ID_ASC));
+        return comparing(keyExtractor, Rules.AGENT_ID_ASC.getRule());
     }
 
     public static <T> SortByAgentInfo<T> comparing(Function<T, AgentInfo> keyExtractor, Comparator<AgentInfo> comparator) {
@@ -38,20 +51,7 @@ public class SortByAgentInfo<T> {
     }
 
     public static Comparator<AgentInfo> of(String sortBy) {
-        switch (sortBy) {
-            case "AGENT_NAME_ASC":
-                return AGENT_NAME_ASC;
-            case "AGENT_NAME_DESC":
-                return AGENT_NAME_DESC;
-            case "AGENT_ID_ASC":
-                return AGENT_ID_ASC;
-            case "AGENT_ID_DESC":
-                return AGENT_ID_DESC;
-            case "LAST_STARTED_TIME":
-                return LAST_STARTED_TIME;
-            default:
-                return AGENT_ID_ASC;
-        }
+        return Rules.valueOf(sortBy).getRule();
     }
 
     private final Comparator<T> comparator;
