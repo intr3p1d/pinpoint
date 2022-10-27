@@ -50,8 +50,8 @@ public class SortByAgentInfo<T> {
         return new SortByAgentInfo<>(Comparator.comparing(keyExtractor, comparator));
     }
 
-    public static Comparator<AgentInfo> of(String sortBy) {
-        return Rules.valueOf(sortBy).getRule();
+    public static Rules of(String sortBy) {
+        return Rules.valueOf(sortBy);
     }
 
     private final Comparator<T> comparator;

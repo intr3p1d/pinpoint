@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.web.vo.agent.DefaultAgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
+import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -64,7 +65,7 @@ public class AgentListController {
     @GetMapping(params = {"application", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
-            @RequestParam("sortBy") Comparator<AgentInfo> sortBy) {
+            @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
         long timestamp = System.currentTimeMillis();
         return getAgentsList(applicationName, timestamp, sortBy);
     }
@@ -74,12 +75,12 @@ public class AgentListController {
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam("sortBy") Comparator<AgentInfo> sortBy) {
+            @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
         AgentInfoFilter currentRunFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
         long timestamp = to;
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(currentRunFilter, applicationName, timestamp);
+        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(currentRunFilter, applicationName, timestamp, sortBy);
         return treeView(list);
     }
 
@@ -87,11 +88,11 @@ public class AgentListController {
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp,
-            @RequestParam("sortBy") Comparator<AgentInfo> sortBy) {
+            @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(runningAgentFilter, applicationName, timestamp);
+        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(runningAgentFilter, applicationName, timestamp, sortBy);
         return treeView(list);
     }
 

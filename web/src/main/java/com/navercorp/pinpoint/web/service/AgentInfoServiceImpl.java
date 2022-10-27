@@ -123,14 +123,14 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp) {
-        return getAgentsListByApplicationName(filter, applicationName, timestamp, SortByAgentInfo.Rules.AGENT_ID_ASC.getRule());
+        return getAgentsListByApplicationName(filter, applicationName, timestamp, SortByAgentInfo.Rules.AGENT_ID_ASC);
     }
 
     @Override
     public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter,
                                                           String applicationName,
                                                           long timestamp,
-                                                          Comparator<AgentInfo> sortBy) {
+                                                          SortByAgentInfo.Rules sortBy) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 

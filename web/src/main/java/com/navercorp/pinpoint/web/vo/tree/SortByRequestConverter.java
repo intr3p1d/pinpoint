@@ -8,9 +8,9 @@ import java.util.Comparator;
 /**
  * @author intr3p1d
  */
-public class SortByRequestConverter implements Converter<String, Comparator<AgentInfo>> {
+public class SortByRequestConverter implements Converter<String, SortByAgentInfo.Rules> {
     @Override
-    public Comparator<AgentInfo> convert(String sortBy) {
+    public SortByAgentInfo.Rules convert(String sortBy) {
         return SortByAgentInfo.of(sortBy);
     }
 }
