@@ -27,10 +27,8 @@ import java.util.Objects;
  */
 public class InstancesList<T> {
 
-    @JsonProperty
     private final String groupName;
 
-    @JsonProperty
     private final List<T> instancesList;
 
     public static <T> InstancesList<T> sorted(String groupName, List<T> instancesList, Comparator<T> sortBy) {
@@ -51,10 +49,12 @@ public class InstancesList<T> {
         this.instancesList = Objects.requireNonNull(instancesList, "agentSuppliersList");
     }
 
+    @JsonProperty
     public String getGroupName() {
         return groupName;
     }
 
+    @JsonProperty
     public List<T> getInstancesList() {
         return instancesList;
     }

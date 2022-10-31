@@ -116,7 +116,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         return AgentsMapByApplication.newAgentsMapByApplication(
                 filter,
-                hyperLinkFactory,
                 agents
         );
     }

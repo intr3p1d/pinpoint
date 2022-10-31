@@ -65,13 +65,13 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application"})
-    public TreeView<TreeNode<AgentStatusAndLink>> getAgentList() {
+    public TreeView<TreeNode<AgentAndStatus>> getAgentList() {
         long timestamp = System.currentTimeMillis();
         return getAgentList(timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application", "from", "to"})
-    public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
+    public TreeView<TreeNode<AgentAndStatus>> getAgentList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
@@ -82,14 +82,14 @@ public class AgentInfoController {
 
 
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
-    public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
+    public TreeView<TreeNode<AgentAndStatus>> getAgentList(
             @RequestParam("timestamp") long timestamp) {
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
         return treeView(allAgentsList);
     }
 
-    private static TreeView<TreeNode<AgentStatusAndLink>> treeView(AgentsMapByApplication agentsListsList) {
-        List<InstancesList<AgentStatusAndLink>> list = agentsListsList.getAgentsListsList();
+    private static TreeView<TreeNode<AgentAndStatus>> treeView(AgentsMapByApplication agentsListsList) {
+        List<InstancesList<AgentAndStatus>> list = agentsListsList.getAgentsListsList();
         return new SimpleTreeView<>(list, InstancesList::getGroupName, InstancesList::getInstancesList);
     }
 
