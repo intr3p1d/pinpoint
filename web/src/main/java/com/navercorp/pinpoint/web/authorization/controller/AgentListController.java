@@ -24,7 +24,7 @@ import java.util.Objects;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/agents")
+@RequestMapping(value = "v1/agents")
 public class AgentListController {
     private final AgentInfoService agentInfoService;
 
@@ -32,13 +32,13 @@ public class AgentListController {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/group-by-application")
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
         long timestamp = System.currentTimeMillis();
         return getAllAgentsList(timestamp);
     }
 
-    @GetMapping(value = "/all", params = {"from", "to"})
+    @GetMapping(value = "/group-by-application", params = {"from", "to"})
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -48,7 +48,7 @@ public class AgentListController {
         return treeView(allAgentsList);
     }
 
-    @GetMapping(value = "/all", params = {"timestamp"})
+    @GetMapping(value = "/group-by-application", params = {"timestamp"})
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("timestamp") long timestamp) {
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
@@ -61,7 +61,7 @@ public class AgentListController {
     }
 
 
-    @GetMapping(value = "/v1", params = {"application", "sortBy"})
+    @GetMapping(value = "/group-by-host", params = {"application", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
@@ -69,7 +69,7 @@ public class AgentListController {
         return getAgentsList(applicationName, timestamp, sortBy);
     }
 
-    @GetMapping(value = "/v1", params = {"application", "from", "to", "sortBy"})
+    @GetMapping(value = "/group-by-host", params = {"application", "from", "to", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
@@ -83,7 +83,7 @@ public class AgentListController {
         return treeView(list);
     }
 
-    @GetMapping(value = "/v1", params = {"application", "timestamp", "sortBy"})
+    @GetMapping(value = "/group-by-host", params = {"application", "timestamp", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp,
