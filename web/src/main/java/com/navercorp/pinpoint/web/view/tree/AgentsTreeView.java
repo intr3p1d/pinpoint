@@ -7,11 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class StaticTreeView<C> implements TreeView<C> {
+public class AgentsTreeView<C> implements TreeView<C> {
 
+    private final String groupBy;
     private final List<C> nodeList;
 
-    public StaticTreeView(List<C> nodeList) {
+    public AgentsTreeView(List<C> nodeList) {
         this.nodeList = Objects.requireNonNull(nodeList, "nodeList");
     }
 

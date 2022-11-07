@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
+import com.navercorp.pinpoint.web.view.tree.AgentsTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -24,7 +24,7 @@ import java.util.Objects;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "v1/agents")
+@RequestMapping(value = "/agents")
 public class AgentListController {
     private final AgentInfoService agentInfoService;
 
@@ -32,13 +32,13 @@ public class AgentListController {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
-    @GetMapping(value = "/group-by-application")
+    @GetMapping()
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
         long timestamp = System.currentTimeMillis();
         return getAllAgentsList(timestamp);
     }
 
-    @GetMapping(value = "/group-by-application", params = {"from", "to"})
+    @GetMapping(params = {"from", "to"})
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -48,7 +48,7 @@ public class AgentListController {
         return treeView(allAgentsList);
     }
 
-    @GetMapping(value = "/group-by-application", params = {"timestamp"})
+    @GetMapping(params = {"timestamp"})
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("timestamp") long timestamp) {
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
@@ -57,11 +57,11 @@ public class AgentListController {
 
     private static TreeView<InstancesList<AgentAndStatus>> treeView(AgentsMapByApplication agentsListsList) {
         List<InstancesList<AgentAndStatus>> list = agentsListsList.getAgentsListsList();
-        return new StaticTreeView<>(list);
+        return new AgentsTreeView<>(list);
     }
 
 
-    @GetMapping(value = "/group-by-host", params = {"application", "sortBy"})
+    @GetMapping(params = {"application", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
@@ -69,7 +69,7 @@ public class AgentListController {
         return getAgentsList(applicationName, timestamp, sortBy);
     }
 
-    @GetMapping(value = "/group-by-host", params = {"application", "from", "to", "sortBy"})
+    @GetMapping(params = {"application", "from", "to", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
@@ -83,7 +83,7 @@ public class AgentListController {
         return treeView(list);
     }
 
-    @GetMapping(value = "/group-by-host", params = {"application", "timestamp", "sortBy"})
+    @GetMapping(params = {"application", "timestamp", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp,
@@ -97,7 +97,7 @@ public class AgentListController {
 
     private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {
         List<InstancesList<AgentStatusAndLink>> list = agentsMapByHost.getAgentsListsList();
-        return new StaticTreeView<>(list);
+        return new AgentsTreeView<>(list);
     }
 
 }
