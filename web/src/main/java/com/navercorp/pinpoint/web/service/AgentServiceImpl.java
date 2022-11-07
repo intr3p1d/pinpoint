@@ -97,7 +97,7 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+        Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationName(applicationName, currentTime);
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo == null) {
                 continue;
@@ -125,7 +125,7 @@ public class AgentServiceImpl implements AgentService {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
-            Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+            Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationName(applicationName, currentTime);
             for (AgentInfo agentInfo : agentInfos) {
                 if (agentInfo == null) {
                     continue;

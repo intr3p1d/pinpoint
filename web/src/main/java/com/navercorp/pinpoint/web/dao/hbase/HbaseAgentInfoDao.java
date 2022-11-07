@@ -125,10 +125,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return getAgentInfos0(agentIds, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
     }
 
-    public List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp) {
-        return getAgentInfos0(agentIds, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
-    }
-
     public <T> List<T> getAgentInfos0(List<String> agentIds, long timestamp, ResultsExtractor<T> action, AgentInfoColumn column) {
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();

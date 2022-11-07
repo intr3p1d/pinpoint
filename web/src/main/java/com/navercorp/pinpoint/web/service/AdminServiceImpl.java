@@ -77,7 +77,7 @@ public class AdminServiceImpl implements AdminService {
         Collections.shuffle(applicationNames);
 
         int index = 1;
-        for (String applicationName: applicationNames) {
+        for (String applicationName : applicationNames) {
             logger.info("Cleaning {} ({}/{})", applicationName, index++, applicationNames.size());
             removeInactiveAgentInApplication(applicationName, durationDays);
         }
@@ -103,7 +103,9 @@ public class AdminServiceImpl implements AdminService {
     private void waitOneMinute() {
         try {
             Thread.sleep(60000);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            // ignored
+        }
     }
 
     private int removeInactiveAgentInApplication0(String applicationName, int durationDays) {
@@ -111,7 +113,7 @@ public class AdminServiceImpl implements AdminService {
         int deleteCount = 0;
 
         final List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        for (String agentId: agentIds) {
+        for (String agentId : agentIds) {
             if (!isInactiveAgent(agentId, durationDays)) {
                 continue;
             }

@@ -19,23 +19,16 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimeline;
@@ -44,27 +37,13 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
-import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author netspider
@@ -102,7 +81,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public AgentAndStatus getAgentAndStatus(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
 
-        AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, timestamp);
+        AgentInfo agentInfo = getAgentInfo(agentId, timestamp);
         if (agentInfo == null) {
             return null;
         }
@@ -130,7 +109,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp) {
+    public AgentInfo getAgentInfo(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
@@ -139,7 +118,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
+    public AgentInfo getAgentInfo(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
         Objects.requireNonNull(agentId, "agentId");
 
         return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
@@ -193,7 +172,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public boolean isExistAgentId(String agentId) {
         Objects.requireNonNull(agentId, "agentId");
 
-        AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, System.currentTimeMillis());
+        AgentInfo agentInfo = getAgentInfo(agentId, System.currentTimeMillis());
         return agentInfo != null;
     }
 

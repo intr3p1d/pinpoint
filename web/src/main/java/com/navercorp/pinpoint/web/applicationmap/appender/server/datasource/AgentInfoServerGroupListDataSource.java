@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentCollectionService;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -69,7 +68,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         }
 
         Application application = node.getApplication();
-        Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp.toEpochMilli());
+        Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationName(application.getName(), timestamp.toEpochMilli());
         if (CollectionUtils.isEmpty(agentInfos)) {
             logger.warn("agentInfo not found. application:{}", application);
             return ServerGroupList.empty();

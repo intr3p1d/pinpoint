@@ -33,9 +33,9 @@ public interface AgentInfoService {
 
     DetailedAgentAndStatus getDetailedAgentAndStatus(String agentId, long timestamp);
 
-    AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp);
+    AgentInfo getAgentInfo(String agentId, long timestamp);
 
-    AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliseconds);
+    AgentInfo getAgentInfo(String agentId, long agentStartTime, int deltaTimeInMilliseconds);
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
 

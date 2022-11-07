@@ -73,7 +73,7 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         List<AgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            agents.addAll(getAgentsByApplicationName(application.getName(), timestamp));
+            agents.addAll(getAgentAndStatusesByApplicationName(application.getName(), timestamp));
         }
 
         return AgentsMapByApplication.newAgentsMapByApplication(
@@ -95,7 +95,7 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentAndStatusesByApplicationName(applicationName, timestamp);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
         }
@@ -139,7 +139,7 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
             String applicationName = applicationNameList.get(i);
 
             List<String> agentIdList = getAgentIdList(applicationName, durationDays);
-            List<AgentInfo> agentInfoList = this.agentInfoDao.getSimpleAgentInfos(agentIdList, timeStamp);
+            List<AgentInfo> agentInfoList = this.agentInfoDao.getAgentInfos(agentIdList, timeStamp);
             builder.addAgentInfo(applicationName, agentInfoList);
         }
         return builder.build();
@@ -150,7 +150,7 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
     }
 
     @Override
-    public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp) {
+    public Set<AgentAndStatus> getAgentAndStatusesByApplicationName(String applicationName, long timestamp) {
         List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
 
         List<AgentAndStatus> result = new ArrayList<>(agentInfos.size());
@@ -205,17 +205,16 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
     }
 
     private List<String> getApplicationNameList(List<Application> applications) {
-        List<String> applicationNameList = applications.stream()
+        return applications.stream()
                 .map(Application::getName)
                 .distinct()
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
-        return applicationNameList;
     }
 
 
     @Override
-    public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
+    public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
         List<AgentInfo> agentInfos = getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
         return new HashSet<>(agentInfos);
     }
@@ -227,7 +226,7 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
         }
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, timestamp);
+        List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
 
         return agentInfos.stream()
                 .filter(Objects::nonNull)
@@ -241,7 +240,7 @@ public class AgentCollectionServiceImpl implements AgentCollectionService {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
         }
 
-        Set<AgentAndStatus> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
+        Set<AgentAndStatus> unfilteredAgentInfos = this.getAgentAndStatusesByApplicationName(applicationName, timestamp);
 
         final long eventTimestampFloor = timestamp - timeDiff;
 

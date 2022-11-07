@@ -28,9 +28,9 @@ public interface AgentCollectionService {
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 
-    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
+    Set<AgentAndStatus> getAgentAndStatusesByApplicationName(String applicationName, long timestamp);
 
-    Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp);
+    Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp);
 
     Set<AgentAndStatus> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff);
 
