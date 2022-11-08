@@ -253,7 +253,7 @@ public class TcpDataSender<T> implements EnhancedDataSender<T> {
         write.setListener(writeFailFutureListener);
     }
 
-    // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
+    // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when first attempt.)
     private void doRequest(final byte[] requestPacket, final int maxRetryCount, final Object targetClass) {
         FutureListener<ResponseMessage> futureListener = (new FutureListener<ResponseMessage>() {
             @Override
