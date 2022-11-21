@@ -1,8 +1,10 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
+import com.navercorp.pinpoint.profiler.context.SpanException;
+
 /**
  * @author intr3p1d
  */
 public interface ExceptionRecordingService {
-    String recordException(Throwable throwable);
+    SpanException recordException(Throwable throwable);
 }

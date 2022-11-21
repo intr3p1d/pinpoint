@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.profiler.context.SpanException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,14 +18,10 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     }
 
     @Override
-    public String recordException(Throwable throwable) {
-        String drop = "";
-
+    public SpanException recordException(Throwable throwable) {
         if (throwable != null) {
             depth += 1;
             logger.error(String.format("Stacking Exception... Current depth: %d", depth), throwable);
-            drop = StringUtils.abbreviate(throwable.getMessage(), 200);
-            drop += ", depth: " + depth;
         }
 
         if (isTopLevelException(throwable)) {
@@ -36,7 +33,7 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         }
 
         holdCurrentException(throwable);
-        return drop;
+        return toSpanException(throwable);
     }
 
     private boolean isTopLevelException(Throwable throwable) {
@@ -45,6 +42,10 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     private void holdCurrentException(Throwable throwable) {
         this.previous = throwable;
+    }
+
+    private SpanException toSpanException(Throwable throwable) {
+        return new SpanException(depth, throwable, depth + 2);
     }
 
 }

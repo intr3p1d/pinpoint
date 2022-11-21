@@ -25,6 +25,7 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.SpanException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.metadata.DefaultExceptionRecordingService;
@@ -57,14 +58,15 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     public void recordException(boolean markError, Throwable throwable) {
-        final String additional = exceptionRecordingService.recordException(throwable);
+        final SpanException additional = exceptionRecordingService.recordException(throwable);
         if (throwable == null) {
             return;
         }
-        final String drop = additional;
+        final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
         setExceptionInfo(exceptionId, drop);
+        setSpanExceptionInfo(additional);
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
                 recordError();
@@ -73,6 +75,8 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
+
+    abstract void setSpanExceptionInfo(SpanException spanExceptionInfo);
 
     abstract void maskErrorCode(final int errorCode);
 

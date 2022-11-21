@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanException;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -29,18 +30,16 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
     private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
-    
+
     private final Span span;
     private final boolean isRoot;
     private final boolean sampling;
-    
+
     public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling,
                                final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler) {
@@ -62,6 +61,11 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         span.setExceptionInfo(exceptionClassId, exceptionMessage);
+    }
+
+    @Override
+    void setSpanExceptionInfo(SpanException spanExceptionInfo) {
+        span.setDetailedException(spanExceptionInfo);
     }
 
     @Override
@@ -132,13 +136,13 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public boolean isRoot() {
         return isRoot;
     }
-    
+
     @Override
     public void recordLogging(LoggingInfo loggingInfo) {
         final TraceRoot traceRoot = span.getTraceRoot();
         traceRoot.getShared().setLoggingInfo(loggingInfo.getCode());
     }
-    
+
     @Override
     public void recordTime(boolean autoTimeRecoding) {
         span.setTimeRecording(autoTimeRecoding);
