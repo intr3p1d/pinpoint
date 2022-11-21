@@ -32,6 +32,46 @@ public class AgentListController {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
+    @GetMapping("/error50")
+    public String error50Testing() {
+        for (int i = 0; i < 50; i++) {
+            try {
+                throw new RuntimeException("top exception");
+            } catch (Exception e) {
+                // ignored
+            }
+        }
+        throw new RuntimeException("top exception2");
+    }
+
+
+    @GetMapping("/error")
+    public String errorTesting() {
+        methodC();
+        return "Response";
+    }
+
+    public void methodA() {
+        throw new RuntimeException("Level 1 Error");
+    }
+
+    public void methodB() {
+        try {
+            methodA();
+        } catch (Exception e) {
+            throw new RuntimeException("Level 2 Error", e);
+        }
+    }
+
+    public void methodC() {
+        try {
+            methodB();
+            throw new RuntimeException("Middle Error");
+        } catch (Exception e) {
+            throw new RuntimeException("Level 3 Error", e);
+        }
+    }
+
     @GetMapping()
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
         long timestamp = System.currentTimeMillis();

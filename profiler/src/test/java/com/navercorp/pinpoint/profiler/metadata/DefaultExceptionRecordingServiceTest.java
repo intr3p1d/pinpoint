@@ -38,5 +38,6 @@ public class DefaultExceptionRecordingServiceTest {
         } catch (Exception e) {
             defaultExceptionRecordingService.recordException(e);
         }
+        defaultExceptionRecordingService.recordException(null);
     }
 }

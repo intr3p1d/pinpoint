@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.util.DataType;
@@ -26,6 +27,8 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.metadata.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -37,6 +40,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
+    protected final ExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService();
 
     public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
@@ -53,10 +57,11 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     public void recordException(boolean markError, Throwable throwable) {
+        final String additional = exceptionRecordingService.recordException(throwable);
         if (throwable == null) {
             return;
         }
-        final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
+        final String drop = additional;
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
         setExceptionInfo(exceptionId, drop);
