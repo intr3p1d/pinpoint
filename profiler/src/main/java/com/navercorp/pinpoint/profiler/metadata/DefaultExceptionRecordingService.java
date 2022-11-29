@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.SpanException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +44,7 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     }
 
     private SpanException toSpanException(Throwable throwable) {
-        return new SpanException(depth, throwable, depth + 2);
+        return new SpanException(throwable, depth + 2);
     }
 
 }

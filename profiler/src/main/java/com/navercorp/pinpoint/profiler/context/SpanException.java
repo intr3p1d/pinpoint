@@ -7,13 +7,14 @@ import java.util.Objects;
  */
 public class SpanException {
 
-    private final int depth;
+    private String exceptionClassName;
+    private String exceptionMessage;
+
     private final long refId;
 
     private final Throwable throwable; // optional, not null when top level exception
 
-    public SpanException(int depth, Throwable throwable, long refId) {
-        this.depth = Objects.requireNonNull(depth, "depth");
+    public SpanException(Throwable throwable, long refId) {
         this.refId = Objects.requireNonNull(refId, "refId");
         this.throwable = throwable;
     }
