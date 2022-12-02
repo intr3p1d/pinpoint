@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanException;
+import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -64,8 +64,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
-    void setSpanExceptionInfo(SpanException spanExceptionInfo) {
-        span.setDetailedException(spanExceptionInfo);
+    void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
+        // TODO Is it really necessary?
     }
 
     @Override
@@ -107,6 +107,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordEndPoint(String endPoint) {
 //        span.setEndPoint(endPoint);
+        this.setEndSpanExceptionInfo();
         span.getTraceRoot().getShared().setEndPoint(endPoint);
     }
 

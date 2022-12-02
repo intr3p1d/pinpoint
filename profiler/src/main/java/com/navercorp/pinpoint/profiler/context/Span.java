@@ -53,8 +53,6 @@ public class Span extends DefaultFrameAttachment implements SpanType {
     private String acceptorHost; // optional
 
     private IntStringValue exceptionInfo; // optional
-    private SpanException detailedException; // optional
-
 
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -144,14 +142,6 @@ public class Span extends DefaultFrameAttachment implements SpanType {
 
     public void setExceptionInfo(IntStringValue exceptionInfo) {
         this.exceptionInfo = exceptionInfo;
-    }
-
-    public SpanException getDetailedException() {
-        return detailedException;
-    }
-
-    public void setDetailedException(SpanException detailedException) {
-        this.detailedException = detailedException;
     }
 
     public void markBeforeTime() {

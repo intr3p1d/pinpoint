@@ -195,6 +195,7 @@ public class TraceService {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO need to batch update later.
         insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
+        insertExceptionInfos(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
@@ -232,6 +233,16 @@ public class TraceService {
 
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+        }
+    }
+
+    private void insertExceptionInfos(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
+        // TODO: insert to pinot
+        logger.warn("insertExceptionInfos");
+        for (SpanEventBo spanEvent : spanEventList) {
+            if (spanEvent.getFlushedException() != null) {
+                logger.warn(spanEvent.getFlushedException().toString());
+            }
         }
     }
 

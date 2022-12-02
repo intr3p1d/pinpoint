@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
-import com.navercorp.pinpoint.profiler.context.SpanException;
+import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -153,9 +153,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     @Override
-    void setSpanExceptionInfo(SpanException spanExceptionInfo) {
-        // TODO: need to add
-        return;
+    void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
+        spanEvent.setFlushedException(spanEventExceptionInfo);
     }
 
     @Override
@@ -179,6 +178,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     public void recordEndPoint(String endPoint) {
+        this.setEndSpanExceptionInfo();
         spanEvent.setEndPoint(endPoint);
     }
 
