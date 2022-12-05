@@ -58,6 +58,9 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     }
 
     private static SpanEventException toSpanException(Throwable throwable) {
+        if (throwable == null) {
+            return null;
+        }
         return new SpanEventException(throwable);
     }
 }

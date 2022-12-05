@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
+import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
@@ -53,6 +54,7 @@ public class Span extends DefaultFrameAttachment implements SpanType {
     private String acceptorHost; // optional
 
     private IntStringValue exceptionInfo; // optional
+    private SpanEventException flushedException; // optional
 
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -172,6 +174,14 @@ public class Span extends DefaultFrameAttachment implements SpanType {
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final IntStringValue exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
         this.setExceptionInfo(exceptionInfo);
+    }
+
+    public SpanEventException getFlushedException() {
+        return flushedException;
+    }
+
+    public void setFlushedException(SpanEventException flushedException) {
+        this.flushedException = flushedException;
     }
 
 

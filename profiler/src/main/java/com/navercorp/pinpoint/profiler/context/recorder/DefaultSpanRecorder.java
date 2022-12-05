@@ -65,7 +65,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
-        // TODO Is it really necessary?
+        span.setFlushedException(spanEventExceptionInfo);
     }
 
     @Override
