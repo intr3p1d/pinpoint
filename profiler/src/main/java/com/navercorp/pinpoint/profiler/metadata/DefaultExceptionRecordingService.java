@@ -4,6 +4,8 @@ import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
+
 /**
  * @author intr3p1d
  */
@@ -16,13 +18,16 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     public DefaultExceptionRecordingService() {
     }
 
+    @Nullable
     @Override
     public SpanEventException recordException(Throwable throwable) {
+        return toSpanException(throwable);
+        /*
         SpanEventException flushedException = null;
 
         if (throwable != null) {
             depth += 1;
-            logger.error(String.format("Stacking Exception... Current depth: %d", depth), throwable);
+            logger.error(String.format("Stacking Exception... Current depth: %d", depth));
         }
 
         if (isTopLevelException(throwable)) {
@@ -30,12 +35,18 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
             // Need to flush
             depth = 0;
             logger.error("Top level exception", previous);
-            previous.printStackTrace();
             flushedException = toSpanException(previous);
         }
 
         holdCurrentException(throwable);
         return flushedException;
+        */
+    }
+
+    @Nullable
+    @Override
+    public SpanEventException flushHeldException() {
+        return recordException(null);
     }
 
     private boolean isTopLevelException(Throwable throwable) {

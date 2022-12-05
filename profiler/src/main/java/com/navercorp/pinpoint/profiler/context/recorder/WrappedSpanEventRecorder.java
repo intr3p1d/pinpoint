@@ -178,7 +178,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     public void recordEndPoint(String endPoint) {
-        this.setEndSpanExceptionInfo();
         spanEvent.setEndPoint(endPoint);
     }
 

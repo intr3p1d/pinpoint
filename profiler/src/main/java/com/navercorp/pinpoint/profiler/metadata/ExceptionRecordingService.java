@@ -8,4 +8,5 @@ import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 public interface ExceptionRecordingService {
     SpanEventException recordException(Throwable throwable);
 
+    SpanEventException flushHeldException();
 }

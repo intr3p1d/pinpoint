@@ -77,14 +77,13 @@ public abstract class AbstractRecorder implements AttributeRecorder {
 
     private void flushSpanExceptionInfo(Throwable throwable) {
         final SpanEventException additional = exceptionRecordingService.recordException(throwable);
-        if (additional != null) {
-            setSpanExceptionInfo(additional);
-        }
+        setSpanExceptionInfo(additional);
     }
 
     void setEndSpanExceptionInfo() {
         // TODO: flush rest of the throwable held by ExceptionRecordingService
-        flushSpanExceptionInfo(null);
+        final SpanEventException additional = exceptionRecordingService.flushHeldException();
+        setSpanExceptionInfo(additional);
     }
 
     abstract void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo);

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.exception;
 
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author intr3p1d
@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class SpanEventExceptionBo {
     private String exceptionClassName;
     private String exceptionMessage;
-    private StackTraceElementWrapperBo[] stackTraceElements;
+    private List<StackTraceElementWrapperBo> stackTraceElements;
     private long startTime;
     private int elapsedTime;
 
@@ -31,11 +31,11 @@ public class SpanEventExceptionBo {
         this.exceptionMessage = exceptionMessage;
     }
 
-    public StackTraceElementWrapperBo[] getStackTraceElements() {
+    public List<StackTraceElementWrapperBo> getStackTraceElements() {
         return stackTraceElements;
     }
 
-    public void setStackTraceElements(StackTraceElementWrapperBo[] stackTraceElements) {
+    public void setStackTraceElements(List<StackTraceElementWrapperBo> stackTraceElements) {
         this.stackTraceElements = stackTraceElements;
     }
 
@@ -60,7 +60,7 @@ public class SpanEventExceptionBo {
         return "SpanEventExceptionBo{" +
                 "exceptionClassName='" + exceptionClassName + '\'' +
                 ", exceptionMessage='" + exceptionMessage + '\'' +
-                ", stackTraceElements=" + Arrays.toString(stackTraceElements) +
+                ", stackTraceElements=" + stackTraceElements +
                 ", startTime=" + startTime +
                 ", elapsedTime=" + elapsedTime +
                 '}';

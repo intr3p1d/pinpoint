@@ -107,7 +107,6 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordEndPoint(String endPoint) {
 //        span.setEndPoint(endPoint);
-        this.setEndSpanExceptionInfo();
         span.getTraceRoot().getShared().setEndPoint(endPoint);
     }
 
