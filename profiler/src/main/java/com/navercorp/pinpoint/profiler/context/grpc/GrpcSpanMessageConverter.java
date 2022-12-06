@@ -54,7 +54,6 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -376,7 +375,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         pSpanEventException.setExceptionClassName(spanEventException.getExceptionClassName());
         pSpanEventException.setExceptionMessage(spanEventException.getExceptionMessage());
 
-        final List<StackTraceElementWrapper> stackTraceElementWrappers = Arrays.asList(spanEventException.getStackTraceElements());
+        final List<StackTraceElementWrapper> stackTraceElementWrappers = spanEventException.getStackTraceElements();
         if (CollectionUtils.hasLength(stackTraceElementWrappers)) {
             final List<PStackTraceElement> pStackTraceElements = stackTraceElementWrappers.stream().map(
                     this::buildStackTraceElement

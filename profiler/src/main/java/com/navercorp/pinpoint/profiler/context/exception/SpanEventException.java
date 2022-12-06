@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -9,7 +10,7 @@ public class SpanEventException {
 
     private final String exceptionClassName;
     private final String exceptionMessage;
-    private final StackTraceElementWrapper[] stackTraceElements;
+    private final List<StackTraceElementWrapper> stackTraceElements;
 
     private long startTime;
     private int elapsedTime;
@@ -29,7 +30,7 @@ public class SpanEventException {
         return exceptionMessage;
     }
 
-    public StackTraceElementWrapper[] getStackTraceElements() {
+    public List<StackTraceElementWrapper> getStackTraceElements() {
         return stackTraceElements;
     }
 

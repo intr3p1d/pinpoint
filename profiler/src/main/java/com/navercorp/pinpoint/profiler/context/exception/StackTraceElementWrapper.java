@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -23,9 +25,10 @@ public class StackTraceElementWrapper {
     }
 
 
-    public static StackTraceElementWrapper[] valueOf(StackTraceElement[] stackTraceElements) {
-        return (StackTraceElementWrapper[]) Arrays.stream(stackTraceElements)
-                .map(StackTraceElementWrapper::valueOf).toArray();
+    public static List<StackTraceElementWrapper> valueOf(StackTraceElement[] stackTraceElements) {
+        return Arrays.stream(stackTraceElements)
+                .map(StackTraceElementWrapper::valueOf)
+                .collect(Collectors.toList());
     }
 
     public static StackTraceElementWrapper valueOf(StackTraceElement stackTraceElement) {

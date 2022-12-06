@@ -21,8 +21,9 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     @Nullable
     @Override
     public SpanEventException recordException(Throwable throwable) {
-        return toSpanException(throwable);
         /*
+        return toSpanException(throwable);8
+         */
         SpanEventException flushedException = null;
 
         if (throwable != null) {
@@ -40,7 +41,6 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
         holdCurrentException(throwable);
         return flushedException;
-        */
     }
 
     @Nullable
