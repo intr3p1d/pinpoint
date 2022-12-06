@@ -150,11 +150,6 @@ public class GrpcSpanBinder {
             spanBo.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
         }
 
-        if (pSpan.hasFlushedException()) {
-            final PSpanEventException pSpanEventException = pSpan.getFlushedException();
-            spanBo.setSpanEventExceptionBo(spanEventExceptionHandler.bind(pSpanEventException));
-        }
-
         List<AnnotationBo> annotationBoList = buildAnnotationList(pSpan.getAnnotationList());
         spanBo.setAnnotationBoList(annotationBoList);
 

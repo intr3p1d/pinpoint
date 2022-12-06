@@ -66,8 +66,6 @@ public class SpanBo implements Event, BasicSpan {
     private String exceptionMessage;
     private String exceptionClass;
 
-    private SpanEventExceptionBo spanEventExceptionBo;
-
     private Short applicationServiceType;
 
     private String acceptorHost;
@@ -331,14 +329,6 @@ public class SpanBo implements Event, BasicSpan {
 
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
-    }
-
-    public SpanEventExceptionBo getSpanEventExceptionBo() {
-        return spanEventExceptionBo;
-    }
-
-    public void setSpanEventExceptionBo(SpanEventExceptionBo spanEventExceptionBo) {
-        this.spanEventExceptionBo = spanEventExceptionBo;
     }
 
     public void setApplicationServiceType(Short applicationServiceType) {

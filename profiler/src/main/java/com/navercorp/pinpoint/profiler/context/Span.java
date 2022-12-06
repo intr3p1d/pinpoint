@@ -54,7 +54,6 @@ public class Span extends DefaultFrameAttachment implements SpanType {
     private String acceptorHost; // optional
 
     private IntStringValue exceptionInfo; // optional
-    private SpanEventException flushedException; // optional
 
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -175,15 +174,6 @@ public class Span extends DefaultFrameAttachment implements SpanType {
         final IntStringValue exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
         this.setExceptionInfo(exceptionInfo);
     }
-
-    public SpanEventException getFlushedException() {
-        return flushedException;
-    }
-
-    public void setFlushedException(SpanEventException flushedException) {
-        this.flushedException = flushedException;
-    }
-
 
     public boolean isTimeRecording() {
         return timeRecording;
