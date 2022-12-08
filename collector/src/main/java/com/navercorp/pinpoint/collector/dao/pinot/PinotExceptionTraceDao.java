@@ -15,6 +15,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     public PinotExceptionTraceDao() {
+
     }
 
     @Override

@@ -27,6 +27,7 @@
     <import resource="classpath:applicationContext-collector-grpc.xml"/>
     <import resource="classpath:applicationContext-collector-thrift.xml"/>
     <import resource="classpath:applicationContext-collector-hbase.xml"/>
+    <import resource="classpath:applicationContext-collector-pinot.xml"/>
     <import resource="classpath:applicationContext-collector-namespace.xml"/>
 
     <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>

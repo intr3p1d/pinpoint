@@ -247,6 +247,7 @@ public class TraceService {
         for (SpanEventBo spanEvent : spanEventList) {
             if (spanEvent.getFlushedException() != null) {
                 logger.warn(spanEvent.getFlushedException().toString());
+                exceptionTraceDao.insert(spanEvent.getFlushedException());
             }
         }
     }
