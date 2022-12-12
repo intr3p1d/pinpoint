@@ -154,6 +154,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
+        // TODO: set or add?
+        // spanEventExceptionInfo.setElapsedTime(spanEvent.getElapsedTime());
         spanEvent.setFlushedException(spanEventExceptionInfo);
     }
 
