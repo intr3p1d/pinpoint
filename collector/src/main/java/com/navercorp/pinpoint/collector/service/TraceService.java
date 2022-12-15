@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.collector.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -44,19 +43,22 @@ public class TraceService {
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
-    private final ExceptionTraceDao exceptionTraceDao;
+    private final ExceptionTraceService exceptionTraceService;
 
     private final StatisticsService statisticsService;
 
     private final ServiceTypeRegistryService registry;
 
-    public TraceService(TraceDao traceDao, ApplicationTraceIndexDao applicationTraceIndexDao, HostApplicationMapDao hostApplicationMapDao,
-                        ExceptionTraceDao exceptionTraceDao,
-                        StatisticsService statisticsService, ServiceTypeRegistryService registry) {
+    public TraceService(TraceDao traceDao,
+                        ApplicationTraceIndexDao applicationTraceIndexDao,
+                        HostApplicationMapDao hostApplicationMapDao,
+                        ExceptionTraceService exceptionTraceService,
+                        StatisticsService statisticsService,
+                        ServiceTypeRegistryService registry) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
-        this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");
+        this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
         this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
     }
@@ -247,7 +249,7 @@ public class TraceService {
         for (SpanEventBo spanEvent : spanEventList) {
             if (spanEvent.getFlushedException() != null) {
                 logger.warn(spanEvent.getFlushedException().toString());
-                exceptionTraceDao.insert(spanEvent.getFlushedException());
+                exceptionTraceService.save(spanEvent.getFlushedException());
             }
         }
     }
