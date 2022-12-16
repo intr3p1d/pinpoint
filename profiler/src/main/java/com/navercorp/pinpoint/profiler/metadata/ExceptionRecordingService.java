@@ -9,4 +9,8 @@ public interface ExceptionRecordingService {
     SpanEventException recordException(Throwable throwable);
 
     SpanEventException flushHeldException();
+
+    void checkAndSetStartTime(long startTime);
+
+    void checkAndAddElapsedTime(int elapsedTime);
 }

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.util.DataType;
@@ -42,9 +43,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 /**
- *
  * @author jaehong.kim
- *
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
     private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
@@ -154,8 +153,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
-        // TODO: set or add?
-        // spanEventExceptionInfo.setElapsedTime(spanEvent.getElapsedTime());
+        exceptionRecordingService.checkAndSetStartTime(spanEvent.getStartTime());
+        exceptionRecordingService.checkAndAddElapsedTime(spanEvent.getElapsedTime());
         spanEvent.setFlushedException(spanEventExceptionInfo);
     }
 

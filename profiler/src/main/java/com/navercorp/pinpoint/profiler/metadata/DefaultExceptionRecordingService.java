@@ -13,6 +13,9 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private Throwable previous = null;
+    private long startTime = 0;
+    private int elapsedTime = 0;
+
     private int depth = 0;
 
     public DefaultExceptionRecordingService() {
@@ -21,9 +24,6 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     @Nullable
     @Override
     public SpanEventException recordException(Throwable throwable) {
-        /*
-        return toSpanException(throwable);8
-         */
         SpanEventException flushedException = null;
 
         if (throwable != null) {
@@ -31,16 +31,55 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
             logger.error(String.format("Stacking Exception... Current depth: %d", depth));
         }
 
-        if (isTopLevelException(throwable)) {
-            // Top level exception
-            // Need to flush
-            depth = 0;
-            logger.error("Top level exception", previous);
-            flushedException = toSpanException(previous);
-        }
-
+        flushedException = flushIfTopLevelException(throwable);
         holdCurrentException(throwable);
         return flushedException;
+    }
+
+    public void checkAndSetStartTime(long startTime) {
+        if (previous == null) {
+            this.startTime = startTime;
+        }
+    }
+
+    public void checkAndAddElapsedTime(int elapsedTime) {
+        if (previous != null) {
+            this.elapsedTime += elapsedTime;
+        }
+    }
+
+    private SpanEventException flushIfTopLevelException(Throwable throwable) {
+        SpanEventException spanEventException = null;
+        if (isTopLevelException(throwable)) {
+            depth = 0;
+            logger.error("Top level exception", previous);
+            spanEventException = toSpanException(previous, this.startTime, this.elapsedTime);
+            cleanTime();
+        }
+        return spanEventException;
+    }
+
+    private boolean isTopLevelException(Throwable throwable) {
+        return throwable == null && previous != null;
+    }
+
+    private void cleanTime() {
+        this.startTime = 0;
+        this.elapsedTime = 0;
+    }
+
+    private void holdCurrentException(Throwable throwable) {
+        this.previous = throwable;
+    }
+
+    private static SpanEventException toSpanException(Throwable throwable, long startTime, int elapsedTime) {
+        if (throwable == null) {
+            return null;
+        }
+        SpanEventException spanEventException = new SpanEventException(throwable);
+        spanEventException.setStartTime(startTime);
+        spanEventException.setElapsedTime(elapsedTime);
+        return new SpanEventException(throwable);
     }
 
     @Nullable
@@ -49,18 +88,4 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return recordException(null);
     }
 
-    private boolean isTopLevelException(Throwable throwable) {
-        return throwable == null && previous != null;
-    }
-
-    private void holdCurrentException(Throwable throwable) {
-        this.previous = throwable;
-    }
-
-    private static SpanEventException toSpanException(Throwable throwable) {
-        if (throwable == null) {
-            return null;
-        }
-        return new SpanEventException(throwable);
-    }
 }
