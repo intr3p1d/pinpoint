@@ -19,13 +19,17 @@ import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.metadata.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -37,6 +41,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
+    protected final ExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService();
 
     public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
@@ -53,6 +58,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     public void recordException(boolean markError, Throwable throwable) {
+        flushSpanExceptionInfo(throwable);
         if (throwable == null) {
             return;
         }
@@ -68,6 +74,19 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
+
+    private void flushSpanExceptionInfo(Throwable throwable) {
+        final SpanEventException additional = exceptionRecordingService.recordException(throwable);
+        setSpanExceptionInfo(additional);
+    }
+
+    void setEndSpanExceptionInfo() {
+        // TODO: flush rest of the throwable held by ExceptionRecordingService
+        final SpanEventException additional = exceptionRecordingService.flushHeldException();
+        setSpanExceptionInfo(additional);
+    }
+
+    abstract void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo);
 
     abstract void maskErrorCode(final int errorCode);
 

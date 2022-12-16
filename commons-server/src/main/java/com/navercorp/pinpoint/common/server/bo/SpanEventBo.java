@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
+
 import java.util.List;
 
 /**
@@ -24,7 +26,7 @@ import java.util.List;
  */
 public class SpanEventBo implements Event {
 
-   // version 0 means that the type of prefix's size is int
+    // version 0 means that the type of prefix's size is int
 
     private byte version = 0;
 
@@ -33,7 +35,7 @@ public class SpanEventBo implements Event {
     private int startElapsed;
     private int endElapsed;
 
-//    private String rpc;
+    //    private String rpc;
     private short serviceType;
 
     private String destinationId;
@@ -52,13 +54,15 @@ public class SpanEventBo implements Event {
     // should get exceptionClass from dao
     private String exceptionClass;
 
+    private SpanEventExceptionBo flushedException;
+
     private int nextAsyncId = -1;
 
     @Deprecated
     private int asyncId = -1;
     @Deprecated
     private short asyncSequence = -1;
-    
+
     public SpanEventBo() {
     }
 
@@ -165,11 +169,11 @@ public class SpanEventBo implements Event {
         }
         this.annotationBoList = annotationList;
     }
-    
+
     public boolean isAsync() {
         return this.asyncId != -1;
     }
-    
+
     public boolean hasException() {
         return hasException;
     }
@@ -195,6 +199,14 @@ public class SpanEventBo implements Event {
 
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
+    }
+
+    public SpanEventExceptionBo getFlushedException() {
+        return flushedException;
+    }
+
+    public void setFlushedException(SpanEventExceptionBo flushedException) {
+        this.flushedException = flushedException;
     }
 
     public int getNextAsyncId() {

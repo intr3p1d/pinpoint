@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class SpanBo implements Event, BasicSpan {
     // version 0 means that the type of prefix's size is int
     private byte version = 0;
 
-//  private AgentKeyBo agentKeyBo;
+    //  private AgentKeyBo agentKeyBo;
     private String agentId;
     private String agentName;
     private String applicationId;
@@ -64,7 +65,7 @@ public class SpanBo implements Event, BasicSpan {
     private int exceptionId;
     private String exceptionMessage;
     private String exceptionClass;
-    
+
     private Short applicationServiceType;
 
     private String acceptorHost;
@@ -266,7 +267,7 @@ public class SpanBo implements Event, BasicSpan {
     public void setServiceType(short serviceType) {
         this.serviceType = serviceType;
     }
-    
+
     public int getErrCode() {
         return errCode;
     }
@@ -329,9 +330,9 @@ public class SpanBo implements Event, BasicSpan {
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
     }
-    
+
     public void setApplicationServiceType(Short applicationServiceType) {
-        this.applicationServiceType  = applicationServiceType;
+        this.applicationServiceType = applicationServiceType;
     }
 
     public boolean hasApplicationServiceType() {
@@ -363,8 +364,8 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     /**
-     * @see com.navercorp.pinpoint.common.trace.LoggingInfo
      * @return loggingInfo key
+     * @see com.navercorp.pinpoint.common.trace.LoggingInfo
      */
     public byte getLoggingTransactionInfo() {
         return loggingTransactionInfo;
