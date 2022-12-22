@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.lang.Long.max;
+
 /**
  * @author intr3p1d
  */
@@ -28,7 +30,6 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
         if (throwable != null) {
             depth += 1;
-            logger.error(String.format("Stacking Exception... Current depth: %d", depth));
         }
 
         flushedException = flushIfTopLevelException(throwable);
@@ -38,13 +39,13 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     public void checkAndSetStartTime(long startTime) {
         if (previous == null) {
-            this.startTime = startTime;
+            this.startTime = max(startTime, this.startTime);
         }
     }
 
-    public void checkAndAddElapsedTime(int elapsedTime) {
+    public void checkAndAddElapsedTime(long startTime) {
         if (previous != null) {
-            this.elapsedTime += elapsedTime;
+            this.elapsedTime = (int) (startTime - this.startTime);
         }
     }
 
@@ -79,7 +80,7 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         SpanEventException spanEventException = new SpanEventException(throwable);
         spanEventException.setStartTime(startTime);
         spanEventException.setElapsedTime(elapsedTime);
-        return new SpanEventException(throwable);
+        return spanEventException;
     }
 
     @Nullable

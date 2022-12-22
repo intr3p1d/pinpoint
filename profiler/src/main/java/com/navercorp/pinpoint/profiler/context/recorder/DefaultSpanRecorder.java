@@ -64,6 +64,11 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
+    void setSpanExceptionTime() {
+        // do nothing
+    }
+
+    @Override
     void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
         // do nothing
     }

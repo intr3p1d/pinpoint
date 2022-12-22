@@ -369,6 +369,8 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         final PSpanEventException.Builder pSpanEventException = getpSpanEventExceptionBuilder();
         pSpanEventException.setExceptionClassName(spanEventException.getExceptionClassName());
         pSpanEventException.setExceptionMessage(spanEventException.getExceptionMessage());
+        pSpanEventException.setStartTime(spanEventException.getStartTime());
+        pSpanEventException.setEndElapsed(spanEventException.getElapsedTime());
 
         final List<StackTraceElementWrapper> stackTraceElementWrappers = spanEventException.getStackTraceElements();
         if (CollectionUtils.hasLength(stackTraceElementWrappers)) {

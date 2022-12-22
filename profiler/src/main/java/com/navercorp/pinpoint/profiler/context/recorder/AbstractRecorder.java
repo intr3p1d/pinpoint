@@ -58,6 +58,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     public void recordException(boolean markError, Throwable throwable) {
+        setSpanExceptionTime();
         flushSpanExceptionInfo(throwable);
         if (throwable == null) {
             return;
@@ -85,6 +86,8 @@ public abstract class AbstractRecorder implements AttributeRecorder {
         final SpanEventException additional = exceptionRecordingService.flushHeldException();
         setSpanExceptionInfo(additional);
     }
+
+    abstract void setSpanExceptionTime();
 
     abstract void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo);
 

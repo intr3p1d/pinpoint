@@ -12,5 +12,5 @@ public interface ExceptionRecordingService {
 
     void checkAndSetStartTime(long startTime);
 
-    void checkAndAddElapsedTime(int elapsedTime);
+    void checkAndAddElapsedTime(long startTime);
 }
