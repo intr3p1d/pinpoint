@@ -10,7 +10,6 @@ public class SpanEventExceptionBo {
     private String exceptionMessage;
     private List<StackTraceElementWrapperBo> stackTraceElements;
     private long startTime;
-    private int elapsedTime;
 
     public SpanEventExceptionBo() {
     }
@@ -47,14 +46,6 @@ public class SpanEventExceptionBo {
         this.startTime = startTime;
     }
 
-    public int getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(int elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
     @Override
     public String toString() {
         return "SpanEventExceptionBo{" +
@@ -62,7 +53,6 @@ public class SpanEventExceptionBo {
                 ", exceptionMessage='" + exceptionMessage + '\'' +
                 ", stackTraceElements=" + stackTraceElements +
                 ", startTime=" + startTime +
-                ", elapsedTime=" + elapsedTime +
                 '}';
     }
 }

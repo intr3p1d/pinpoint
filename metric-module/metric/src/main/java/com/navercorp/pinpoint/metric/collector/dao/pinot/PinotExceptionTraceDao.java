@@ -20,6 +20,6 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     public void insert(SpanEventExceptionBo spanEventExceptionBo) {
         logger.warn("Pinot data insert: ExceptionTraceDao called");
         logger.debug(spanEventExceptionBo);
-        logger.warn("startTime: {}, elapsedTime: {}", spanEventExceptionBo.getStartTime(), spanEventExceptionBo.getElapsedTime());
+        logger.warn("startTime: {}", spanEventExceptionBo.getStartTime());
     }
 }

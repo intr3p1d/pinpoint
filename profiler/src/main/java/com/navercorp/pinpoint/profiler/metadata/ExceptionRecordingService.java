@@ -11,6 +11,4 @@ public interface ExceptionRecordingService {
     SpanEventException flushHeldException();
 
     void checkAndSetStartTime(long startTime);
-
-    void checkAndAddElapsedTime(long startTime);
 }

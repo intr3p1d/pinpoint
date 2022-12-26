@@ -27,25 +27,27 @@ public class GrpcSpanEventExceptionHandler {
         spanEventExceptionBo.setExceptionClassName(pSpanEventException.getExceptionClassName());
         spanEventExceptionBo.setExceptionMessage(pSpanEventException.getExceptionMessage());
 
-        spanEventExceptionBo.setStackTraceElements(getStackTraceElements(pSpanEventException.getStackTraceElementList()));
+        spanEventExceptionBo.setStackTraceElements(
+                getStackTraceElements(pSpanEventException.getStackTraceElementList())
+        );
 
         spanEventExceptionBo.setStartTime(pSpanEventException.getStartTime());
-        spanEventExceptionBo.setElapsedTime(pSpanEventException.getEndElapsed());
 
         return spanEventExceptionBo;
     }
 
     private List<StackTraceElementWrapperBo> getStackTraceElements(List<PStackTraceElement> pStackTraceElementList) {
         return pStackTraceElementList.stream().map(
-                pStackTraceElement -> {
-                    StackTraceElementWrapperBo s = new StackTraceElementWrapperBo();
-                    s.setClassName(pStackTraceElement.getClassName());
-                    s.setFileName(pStackTraceElement.getFileName());
-                    s.setLineNumber(pStackTraceElement.getLineNumber());
-                    s.setMethodName(pStackTraceElement.getMethodName());
-
-                    return s;
-                }
+                this::getStackTraceElement
         ).collect(Collectors.toList());
+    }
+
+    private StackTraceElementWrapperBo getStackTraceElement(PStackTraceElement pStackTraceElement) {
+        return new StackTraceElementWrapperBo(
+                pStackTraceElement.getClassName(),
+                pStackTraceElement.getFileName(),
+                pStackTraceElement.getLineNumber(),
+                pStackTraceElement.getMethodName()
+        );
     }
 }

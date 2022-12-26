@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo.exception;
 
+import java.util.Objects;
+
 /**
  * @author intr3p1d
  */
@@ -10,6 +12,16 @@ public class StackTraceElementWrapperBo {
     private String methodName;
 
     public StackTraceElementWrapperBo() {
+    }
+
+    public StackTraceElementWrapperBo(String className,
+                                      String fileName,
+                                      int lineNumber,
+                                      String methodName) {
+        this.className = Objects.requireNonNull(className, "className");
+        this.fileName = Objects.requireNonNull(fileName, "fileName");
+        this.lineNumber = lineNumber;
+        this.methodName = Objects.requireNonNull(methodName, "methodName");
     }
 
     public String getClassName() {

@@ -152,10 +152,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     @Override
-    void setSpanExceptionTime() {
+    void setSpanExceptionStartTime() {
         exceptionRecordingService.checkAndSetStartTime(spanEvent.getStartTime());
-        // FIXME: at this time, elapsedTime is always 0.
-        exceptionRecordingService.checkAndAddElapsedTime(spanEvent.getStartTime());
     }
 
     @Override

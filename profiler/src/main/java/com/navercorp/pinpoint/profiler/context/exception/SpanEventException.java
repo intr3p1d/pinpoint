@@ -13,7 +13,6 @@ public class SpanEventException {
     private final List<StackTraceElementWrapper> stackTraceElements;
 
     private long startTime;
-    private int elapsedTime;
 
     public SpanEventException(Throwable throwable) {
         Objects.requireNonNull(throwable);
@@ -41,13 +40,4 @@ public class SpanEventException {
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
-
-    public int getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(int elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
 }
