@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.Logger;
@@ -56,8 +57,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory,
                                     final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService,
-                                    final IgnoreErrorHandler errorHandler) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler);
+                                    final IgnoreErrorHandler errorHandler,
+                                    final ExceptionRecordingService exceptionRecordingService) {
+        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecordingService);
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");

@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.profiler.context.exception;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +55,19 @@ public class StackTraceElementWrapper {
 
     public String getMethodName() {
         return methodName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StackTraceElementWrapper that = (StackTraceElementWrapper) o;
+        return lineNumber == that.lineNumber && className.equals(that.className) && fileName.equals(that.fileName) && methodName.equals(that.methodName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(className, fileName, lineNumber, methodName);
     }
 
     @Override

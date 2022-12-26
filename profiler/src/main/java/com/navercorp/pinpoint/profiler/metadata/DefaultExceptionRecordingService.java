@@ -17,38 +17,23 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     private Throwable previous = null;
     private long startTime = 0;
 
-    private int depth = 0;
-
     public DefaultExceptionRecordingService() {
     }
 
     @Nullable
     @Override
     public SpanEventException recordException(Throwable throwable) {
-        SpanEventException flushedException = null;
-
-        if (throwable != null) {
-            depth += 1;
-        }
-
-        flushedException = flushIfTopLevelException(throwable);
-        holdCurrentException(throwable);
+        SpanEventException flushedException = flushIfTopLevelException(throwable);
+        holdGivenException(throwable);
         return flushedException;
-    }
-
-    public void checkAndSetStartTime(long startTime) {
-        if (previous == null) {
-            this.startTime = max(startTime, this.startTime);
-        }
     }
 
     private SpanEventException flushIfTopLevelException(Throwable throwable) {
         SpanEventException spanEventException = null;
         if (isTopLevelException(throwable)) {
-            depth = 0;
             logger.error("Top level exception", previous);
             spanEventException = toSpanException(previous, this.startTime);
-            cleanTime();
+            resetStartTime();
         }
         return spanEventException;
     }
@@ -57,15 +42,8 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return throwable == null && previous != null;
     }
 
-    private void cleanTime() {
-        this.startTime = 0;
-    }
-
-    private void holdCurrentException(Throwable throwable) {
-        this.previous = throwable;
-    }
-
-    private static SpanEventException toSpanException(Throwable throwable, long startTime) {
+    @Nullable
+    public static SpanEventException toSpanException(Throwable throwable, long startTime) {
         if (throwable == null) {
             return null;
         }
@@ -74,10 +52,24 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return spanEventException;
     }
 
+    private void resetStartTime() {
+        this.startTime = 0;
+    }
+
+    private void holdGivenException(Throwable throwable) {
+        this.previous = throwable;
+    }
+
     @Nullable
     @Override
     public SpanEventException flushHeldException() {
         return recordException(null);
     }
 
+    @Override
+    public void checkAndSetStartTime(long startTime) {
+        if (previous == null) {
+            this.startTime = max(startTime, this.startTime);
+        }
+    }
 }

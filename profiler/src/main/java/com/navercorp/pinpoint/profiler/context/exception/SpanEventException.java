@@ -40,4 +40,17 @@ public class SpanEventException {
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpanEventException that = (SpanEventException) o;
+        return startTime == that.startTime && exceptionClassName.equals(that.exceptionClassName) && exceptionMessage.equals(that.exceptionMessage) && stackTraceElements.equals(that.stackTraceElements);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(exceptionClassName, exceptionMessage, stackTraceElements, startTime);
+    }
 }
