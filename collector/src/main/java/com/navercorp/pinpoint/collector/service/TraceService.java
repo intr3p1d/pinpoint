@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class TraceService {
@@ -202,7 +205,7 @@ public class TraceService {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO need to batch update later.
         insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
-        insertExceptionInfos(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
+        insertExceptionInfos(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getTransactionId(), span.getSpanId());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
@@ -243,15 +246,16 @@ public class TraceService {
         }
     }
 
-    private void insertExceptionInfos(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
-        // TODO: insert to pinot
+    private void insertExceptionInfos(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId) {
         logger.warn("insertExceptionInfos");
-        for (SpanEventBo spanEvent : spanEventList) {
-            if (spanEvent.getFlushedException() != null) {
-                logger.warn(spanEvent.getFlushedException().toString());
-                exceptionTraceService.save(spanEvent.getFlushedException());
-            }
-        }
+        List<SpanEventExceptionBo> spanEventExceptionBos = spanEventList.stream()
+                .map(SpanEventBo::getFlushedException)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        exceptionTraceService.save(spanEventExceptionBos,
+                applicationServiceType, applicationId, agentId,
+                transactionId, spanId);
     }
 
     private String normalize(String spanEventApplicationName, ServiceType spanEventType) {
