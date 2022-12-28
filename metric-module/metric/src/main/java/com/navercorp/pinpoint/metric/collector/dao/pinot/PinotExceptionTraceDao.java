@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
-import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
 import com.navercorp.pinpoint.metric.collector.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,9 +30,12 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public void insert(SpanEventExceptionBo spanEventExceptionBo) {
+    public void insert(List<SpanEventException> spanEventExceptions) {
         logger.warn("Pinot data insert: ExceptionTraceDao called");
-        logger.debug(spanEventExceptionBo);
-        logger.warn("startTime: {}", spanEventExceptionBo.getStartTime());
+        Objects.requireNonNull(spanEventExceptions);
+
+        for (SpanEventException spanEventException : spanEventExceptions) {
+            this.kafkaSpanEventExceptionTemplate.send(topic, spanEventException);
+        }
     }
 }

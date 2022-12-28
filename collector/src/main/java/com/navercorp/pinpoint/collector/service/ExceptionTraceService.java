@@ -11,6 +11,4 @@ import java.util.List;
  */
 public interface ExceptionTraceService {
     void save(List<SpanEventExceptionBo> spanEventExceptionBoList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId);
-
-    void save(SpanEventExceptionBo spanEventExceptionBo);
 }

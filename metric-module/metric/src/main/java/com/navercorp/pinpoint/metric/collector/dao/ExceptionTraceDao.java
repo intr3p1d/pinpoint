@@ -1,10 +1,12 @@
 package com.navercorp.pinpoint.metric.collector.dao;
 
-import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
+import com.navercorp.pinpoint.metric.common.model.SpanEventException;
+
+import java.util.List;
 
 /**
  * @author intr3p1d
  */
 public interface ExceptionTraceDao {
-    void insert(SpanEventExceptionBo spanEventExceptionBo);
+    void insert(List<SpanEventException> spanEventException);
 }

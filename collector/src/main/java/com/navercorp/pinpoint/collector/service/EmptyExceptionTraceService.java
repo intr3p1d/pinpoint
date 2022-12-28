@@ -18,9 +18,4 @@ public class EmptyExceptionTraceService implements ExceptionTraceService {
     public void save(List<SpanEventExceptionBo> spanEventExceptionBoList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId) {
         // do nothing
     }
-
-    @Override
-    public void save(SpanEventExceptionBo spanEventExceptionBo) {
-        // do nothing
-    }
 }
