@@ -35,6 +35,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         Objects.requireNonNull(spanEventExceptions);
 
         for (SpanEventException spanEventException : spanEventExceptions) {
+            logger.warn(spanEventException.toString());
             this.kafkaSpanEventExceptionTemplate.send(topic, spanEventException);
         }
     }

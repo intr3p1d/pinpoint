@@ -7,14 +7,14 @@
     },
     {
       "name": "spanId",
-      "dataType": "STRING"
+      "dataType": "LONG"
     },
     {
       "name": "applicationServiceType",
       "dataType": "STRING"
     },
     {
-      "name": "applicationId",
+      "name": "applicationName",
       "dataType": "STRING"
     },
     {
@@ -34,6 +34,7 @@
       "dataType": "STRING"
     }
   ],
+  "metricFieldSpecs": [],
   "dateTimeFieldSpecs": [
     {
       "name": "timestamp",

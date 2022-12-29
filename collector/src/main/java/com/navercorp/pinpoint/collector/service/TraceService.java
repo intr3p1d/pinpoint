@@ -73,6 +73,7 @@ public class TraceService {
         if (spanEventList != null) {
             // TODO need to batch update later.
             insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint());
+            insertExceptionInfos(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getTransactionId(), spanChunkBo.getSpanId());
         }
     }
 
@@ -253,6 +254,9 @@ public class TraceService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
+        if (spanEventExceptionBos.isEmpty()) {
+            return;
+        }
         exceptionTraceService.save(spanEventExceptionBos,
                 applicationServiceType, applicationId, agentId,
                 transactionId, spanId);
