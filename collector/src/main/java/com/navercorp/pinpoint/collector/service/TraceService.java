@@ -249,17 +249,22 @@ public class TraceService {
 
     private void insertExceptionInfos(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId) {
         logger.warn("insertExceptionInfos");
-        List<SpanEventExceptionBo> spanEventExceptionBos = spanEventList.stream()
-                .map(SpanEventBo::getFlushedException)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        try {
+            List<SpanEventExceptionBo> spanEventExceptionBos = spanEventList.stream()
+                    .map(SpanEventBo::getFlushedException)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-        if (spanEventExceptionBos.isEmpty()) {
-            return;
+            if (spanEventExceptionBos.isEmpty()) {
+                return;
+            }
+            exceptionTraceService.save(spanEventExceptionBos,
+                    applicationServiceType, applicationId, agentId,
+                    transactionId, spanId);
+        } catch (Exception ignored) {
+            // ignore
+            logger.debug(ignored);
         }
-        exceptionTraceService.save(spanEventExceptionBos,
-                applicationServiceType, applicationId, agentId,
-                transactionId, spanId);
     }
 
     private String normalize(String spanEventApplicationName, ServiceType spanEventType) {
