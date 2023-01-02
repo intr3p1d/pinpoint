@@ -14,7 +14,7 @@ import java.util.Objects;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/exceptionTrace")
+@RequestMapping(value = "/exception-trace")
 public class ExceptionTraceController {
     private final ExceptionTraceService exceptionTraceService;
 
@@ -25,12 +25,10 @@ public class ExceptionTraceController {
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
-    @GetMapping()
     public List<SpanEventException> getSpanEventException() {
         return exceptionTraceService.getCollectedSpanEventExceptionApplication();
     }
 
-    @GetMapping()
     public SpanEventException getSpanEventExceptionFromTransactionId() {
         return exceptionTraceService.getSpanEventExceptionFromTransaction();
     }
