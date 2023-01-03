@@ -27,7 +27,16 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public SpanEventException getSpanEventExceptionFromTransaction(TransactionId transactionId) {
+    public SpanEventException getSpanEventException(TransactionId transactionId, long timestamp) {
+        return null;
+    }
+
+    @Override
+    public List<SpanEventException> getSpanEventExceptionFromTransaction(TransactionId transactionId) {
+        return null;
+    }
+
+    public List<SpanEventException> getSpanEventExceptionGroupByException() {
         return null;
     }
 }

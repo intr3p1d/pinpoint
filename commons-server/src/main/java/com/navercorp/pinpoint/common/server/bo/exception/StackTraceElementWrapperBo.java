@@ -11,9 +11,6 @@ public class StackTraceElementWrapperBo {
     private int lineNumber;
     private String methodName;
 
-    public StackTraceElementWrapperBo() {
-    }
-
     public StackTraceElementWrapperBo(String className,
                                       String fileName,
                                       int lineNumber,

@@ -1,11 +1,15 @@
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.dao.ExceptionTraceDao;
+import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -21,5 +25,15 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     public PinotExceptionTraceDao(SqlSessionTemplate sqlPinotSessionTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+    }
+
+    @Override
+    public List<SpanEventException> getCollectedSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return null;
+    }
+
+    @Override
+    public List<SpanEventException> getSpanEventExceptionsFromTransaction(TransactionId transactionId) {
+        return null;
     }
 }

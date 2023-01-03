@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrappe
 import io.netty.util.internal.StringUtil;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author intr3p1d
@@ -96,6 +97,19 @@ public class SpanEventException {
 
     public String getStackTrace() {
         return stackTrace;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpanEventException that = (SpanEventException) o;
+        return applicationName.equals(that.applicationName) && agentId.equals(that.agentId) && errorClassName.equals(that.errorClassName) && errorMessage.equals(that.errorMessage) && stackTrace.equals(that.stackTrace);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(applicationName, agentId, errorClassName, errorMessage, stackTrace);
     }
 
     @Override

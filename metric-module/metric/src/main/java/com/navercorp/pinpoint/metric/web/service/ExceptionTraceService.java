@@ -12,5 +12,7 @@ import java.util.List;
 public interface ExceptionTraceService {
     List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 
-    SpanEventException getSpanEventExceptionFromTransaction(TransactionId transactionId);
+    SpanEventException getSpanEventException(TransactionId transactionId, long timestamp);
+
+    List<SpanEventException> getSpanEventExceptionFromTransaction(TransactionId transactionId);
 }
