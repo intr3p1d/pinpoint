@@ -1,8 +1,11 @@
 package com.navercorp.pinpoint.metric.web.controller;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import com.navercorp.pinpoint.metric.web.service.ExceptionTraceService;
+import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
@@ -33,8 +36,33 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/transaction-info")
-    public SpanEventException getSpanEventExceptionFromTransactionId() {
-        return exceptionTraceService.getSpanEventExceptionFromTransaction();
+    public SpanEventException getSpanEventExceptionFromTransactionId(
+            @RequestParam("traceId") String traceId
+    ) {
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        return exceptionTraceService.getSpanEventExceptionFromTransaction(transactionId);
+    }
+
+    @GetMapping("/error-list")
+    public List<SpanEventException> getListOfSpanEventException(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "exceptionTrace", required = false) String exception,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to
+    ) {
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
+        builder.setApplicationName(applicationName);
+        builder.setAgentId(agentId);
+        builder.setSpanEventException(null);
+        builder.setRange(Range.newRange(from, to));
+
+        List<SpanEventException> spanEventExceptions;
+        spanEventExceptions = exceptionTraceService.getCollectedSpanEventException(builder.build());
+
+        return spanEventExceptions;
     }
 
     @GetMapping("/chart")
@@ -47,21 +75,17 @@ public class ExceptionTraceController {
     ) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
 
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
+        builder.setApplicationName(applicationName);
+        builder.setAgentId(agentId);
+        builder.setSpanEventException(null);
+        builder.setRange(Range.newRange(from, to));
 
-        return null;
+        List<SpanEventException> spanEventExceptions;
+        spanEventExceptions = exceptionTraceService.getCollectedSpanEventException(builder.build());
+
+        return new ExceptionTraceView("", timeWindow, spanEventExceptions);
     }
 
-    @GetMapping("/error-list")
-    public ExceptionTraceView getListOfSpanEventException(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "exceptionTrace", required = false) String exception,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to
-    ) {
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
 
-
-        return null;
-    }
 }

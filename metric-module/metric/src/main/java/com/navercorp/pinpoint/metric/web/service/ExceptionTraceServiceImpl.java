@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.metric.web.service;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.dao.ExceptionTraceDao;
+import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +22,12 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<SpanEventException> getCollectedSpanEventExceptionApplication() {
+    public List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         return null;
     }
 
     @Override
-    public SpanEventException getSpanEventExceptionFromTransaction() {
+    public SpanEventException getSpanEventExceptionFromTransaction(TransactionId transactionId) {
         return null;
     }
 }
