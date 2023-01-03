@@ -132,6 +132,7 @@ public class ExceptionTraceController {
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
         builder.setApplicationName(applicationName);
         builder.setAgentId(agentId);
+        builder.setSpanEventException(null);
         builder.setRange(Range.newRange(from, to));
 
         return exceptionTraceService.getCollectedSpanEventException(builder.build());

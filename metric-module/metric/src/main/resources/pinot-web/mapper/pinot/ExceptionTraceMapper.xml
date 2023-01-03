@@ -17,7 +17,7 @@
 
     <sql id="exceptionTraceTable">exceptionTrace</sql>
 
-    <select id="selectExceptionTrace" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExceptionTraceList" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
             '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -32,7 +32,39 @@
         FROM
             <include refid="exceptionTraceTable"></include>
         WHERE applicationName = #{applicationName}
+        <if test="agentId != null">
             AND agentId = #{agentId}
+        </if>
+        <if test="spanEventException != null">
+            AND errorClassName = #{spanEventException.errorClassName}
+            AND errorMessage = #{spanEventException.errorMessage}
+            AND stackTrace = #{spanEventException.stackTrace}
+        </if>
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectExactExceptionTrace" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+            DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+            '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+            transactionId,
+            spanId,
+            applicationServiceType,
+            applicationName,
+            agentId,
+            errorClassName,
+            errorMessage,
+            stackTrace
+        FROM
+            <include refid="exceptionTraceTable"></include>
+        WHERE applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+            AND transactionId = #{spanEventException.transactionId}
+            AND "timestamp" = #{spanEventException.timestamp}
             AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         ORDER BY "timestamp" asc
         LIMIT ${limit}

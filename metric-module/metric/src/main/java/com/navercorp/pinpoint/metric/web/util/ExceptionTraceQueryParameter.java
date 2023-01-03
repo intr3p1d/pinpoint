@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.web.util;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 
 import java.util.concurrent.TimeUnit;
@@ -12,21 +11,18 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final String applicationName;
     private final String agentId;
     private final SpanEventException spanEventException;
-    private final TransactionId transactionId;
 
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.range, builder.timePrecision, builder.limit);
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.spanEventException = builder.spanEventException;
-        this.transactionId = builder.transactionId;
     }
 
     public static class Builder extends QueryParameter.Builder {
-        private String applicationName;
-        private String agentId;
-        private SpanEventException spanEventException;
-        private TransactionId transactionId;
+        private String applicationName = null;
+        private String agentId = null;
+        private SpanEventException spanEventException = null;
 
         public void setApplicationName(String applicationName) {
             this.applicationName = applicationName;
@@ -38,10 +34,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public void setSpanEventException(SpanEventException spanEventException) {
             this.spanEventException = spanEventException;
-        }
-
-        public void setTransactionId(TransactionId transactionId) {
-            this.transactionId = transactionId;
         }
 
         @Override
