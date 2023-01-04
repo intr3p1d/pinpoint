@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.metric.web.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.metric.common.model.UriStat;
 import com.navercorp.pinpoint.metric.web.model.UriStatGroup;
-import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class UriStatView implements TimeSeriesView {
 

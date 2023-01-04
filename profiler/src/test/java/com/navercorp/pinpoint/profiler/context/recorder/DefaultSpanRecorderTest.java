@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.jupiter.api.Assertions;
@@ -50,6 +51,8 @@ public class DefaultSpanRecorderTest {
     private StringMetaDataService stringMetaDataService;
     @Mock
     private SqlMetaDataService sqlMetaDataService;
+    @Mock
+    private ExceptionRecordingService exceptionRecordingService;
 
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
 
@@ -57,7 +60,7 @@ public class DefaultSpanRecorderTest {
     public void testRecordApiId() throws Exception {
         Span span = new Span(traceRoot);
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, errorHandler);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
 
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);
@@ -72,7 +75,7 @@ public class DefaultSpanRecorderTest {
 
         Span span = new Span(traceRoot);
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, errorHandler);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
 
         final String endPoint = "endPoint";
         recorder.recordEndPoint(endPoint);
