@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;
@@ -29,11 +28,11 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     @Override
     public List<SpanEventException> getCollectedSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return null;
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSpanExceptionList", exceptionTraceQueryParameter);
     }
 
     @Override
-    public List<SpanEventException> getSpanEventExceptionsFromTransaction(TransactionId transactionId) {
-        return null;
+    public List<SpanEventException> getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSpanExceptionList", exceptionTraceQueryParameter);
     }
 }

@@ -40,11 +40,14 @@ public class ExceptionTraceController {
             @RequestParam("traceId") String traceId
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
-        return exceptionTraceService.getSpanEventExceptions(transactionId);
+        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder();
+        transactionBuilder.setAgentId(transactionId.getAgentId());
+        transactionBuilder.setTransactionId(transactionId);
+        return exceptionTraceService.getSpanEventExceptions(transactionBuilder.build());
     }
 
     @GetMapping("/error-list")
-    public List<SpanEventException> getListOfSpanEventException(
+    public List<SpanEventException> getListOfSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
@@ -56,21 +59,20 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/error-list")
-    public List<SpanEventException> getListOfSpanEventException(
+    public List<SpanEventException> getListOfSpanEventExceptionByGivenTransactionId(
             @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("traceId") String traceId,
             @RequestParam("traceTimestamp") long timestamp,
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
         return getCollectedSpanEventExceptionListByTransactionId(
-                traceId, timestamp, applicationName, agentId, from, to
+                traceId, timestamp, applicationName, from, to
         );
     }
 
     @GetMapping("/chart")
-    public ExceptionTraceView getCollectedSpanEventException(
+    public ExceptionTraceView getCollectedSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
@@ -86,9 +88,8 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/chart")
-    public ExceptionTraceView getCollectedSpanEventException(
+    public ExceptionTraceView getCollectedSpanEventExceptionByGivenTransactionId(
             @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("traceId") String traceId,
             @RequestParam("traceTimestamp") long timestamp,
             @RequestParam("from") long from,
@@ -97,7 +98,7 @@ public class ExceptionTraceController {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
 
         List<SpanEventException> spanEventExceptions = getCollectedSpanEventExceptionListByTransactionId(
-                traceId, timestamp, applicationName, agentId, from, to
+                traceId, timestamp, applicationName, from, to
         );
 
         return new ExceptionTraceView("", timeWindow, spanEventExceptions);
@@ -107,16 +108,20 @@ public class ExceptionTraceController {
             String traceId,
             long timestamp,
             String applicationName,
-            String agentId,
             long from,
             long to
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
-        final SpanEventException spanEventException = exceptionTraceService.getExactSpanEventException(transactionId, timestamp);
+        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder();
+        transactionBuilder.setApplicationName(applicationName);
+        transactionBuilder.setAgentId(transactionId.getAgentId());
+        transactionBuilder.setTransactionId(transactionId);
+        transactionBuilder.setSpanEventTimestamp(timestamp);
+        final SpanEventException spanEventException = exceptionTraceService.getExactSpanEventException(transactionBuilder.build());
 
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
         builder.setApplicationName(applicationName);
-        builder.setAgentId(agentId);
+        builder.setAgentId(transactionId.getAgentId());
         builder.setSpanEventException(spanEventException);
         builder.setRange(Range.newRange(from, to));
 

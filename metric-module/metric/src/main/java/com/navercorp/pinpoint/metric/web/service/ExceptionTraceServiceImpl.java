@@ -1,9 +1,10 @@
 package com.navercorp.pinpoint.metric.web.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,8 @@ import java.util.Objects;
 @Service
 public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     private ExceptionTraceDao exceptionTraceDao;
 
     public ExceptionTraceServiceImpl(ExceptionTraceDao exceptionTraceDao) {
@@ -23,20 +26,21 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
     @Override
     public List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return null;
+        return exceptionTraceDao.getCollectedSpanEventExceptions(exceptionTraceQueryParameter);
     }
 
     @Override
-    public SpanEventException getExactSpanEventException(TransactionId transactionId, long timestamp) {
-        return null;
+    public SpanEventException getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExactSpanEventException(exceptionTraceQueryParameter);
+        if (spanEventExceptions.isEmpty()) {
+            return null;
+        }
+        return spanEventExceptions.get(0);
     }
 
     @Override
-    public List<SpanEventException> getSpanEventExceptions(TransactionId transactionId) {
-        return null;
+    public List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return exceptionTraceDao.getCollectedSpanEventExceptions(exceptionTraceQueryParameter);
     }
 
-    public List<SpanEventException> getSpanEventExceptionGroupByException() {
-        return null;
-    }
 }

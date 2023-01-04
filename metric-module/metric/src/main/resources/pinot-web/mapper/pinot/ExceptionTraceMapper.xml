@@ -17,7 +17,7 @@
 
     <sql id="exceptionTraceTable">exceptionTrace</sql>
 
-    <select id="selectExceptionTraceList" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSpanExceptionList" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
             '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -45,7 +45,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectExactExceptionTrace" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSpanException" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
             '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -65,7 +65,6 @@
         </if>
             AND transactionId = #{spanEventException.transactionId}
             AND "timestamp" = #{spanEventException.timestamp}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>

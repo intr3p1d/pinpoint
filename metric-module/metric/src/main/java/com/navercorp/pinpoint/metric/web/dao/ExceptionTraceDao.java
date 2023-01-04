@@ -12,5 +12,5 @@ import java.util.List;
  */
 public interface ExceptionTraceDao {
     List<SpanEventException> getCollectedSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<SpanEventException> getSpanEventExceptionsFromTransaction(TransactionId transactionId);
+    List<SpanEventException> getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }
