@@ -50,58 +50,49 @@ public class ExceptionTraceController {
     public List<SpanEventException> getListOfSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "traceId", required = false) String traceId,
+            @RequestParam(value = "traceTimestamp", required = false, defaultValue = "0") long timestamp,
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
-        return getAllCollectedSpanEventExceptionList(
-                applicationName, agentId, from, to
-        );
-    }
-
-    @GetMapping("/error-list")
-    public List<SpanEventException> getListOfSpanEventExceptionByGivenTransactionId(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("traceId") String traceId,
-            @RequestParam("traceTimestamp") long timestamp,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to
-    ) {
-        return getCollectedSpanEventExceptionListByTransactionId(
-                traceId, timestamp, applicationName, from, to
-        );
+        if (traceIdIsGiven(traceId, timestamp)) {
+            return getCollectedSpanEventExceptionListByTransactionId(
+                    traceId, timestamp, applicationName, from, to
+            );
+        } else {
+            return getAllCollectedSpanEventExceptionList(
+                    applicationName, agentId, from, to
+            );
+        }
     }
 
     @GetMapping("/chart")
     public ExceptionTraceView getCollectedSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "traceId", required = false) String traceId,
+            @RequestParam(value = "traceTimestamp", required = false, defaultValue = "0") long timestamp,
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
 
-        List<SpanEventException> spanEventExceptions = getAllCollectedSpanEventExceptionList(
-                applicationName, agentId, from, to
-        );
+        List<SpanEventException> spanEventExceptions;
+        if (traceIdIsGiven(traceId, timestamp)) {
+            spanEventExceptions = getCollectedSpanEventExceptionListByTransactionId(
+                    traceId, timestamp, applicationName, from, to
+            );
+        } else {
+            spanEventExceptions = getAllCollectedSpanEventExceptionList(
+                    applicationName, agentId, from, to
+            );
+        }
 
         return new ExceptionTraceView("", timeWindow, spanEventExceptions);
     }
 
-    @GetMapping("/chart")
-    public ExceptionTraceView getCollectedSpanEventExceptionByGivenTransactionId(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("traceId") String traceId,
-            @RequestParam("traceTimestamp") long timestamp,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to
-    ) {
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-
-        List<SpanEventException> spanEventExceptions = getCollectedSpanEventExceptionListByTransactionId(
-                traceId, timestamp, applicationName, from, to
-        );
-
-        return new ExceptionTraceView("", timeWindow, spanEventExceptions);
+    private boolean traceIdIsGiven(String traceId, long timestamp) {
+        return traceId != null && timestamp != 0;
     }
 
     private List<SpanEventException> getCollectedSpanEventExceptionListByTransactionId(

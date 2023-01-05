@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -55,15 +56,15 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             Objects.requireNonNull(spanEventExceptions);
 
             // List<SpanEventException> to number of occasion
-            List<TimeSeriesValueView> values = new ArrayList<>();
+            List<Integer> values = new ArrayList<>(Collections.nCopies((int) timeWindow.getWindowRangeCount(), 0));
 
-            List<Integer> exceptionOccasions = spanEventExceptions.stream().collect(
-                    Collectors.groupingBy(x -> timeWindow.getWindowIndex(x.getTimestamp()))
-            ).values().stream().map(
-                    List::size
-            ).collect(Collectors.toList());
+            spanEventExceptions.stream().collect(
+                    Collectors.groupingBy((SpanEventException x) -> timeWindow.getWindowIndex(x.getTimestamp()))
+            ).forEach(
+                    (i, e) -> values.set(i, e.size())
+            );
 
-            TimeSeriesValueView exceptionTraceValue = new ExceptionTraceValue(FIELD_NAME, exceptionOccasions);
+            TimeSeriesValueView exceptionTraceValue = new ExceptionTraceValue(FIELD_NAME, values);
             return List.of(exceptionTraceValue);
         }
 

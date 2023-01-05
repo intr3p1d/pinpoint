@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
-import io.netty.util.internal.StringUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +12,7 @@ import java.util.Objects;
  */
 public class SpanEventException {
     private static final long EMPTY_NUMBER = 0L;
+    private static final String EMPTY_STRING = "null";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final long timestamp;
@@ -59,7 +59,7 @@ public class SpanEventException {
         try {
             return OBJECT_MAPPER.writeValueAsString(stackTraceElementWrapperBos);
         } catch (JsonProcessingException jsonProcessingException) {
-            return StringUtil.EMPTY_STRING;
+            return EMPTY_STRING;
         }
     }
 

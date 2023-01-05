@@ -57,6 +57,9 @@
         <typeAlias type="com.navercorp.pinpoint.metric.web.model.UriStatSummary" alias="UriStatSummary" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.util.UriStatQueryParameter" alias="UriStatQueryParameter" />
 
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.SpanEventException" alias="SpanEventException"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter" alias="ExceptionTraceQueryParameter"/>
+
     </typeAliases>
 
     <typeHandlers>
