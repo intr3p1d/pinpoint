@@ -52,6 +52,10 @@
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataName" alias="MetricDataName"/>
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataType" alias="MetricDataType"/>
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.MetricDataTypeHandler" alias="MetricDataTypeHandler"/>
+
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.SpanEventException" alias="SpanEventException"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter" alias="ExceptionTraceQueryParameter"/>
+
     </typeAliases>
 
     <typeHandlers>

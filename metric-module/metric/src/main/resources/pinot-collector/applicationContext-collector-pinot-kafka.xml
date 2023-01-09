@@ -28,4 +28,8 @@
         <constructor-arg index="0" ref="kafkaProducerFactory"/>
     </bean>
 
+    <bean id="kafkaSpanEventExceptionTemplate" class="org.springframework.kafka.core.KafkaTemplate">
+        <constructor-arg index="0" ref="kafkaProducerFactory"/>
+    </bean>
+
 </beans>

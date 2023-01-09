@@ -47,7 +47,8 @@
         </property>
     </bean>
 
-    <bean id="abstractHbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean" abstract="true">
+    <bean id="abstractHbaseThreadPool"
+          class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean" abstract="true">
         <property name="corePoolSize" value="${hbase.client.thread.max}"/>
         <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
         <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
@@ -102,7 +103,8 @@
         <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
     </bean>
 
-    <bean id="bufferedMutatorConfiguration" class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorConfiguration"/>
+    <bean id="bufferedMutatorConfiguration"
+          class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorConfiguration"/>
     <bean id="hbaseBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorWriter">
         <constructor-arg ref="batchConnectionFactory"/>
     </bean>
