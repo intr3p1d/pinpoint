@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.metric.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import org.apache.commons.lang3.StringUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;

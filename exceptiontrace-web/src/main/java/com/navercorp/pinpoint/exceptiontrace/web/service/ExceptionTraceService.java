@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
-import com.navercorp.pinpoint.metric.common.model.SpanEventException;
-import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 
 import java.util.List;
 

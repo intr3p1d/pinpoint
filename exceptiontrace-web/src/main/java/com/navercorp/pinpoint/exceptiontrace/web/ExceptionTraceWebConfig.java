@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
  * @author intr3p1d
  */
 @ImportResource({"classpath:applicationContext-web-exceptiontrace.xml"})
-@Import(UriStatWebPropertySources.class)
+@Import(ExceptionTraceWebPropertySources.class)
 @Profile("metric")
 public class ExceptionTraceWebConfig {
 }
