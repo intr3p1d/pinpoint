@@ -36,14 +36,16 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/transaction-info")
-    public List<SpanEventException> getSpanEventExceptionFromTransactionId(
-            @RequestParam("traceId") String traceId
+    public SpanEventException getSpanEventExceptionFromTransactionId(
+            @RequestParam("traceId") String traceId,
+            @RequestParam(value = "traceTimestamp", required = false, defaultValue = "0") long timestamp
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder();
         transactionBuilder.setAgentId(transactionId.getAgentId());
         transactionBuilder.setTransactionId(transactionId);
-        return exceptionTraceService.getSpanEventExceptions(transactionBuilder.build());
+        transactionBuilder.setSpanEventTimestamp(timestamp);
+        return exceptionTraceService.getExactSpanEventException(transactionBuilder.build());
     }
 
     @GetMapping("/error-list")
