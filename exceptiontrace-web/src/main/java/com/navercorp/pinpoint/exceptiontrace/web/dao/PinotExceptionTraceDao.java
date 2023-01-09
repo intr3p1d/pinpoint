@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.web.dao.pinot;
+package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.dao.ExceptionTraceDao;

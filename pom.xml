@@ -122,6 +122,10 @@
         <module>uristat-web</module>
         <module>uristat-collector</module>
 
+        <module>exceptiontrace-common</module>
+        <module>exceptiontrace-web</module>
+        <module>exceptiontrace-collector</module>
+
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
     </modules>

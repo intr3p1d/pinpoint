@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.web.dao;
+package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
@@ -10,7 +10,6 @@ import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 

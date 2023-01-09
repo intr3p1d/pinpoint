@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.web.service;
+package com.navercorp.pinpoint.exceptiontrace.web.service;
 
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.ExceptionTraceQueryParameter;

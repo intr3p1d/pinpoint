@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.web.view;
+package com.navercorp.pinpoint.exceptiontrace.web.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;

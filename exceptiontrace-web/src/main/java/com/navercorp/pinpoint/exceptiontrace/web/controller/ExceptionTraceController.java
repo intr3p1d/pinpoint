@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.web.controller;
+package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;

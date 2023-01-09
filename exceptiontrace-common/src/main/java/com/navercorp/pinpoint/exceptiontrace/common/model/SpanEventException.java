@@ -1,8 +1,9 @@
-package com.navercorp.pinpoint.metric.common.model;
+package com.navercorp.pinpoint.exceptiontrace.common.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
+import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
 import java.util.List;
 import java.util.Objects;

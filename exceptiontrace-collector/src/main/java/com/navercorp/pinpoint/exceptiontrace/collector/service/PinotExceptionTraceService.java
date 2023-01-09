@@ -1,15 +1,13 @@
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.exceptiontrace.collector.service;
 
+import com.navercorp.pinpoint.collector.service.ExceptionTraceService;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.metric.collector.MetricAppPropertySources;
-import com.navercorp.pinpoint.metric.collector.dao.ExceptionTraceDao;
+import com.navercorp.pinpoint.exceptiontrace.collector.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.metric.common.model.SpanEventException;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,10 +16,7 @@ import java.util.stream.Collectors;
 /**
  * @author intr3p1d
  */
-@Service
-@ComponentScan("com.navercorp.pinpoint.metric.collector.dao.pinot")
-@ImportResource({"classpath:pinot-collector/applicationContext-collector-pinot.xml", "classpath:pinot-collector/servlet-context-collector-pinot.xml"})
-@Import({MetricAppPropertySources.class})
+@Profile("metric")
 public class PinotExceptionTraceService implements ExceptionTraceService {
     private final ExceptionTraceDao exceptionTraceDao;
 
@@ -56,9 +51,7 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
     }
 
     private static String transactionIdToString(TransactionId transactionId) {
-        return transactionId.getAgentId() + "^"
-                + transactionId.getAgentStartTime() + "^"
-                + transactionId.getTransactionSequence();
+        return TransactionIdUtils.formatString(transactionId);
     }
 
 }
