@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.exceptiontrace.collector.dao;
 
-import com.navercorp.pinpoint.metric.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 
 import java.util.List;
 

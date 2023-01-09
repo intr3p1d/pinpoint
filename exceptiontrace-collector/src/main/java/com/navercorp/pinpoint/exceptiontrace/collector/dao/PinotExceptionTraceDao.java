@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.exceptiontrace.collector.dao;
 
-import com.navercorp.pinpoint.metric.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

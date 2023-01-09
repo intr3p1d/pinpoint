@@ -34,5 +34,9 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-exceptiontrace-common</artifactId>
+        </dependency>
     </dependencies>
 </project>

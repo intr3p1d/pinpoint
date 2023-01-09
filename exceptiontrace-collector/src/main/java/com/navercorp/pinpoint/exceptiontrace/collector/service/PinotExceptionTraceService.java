@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.exceptiontrace.collector.dao.ExceptionTraceDao;
-import com.navercorp.pinpoint.metric.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import org.springframework.context.annotation.Profile;
 
 import java.util.List;
