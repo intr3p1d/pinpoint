@@ -25,6 +25,9 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.BypassExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -51,7 +54,8 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     @Override
     public SpanRecorder newSpanRecorder(Span span) {
-        return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final ExceptionRecordingService exceptionRecordingService = new BypassExceptionRecordingService();
+        return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
     }
 
     @Override
@@ -67,7 +71,9 @@ public class DefaultRecorderFactory implements RecorderFactory {
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot) {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final ExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService();
+        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory,
+                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
     }
 
     @Override
@@ -75,6 +81,8 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(asyncState, "asyncState");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, asyncState);
+        final ExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService();
+        return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory,
+                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService, asyncState);
     }
 }

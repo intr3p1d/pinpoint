@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class TraceService {
@@ -43,15 +46,22 @@ public class TraceService {
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
+    private final ExceptionTraceService exceptionTraceService;
+
     private final StatisticsService statisticsService;
 
     private final ServiceTypeRegistryService registry;
 
-    public TraceService(TraceDao traceDao, ApplicationTraceIndexDao applicationTraceIndexDao, HostApplicationMapDao hostApplicationMapDao,
-                        StatisticsService statisticsService, ServiceTypeRegistryService registry) {
+    public TraceService(TraceDao traceDao,
+                        ApplicationTraceIndexDao applicationTraceIndexDao,
+                        HostApplicationMapDao hostApplicationMapDao,
+                        ExceptionTraceService exceptionTraceService,
+                        StatisticsService statisticsService,
+                        ServiceTypeRegistryService registry) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
+        this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
         this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
     }
@@ -63,6 +73,7 @@ public class TraceService {
         if (spanEventList != null) {
             // TODO need to batch update later.
             insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint());
+            insertExceptionInfos(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getTransactionId(), spanChunkBo.getSpanId());
         }
     }
 
@@ -195,6 +206,7 @@ public class TraceService {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO need to batch update later.
         insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
+        insertExceptionInfos(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getTransactionId(), span.getSpanId());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
@@ -232,6 +244,26 @@ public class TraceService {
 
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+        }
+    }
+
+    private void insertExceptionInfos(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId) {
+        logger.warn("insertExceptionInfos");
+        try {
+            List<SpanEventExceptionBo> spanEventExceptionBos = spanEventList.stream()
+                    .map(SpanEventBo::getFlushedException)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (spanEventExceptionBos.isEmpty()) {
+                return;
+            }
+            exceptionTraceService.save(spanEventExceptionBos,
+                    applicationServiceType, applicationId, agentId,
+                    transactionId, spanId);
+        } catch (Exception ignored) {
+            // ignore
+            logger.debug(ignored);
         }
     }
 

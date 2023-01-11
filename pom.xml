@@ -120,6 +120,10 @@
         <module>metric-module</module>
         <module>uristat</module>
 
+        <module>exceptiontrace-common</module>
+        <module>exceptiontrace-web</module>
+        <module>exceptiontrace-collector</module>
+
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
     </modules>
@@ -436,6 +440,21 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-uristat-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
