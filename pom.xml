@@ -119,10 +119,7 @@
         <module>hbase2-module</module>
         <module>metric-module</module>
         <module>uristat</module>
-
-        <module>exceptiontrace-common</module>
-        <module>exceptiontrace-web</module>
-        <module>exceptiontrace-collector</module>
+        <module>exceptiontrace</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->

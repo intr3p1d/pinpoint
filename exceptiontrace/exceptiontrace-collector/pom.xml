@@ -3,14 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>pinpoint</artifactId>
+        <artifactId>pinpoint-exceptiontrace-module</artifactId>
         <groupId>com.navercorp.pinpoint</groupId>
         <version>2.5.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinpoint-exceptiontrace-web</artifactId>
-
+    <artifactId>pinpoint-exceptiontrace-collector</artifactId>
 
     <properties>
         <jdk.version>11</jdk.version>
@@ -20,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons</artifactId>
+            <artifactId>pinpoint-exceptiontrace-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -28,9 +27,16 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-exceptiontrace-common</artifactId>
-            <version>2.5.1-SNAPSHOT</version>
+            <artifactId>pinpoint-commons-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>2.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-collector</artifactId>
         </dependency>
     </dependencies>
-
 </project>
