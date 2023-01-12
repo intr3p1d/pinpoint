@@ -39,7 +39,7 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
             SpanEventExceptionBo spanEventExceptionBo,
             ServiceType applicationServiceType, String applicationId, String agentId,
             TransactionId transactionId, long spanId) {
-        return new SpanEventException(
+        return SpanEventException.valueOf(
                 spanEventExceptionBo.getStartTime(),
                 transactionIdToString(transactionId),
                 spanId,

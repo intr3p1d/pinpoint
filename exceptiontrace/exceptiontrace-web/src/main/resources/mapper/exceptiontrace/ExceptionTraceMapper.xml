@@ -11,7 +11,7 @@
             <arg column="agentId" javaType="string"/>
             <arg column="errorClassName" javaType="string"/>
             <arg column="errorMessage" javaType="string"/>
-            <arg column="stackTrace" javaType="string"/>
+            <arg column="stackTrace" javaType="java.util.List"/>
         </constructor>
     </resultMap>
 

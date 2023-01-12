@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,10 +30,7 @@ public class SpanEventException {
     private final String errorMessage;
     private final List<String> stackTrace;
 
-    public SpanEventException(long timestamp, String transactionId, long spanId,
-                              String applicationServiceType, String applicationName, String agentId,
-                              String errorClassName, String errorMessage,
-                              List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
+    public SpanEventException(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, List<String> stackTrace) {
         this.timestamp = timestamp;
         this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
         this.spanId = spanId;
@@ -43,7 +39,16 @@ public class SpanEventException {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
-        this.stackTrace = toStackTrace(stackTraceElementWrapperBos);
+        this.stackTrace = stackTrace;
+    }
+
+    public static SpanEventException valueOf(long timestamp, String transactionId, long spanId,
+                                             String applicationServiceType, String applicationName, String agentId,
+                                             String errorClassName, String errorMessage,
+                                             List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
+        return new SpanEventException(
+                timestamp, transactionId, spanId, applicationServiceType, applicationName, agentId, errorClassName, errorMessage, toStackTrace(stackTraceElementWrapperBos)
+        );
     }
 
     public static List<String> toStackTrace(List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
