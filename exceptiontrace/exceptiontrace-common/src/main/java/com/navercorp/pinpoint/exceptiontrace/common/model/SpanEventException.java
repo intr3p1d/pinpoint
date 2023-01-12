@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -27,19 +29,7 @@ public class SpanEventException {
 
     private final String errorClassName;
     private final String errorMessage;
-    private final String stackTrace;
-
-    public SpanEventException(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, String stackTrace) {
-        this.timestamp = timestamp;
-        this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
-        this.spanId = spanId;
-        this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
-        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
-        this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
-        this.stackTrace = stackTrace;
-    }
+    private final List<String> stackTrace;
 
     public SpanEventException(long timestamp, String transactionId, long spanId,
                               String applicationServiceType, String applicationName, String agentId,
@@ -56,12 +46,16 @@ public class SpanEventException {
         this.stackTrace = toStackTrace(stackTraceElementWrapperBos);
     }
 
-    public static String toStackTrace(List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
-        try {
-            return OBJECT_MAPPER.writeValueAsString(stackTraceElementWrapperBos);
-        } catch (JsonProcessingException jsonProcessingException) {
-            return EMPTY_STRING;
-        }
+    public static List<String> toStackTrace(List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
+        return stackTraceElementWrapperBos.stream().map(
+                (StackTraceElementWrapperBo s) -> {
+                    try {
+                        return OBJECT_MAPPER.writeValueAsString(s);
+                    } catch (JsonProcessingException jsonProcessingException) {
+                        return EMPTY_STRING;
+                    }
+                }
+        ).collect(Collectors.toList());
     }
 
     public long getTimestamp() {
@@ -96,7 +90,7 @@ public class SpanEventException {
         return errorMessage;
     }
 
-    public String getStackTrace() {
+    public List<String> getStackTrace() {
         return stackTrace;
     }
 

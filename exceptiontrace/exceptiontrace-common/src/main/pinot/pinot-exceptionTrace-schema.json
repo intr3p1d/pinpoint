@@ -31,10 +31,10 @@
     },
     {
       "name": "stackTrace",
-      "dataType": "STRING"
+      "dataType": "STRING",
+      "singleValueField": false
     }
   ],
-  "metricFieldSpecs": [],
   "dateTimeFieldSpecs": [
     {
       "name": "timestamp",
