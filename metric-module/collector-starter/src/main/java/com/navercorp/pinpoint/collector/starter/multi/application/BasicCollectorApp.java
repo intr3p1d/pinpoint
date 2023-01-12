@@ -16,8 +16,6 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource({"classpath:applicationContext-collector.xml", "classpath:servlet-context-collector.xml"})
 @Import({CollectorAppPropertySources.class, FlinkContextConfiguration.class})
 @ComponentScan({
-        "com.navercorp.pinpoint.uristat.collector.service",
-        "com.navercorp.pinpoint.exceptiontrace.collector.service",
 })
 public class BasicCollectorApp {
 }
