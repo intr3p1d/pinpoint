@@ -279,6 +279,20 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     }
 
+    public List<DetailedAgentInfo> getDetailedAgentsByApplicationNameWithoutStatus0(String applicationName, long timestamp) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<DetailedAgentInfo> agentInfos = this.agentInfoDao.getDetailedAgentInfos(agentIds, timestamp, false, true);
+
+        return agentInfos.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public Set<AgentAndStatus> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
         if (timeDiff > timestamp) {
