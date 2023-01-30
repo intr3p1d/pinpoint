@@ -20,17 +20,17 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- *
  * @author jaehong.kim
- *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
     private static final Logger logger = LogManager.getLogger(DefaultSpanRecorder.class);
@@ -41,8 +41,9 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public DefaultSpanRecorder(final Span span,
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
-                               final IgnoreErrorHandler errorHandler) {
-        super(stringMetaDataService, sqlMetaDataService, errorHandler);
+                               final IgnoreErrorHandler errorHandler,
+                               final ExceptionRecordingService exceptionRecordingService) {
+        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         this.span = span;
     }
 
@@ -55,6 +56,16 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         span.setExceptionInfo(exceptionClassId, exceptionMessage);
+    }
+
+    @Override
+    void setSpanExceptionStartTime() {
+        // do nothing
+    }
+
+    @Override
+    void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
+        // do nothing
     }
 
     @Override
@@ -124,12 +135,12 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public boolean isRoot() {
         return span.getTraceRoot().getTraceId().isRoot();
     }
-    
+
     @Override
     public void recordLogging(LoggingInfo loggingInfo) {
         getShared().setLoggingInfo(loggingInfo.getCode());
     }
-    
+
     @Override
     public void recordTime(boolean autoTimeRecoding) {
         span.setTimeRecording(autoTimeRecoding);

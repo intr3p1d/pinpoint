@@ -30,9 +30,11 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
+import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
@@ -42,9 +44,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
- *
  * @author jaehong.kim
- *
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
     private static final Logger logger = LogManager.getLogger(WrappedSpanEventRecorder.class);
@@ -61,19 +61,20 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     AsyncContextFactory asyncContextFactory,
                                     StringMetaDataService stringMetaDataService,
                                     SqlMetaDataService sqlMetaDataService,
-                                    IgnoreErrorHandler ignoreErrorHandler) {
+                                    IgnoreErrorHandler ignoreErrorHandler,
+                                    final ExceptionRecordingService exceptionRecordingService) {
 
-        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler);
+        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecordingService);
     }
 
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
                                     AsyncContextFactory asyncContextFactory,
-                                    @Nullable
-                                    final AsyncState asyncState,
+                                    @Nullable final AsyncState asyncState,
                                     final StringMetaDataService stringMetaDataService,
                                     final SqlMetaDataService sqlMetaCacheService,
-                                    final IgnoreErrorHandler errorHandler) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler);
+                                    final IgnoreErrorHandler errorHandler,
+                                    final ExceptionRecordingService exceptionRecordingService) {
+        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecordingService);
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
@@ -174,6 +175,16 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         this.spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
+    }
+
+    @Override
+    void setSpanExceptionStartTime() {
+        exceptionRecordingService.checkAndSetStartTime(spanEvent.getStartTime());
+    }
+
+    @Override
+    void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
+        spanEvent.setFlushedException(spanEventExceptionInfo);
     }
 
     @Override
