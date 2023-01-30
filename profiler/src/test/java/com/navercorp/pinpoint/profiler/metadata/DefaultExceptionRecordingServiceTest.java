@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +11,11 @@ import org.junit.jupiter.api.Test;
  */
 public class DefaultExceptionRecordingServiceTest {
 
-    DefaultExceptionRecordingService defaultExceptionRecordingService = new DefaultExceptionRecordingService();
+    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService();
+
+    ExceptionRecordingContext context;
+
+    long START_TIME = 1;
 
     public void methodA() {
         throw new RuntimeException("Level 1 Error");
@@ -20,7 +25,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             methodA();
         } catch (Exception e) {
-            defaultExceptionRecordingService.recordException(e);
+            exceptionRecordingService.recordException(context, e, START_TIME);
             throw new RuntimeException("Level 2 Error", e);
         }
     }
@@ -29,38 +34,38 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             methodB();
         } catch (Exception e) {
-            defaultExceptionRecordingService.recordException(e);
+            exceptionRecordingService.recordException(context, e, 0);
             throw new RuntimeException("Level 3 Error", e);
         }
     }
 
-    @Test
-    public void testFlushHeldException() {
-        SpanEventException actual = null;
-        SpanEventException expected = null;
-        try {
-            methodC();
-        } catch (Exception e) {
-            actual = defaultExceptionRecordingService.recordException(e);
-            expected = DefaultExceptionRecordingService.toSpanException(e, 0);
-            Assertions.assertNull(actual);
-        }
-        actual = defaultExceptionRecordingService.flushHeldException();
-        Assertions.assertEquals(actual, expected);
+    public void resetContext() {
+        context = ExceptionRecordingContext.newContext();
     }
 
     @Test
     public void testRecordNullException() {
+        resetContext();
         SpanEventException actual = null;
         SpanEventException expected = null;
         try {
             methodC();
         } catch (Exception e) {
-            actual = defaultExceptionRecordingService.recordException(e);
-            expected = DefaultExceptionRecordingService.toSpanException(e, 0);
+            actual = exceptionRecordingService.recordException(context, e, 0);
+            expected = new SpanEventException(e, START_TIME);
             Assertions.assertNull(actual);
         }
-        actual = defaultExceptionRecordingService.recordException(null);
+        actual = exceptionRecordingService.recordException(context, null, 0);
         Assertions.assertEquals(actual, expected);
     }
+
+    @Test
+    public void testRecordNothing() {
+        resetContext();
+        SpanEventException actual = null;
+        SpanEventException expected = null;
+        actual = exceptionRecordingService.recordException(context, null, 0);
+        Assertions.assertEquals(actual, expected);
+    }
+
 }

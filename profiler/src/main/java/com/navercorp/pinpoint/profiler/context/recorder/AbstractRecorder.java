@@ -25,7 +25,6 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
@@ -61,8 +60,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     public void recordException(boolean markError, Throwable throwable) {
-        setSpanExceptionStartTime();
-        flushSpanExceptionInfo(throwable);
+        recordDetailedException(throwable);
         if (throwable == null) {
             return;
         }
@@ -77,16 +75,9 @@ public abstract class AbstractRecorder implements AttributeRecorder {
         }
     }
 
+    abstract void recordDetailedException(Throwable throwable);
+
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
-
-    private void flushSpanExceptionInfo(Throwable throwable) {
-        final SpanEventException additional = exceptionRecordingService.recordException(throwable);
-        setSpanExceptionInfo(additional);
-    }
-
-    abstract void setSpanExceptionStartTime();
-
-    abstract void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo);
 
     abstract void maskErrorCode(final int errorCode);
 

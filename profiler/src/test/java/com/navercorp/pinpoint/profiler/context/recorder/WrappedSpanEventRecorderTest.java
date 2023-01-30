@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.jupiter.api.Assertions;
@@ -70,7 +71,8 @@ public class WrappedSpanEventRecorderTest {
 
         SpanEvent spanEvent = new SpanEvent();
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        recorder.setWrapped(spanEvent);
+        ExceptionRecordingContext exceptionRecordingContext = ExceptionRecordingContext.newContext();
+        recorder.setWrapped(spanEvent, exceptionRecordingContext);
 
         final String exceptionMessage1 = "exceptionMessage1";
         final Exception exception1 = new Exception(exceptionMessage1);
@@ -92,7 +94,8 @@ public class WrappedSpanEventRecorderTest {
     public void testRecordAPIId() throws Exception {
         SpanEvent spanEvent = new SpanEvent();
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        recorder.setWrapped(spanEvent);
+        ExceptionRecordingContext exceptionRecordingContext = ExceptionRecordingContext.newContext();
+        recorder.setWrapped(spanEvent, exceptionRecordingContext);
 
 
         final int API_ID = 1000;

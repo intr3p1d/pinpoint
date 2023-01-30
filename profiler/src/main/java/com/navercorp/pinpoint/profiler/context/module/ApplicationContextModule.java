@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
@@ -238,6 +240,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(StringMetaDataService.class).toProvider(StringMetadataServiceProvider.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
         bind(SqlMetaDataService.class).toProvider(SqlMetadataServiceProvider.class).in(Scopes.SINGLETON);
+        bind(ExceptionRecordingService.class).toProvider(ExceptionRecordingServiceProvider.class).in(Scopes.SINGLETON);
         bind(PredefinedMethodDescriptorRegistry.class).to(DefaultPredefinedMethodDescriptorRegistry.class).in(Scopes.SINGLETON);
     }
 

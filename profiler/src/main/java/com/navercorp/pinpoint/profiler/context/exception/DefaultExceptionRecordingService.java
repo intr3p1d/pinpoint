@@ -1,67 +1,39 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
-import javax.annotation.Nullable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import static java.lang.Long.max;
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class DefaultExceptionRecordingService implements ExceptionRecordingService {
 
-    private Throwable previous = null;
-    private long startTime = 0;
+    private static final Logger logger = LogManager.getLogger(DefaultExceptionRecordingService.class);
+
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     public DefaultExceptionRecordingService() {
     }
 
-    @Nullable
     @Override
-    public SpanEventException recordException(Throwable throwable) {
-        SpanEventException flushedException = flushIfTopLevelException(throwable);
-        holdGivenException(throwable);
-        return flushedException;
-    }
+    public SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime) {
+        Objects.requireNonNull(context);
 
-    private SpanEventException flushIfTopLevelException(Throwable throwable) {
-        SpanEventException spanEventException = null;
-        if (isTopLevelException(throwable)) {
-            spanEventException = toSpanException(previous, this.startTime);
-            resetStartTime();
-        }
+        ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
+        SpanEventException spanEventException = state.apply(context, current, startTime);
+
+        logException(spanEventException);
+
         return spanEventException;
     }
 
-    private boolean isTopLevelException(Throwable throwable) {
-        return throwable == null && previous != null;
-    }
-
-    @Nullable
-    public static SpanEventException toSpanException(Throwable throwable, long startTime) {
-        if (throwable == null) {
-            return null;
-        }
-        return new SpanEventException(throwable, startTime);
-    }
-
-    private void resetStartTime() {
-        this.startTime = 0;
-    }
-
-    private void holdGivenException(Throwable throwable) {
-        this.previous = throwable;
-    }
-
-    @Nullable
-    @Override
-    public SpanEventException flushHeldException() {
-        return recordException(null);
-    }
-
-    @Override
-    public void checkAndSetStartTime(long startTime) {
-        if (previous == null) {
-            this.startTime = max(startTime, this.startTime);
+    private void logException(SpanEventException spanEventException) {
+        if (isDebug) {
+            if (spanEventException != null) {
+                logger.debug(spanEventException);
+            }
         }
     }
 }

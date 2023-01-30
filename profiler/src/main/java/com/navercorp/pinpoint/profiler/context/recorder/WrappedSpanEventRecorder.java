@@ -30,11 +30,12 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
@@ -57,12 +58,14 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     private SpanEvent spanEvent;
 
+    private ExceptionRecordingContext exceptionRecordingContext;
+
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
                                     AsyncContextFactory asyncContextFactory,
                                     StringMetaDataService stringMetaDataService,
                                     SqlMetaDataService sqlMetaDataService,
                                     IgnoreErrorHandler ignoreErrorHandler,
-                                    final ExceptionRecordingService exceptionRecordingService) {
+                                    ExceptionRecordingService exceptionRecordingService) {
 
         this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecordingService);
     }
@@ -81,8 +84,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         this.asyncState = asyncState;
     }
 
-    public void setWrapped(final SpanEvent spanEvent) {
+    public void setWrapped(final SpanEvent spanEvent, ExceptionRecordingContext exceptionRecordingContext) {
         this.spanEvent = spanEvent;
+        this.exceptionRecordingContext = exceptionRecordingContext;
     }
 
     @Override
@@ -177,14 +181,13 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         this.spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
     }
 
-    @Override
-    void setSpanExceptionStartTime() {
-        exceptionRecordingService.checkAndSetStartTime(spanEvent.getStartTime());
-    }
-
-    @Override
-    void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
-        spanEvent.setFlushedException(spanEventExceptionInfo);
+    void recordDetailedException(Throwable throwable) {
+        SpanEventException spanEventException = exceptionRecordingService.recordException(
+                this.exceptionRecordingContext,
+                throwable,
+                spanEvent.getStartTime()
+        );
+        spanEvent.setFlushedException(spanEventException);
     }
 
     @Override

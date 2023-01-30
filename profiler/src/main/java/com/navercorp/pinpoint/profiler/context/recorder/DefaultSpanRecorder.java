@@ -20,10 +20,9 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
@@ -59,12 +58,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
-    void setSpanExceptionStartTime() {
-        // do nothing
-    }
-
-    @Override
-    void setSpanExceptionInfo(SpanEventException spanEventExceptionInfo) {
+    void recordDetailedException(Throwable throwable) {
         // do nothing
     }
 
