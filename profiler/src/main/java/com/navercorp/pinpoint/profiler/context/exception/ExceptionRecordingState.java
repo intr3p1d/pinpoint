@@ -29,7 +29,9 @@ public enum ExceptionRecordingState {
     FLUSH {
         @Override
         public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
-            SpanEventException spanEventException = new SpanEventException(exceptionRecordingContext.getPrevious(), exceptionRecordingContext.getStartTime());
+            SpanEventException spanEventException = SpanEventException.newSpanEventException(
+                    exceptionRecordingContext.getPrevious(), exceptionRecordingContext.getStartTime()
+            );
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.resetStartTime();
             return spanEventException;

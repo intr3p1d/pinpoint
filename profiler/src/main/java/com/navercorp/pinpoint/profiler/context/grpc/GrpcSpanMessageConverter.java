@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PException;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
 import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
@@ -48,6 +49,7 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.exception.StackTraceElementWrapper;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -57,9 +59,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Not thread safe
@@ -83,6 +85,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final PSpanEvent.Builder pSpanEventBuilder = PSpanEvent.newBuilder();
     private final PSpanEventException.Builder pSpanEventExceptionBuilder = PSpanEventException.newBuilder();
+    private final PException.Builder pExceptionBuilder = PException.newBuilder();
 
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
@@ -350,7 +353,8 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
         final SpanEventException spanEventException = spanEvent.getFlushedException();
         if (spanEventException != null) {
-            pSpanEvent.setFlushedException(buildSpanEventException(spanEvent.getFlushedException()));
+            final PSpanEventException pSpanEventException = buildPSpanEventException(spanEventException).build();
+            pSpanEvent.setFlushedException(pSpanEventException);
         }
 
         return pSpanEvent;
@@ -391,22 +395,39 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         return builder;
     }
 
-    private PSpanEventException.Builder buildSpanEventException(SpanEventException spanEventException) {
-        final PSpanEventException.Builder pSpanEventException = getpSpanEventExceptionBuilder();
-        pSpanEventException.setExceptionClassName(spanEventException.getExceptionClassName());
-        pSpanEventException.setExceptionMessage(spanEventException.getExceptionMessage());
+    private PSpanEventException.Builder buildPSpanEventException(SpanEventException spanEventException) {
+        final PSpanEventException.Builder pSpanEventException = getSpanEventExceptionBuilder();
+        if (spanEventException.getExceptionWrappers() != null) {
+            pSpanEventException.addAllExceptions(buildPExceptions(Arrays.asList(spanEventException.getExceptionWrappers())));
+        }
         pSpanEventException.setStartTime(spanEventException.getStartTime());
+        return pSpanEventException;
+    }
 
-        final StackTraceElementWrapper[] stackTraceElementWrappers = spanEventException.getStackTraceElements();
+    List<PException> buildPExceptions(List<ExceptionWrapper> exceptionWrappers) {
+        final List<PException> tExceptionList = new ArrayList<>(exceptionWrappers.size());
+        for (ExceptionWrapper exceptionWrapper : exceptionWrappers) {
+            final PException pException = buildException(exceptionWrapper).build();
+            tExceptionList.add(pException);
+        }
+        return tExceptionList;
+    }
+
+    private PException.Builder buildException(ExceptionWrapper exceptionWrapper) {
+        final PException.Builder pException = getExceptionBuilder();
+        pException.setExceptionClassName(exceptionWrapper.getExceptionClassName());
+        pException.setExceptionMessage(exceptionWrapper.getExceptionMessage());
+
+        final StackTraceElementWrapper[] stackTraceElementWrappers = exceptionWrapper.getStackTraceElements();
         if (stackTraceElementWrappers != null && stackTraceElementWrappers.length > 0) {
             final List<PStackTraceElement> pStackTraceElements = new ArrayList<>();
             for (StackTraceElementWrapper stackTraceElementWrapper : stackTraceElementWrappers) {
                 pStackTraceElements.add(buildStackTraceElement(stackTraceElementWrapper));
             }
-            pSpanEventException.addAllStackTraceElement(pStackTraceElements);
+            pException.addAllStackTraceElement(pStackTraceElements);
         }
 
-        return pSpanEventException;
+        return pException;
     }
 
     private PStackTraceElement buildStackTraceElement(StackTraceElementWrapper stackTraceElementWrapper) {
@@ -454,9 +475,14 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         return pSpanEventBuilder;
     }
 
-    private PSpanEventException.Builder getpSpanEventExceptionBuilder() {
+    private PSpanEventException.Builder getSpanEventExceptionBuilder() {
         pSpanEventExceptionBuilder.clear();
         return pSpanEventExceptionBuilder;
+    }
+
+    private PException.Builder getExceptionBuilder() {
+        pExceptionBuilder.clear();
+        return pExceptionBuilder;
     }
 
     @Override

@@ -12,9 +12,10 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     private static final Logger logger = LogManager.getLogger(DefaultExceptionRecordingService.class);
 
-    private static final boolean isDebug = logger.isDebugEnabled();
+    private static final boolean IS_DEBUG = logger.isDebugEnabled();
 
     public DefaultExceptionRecordingService() {
+        // do nothing
     }
 
     @Override
@@ -30,10 +31,8 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     }
 
     private void logException(SpanEventException spanEventException) {
-        if (isDebug) {
-            if (spanEventException != null) {
-                logger.debug(spanEventException);
-            }
+        if (IS_DEBUG && spanEventException != null) {
+            logger.debug(spanEventException);
         }
     }
 }

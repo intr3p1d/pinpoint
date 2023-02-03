@@ -76,7 +76,6 @@ public class SpanEvent extends DefaultFrameAttachment {
         this.flushedException = flushedException;
     }
 
-
     public void markStartTime() {
         setStartTime(System.currentTimeMillis());
     }

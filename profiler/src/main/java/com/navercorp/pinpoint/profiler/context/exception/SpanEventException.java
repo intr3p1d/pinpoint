@@ -8,34 +8,26 @@ import java.util.Objects;
  */
 public class SpanEventException {
 
-    private final String exceptionClassName;
-    private final String exceptionMessage;
-    private final StackTraceElementWrapper[] stackTraceElements;
+    private final ExceptionWrapper[] exceptionWrappers;
 
     private final long startTime;
 
-    public SpanEventException(Throwable throwable, long startTime) {
+    private SpanEventException(Throwable throwable, long startTime) {
         Objects.requireNonNull(throwable);
-        this.exceptionClassName = throwable.getClass().getSimpleName();
-        this.exceptionMessage = throwable.getMessage();
-        this.stackTraceElements = StackTraceElementWrapper.valueOf(throwable.getStackTrace());
+        this.exceptionWrappers = ExceptionWrapper.newExceptions(throwable);
         this.startTime = startTime;
     }
 
-    public String getExceptionClassName() {
-        return exceptionClassName;
-    }
-
-    public String getExceptionMessage() {
-        return exceptionMessage;
-    }
-
-    public StackTraceElementWrapper[] getStackTraceElements() {
-        return stackTraceElements;
+    public static SpanEventException newSpanEventException(Throwable throwable, long startTime) {
+        return new SpanEventException(throwable, startTime);
     }
 
     public long getStartTime() {
         return startTime;
+    }
+
+    public ExceptionWrapper[] getExceptionWrappers() {
+        return exceptionWrappers;
     }
 
     @Override
@@ -46,17 +38,13 @@ public class SpanEventException {
         SpanEventException that = (SpanEventException) o;
 
         if (startTime != that.startTime) return false;
-        if (!exceptionClassName.equals(that.exceptionClassName)) return false;
-        if (!exceptionMessage.equals(that.exceptionMessage)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return Arrays.equals(stackTraceElements, that.stackTraceElements);
+        return Arrays.equals(exceptionWrappers, that.exceptionWrappers);
     }
 
     @Override
     public int hashCode() {
-        int result = exceptionClassName.hashCode();
-        result = 31 * result + exceptionMessage.hashCode();
-        result = 31 * result + Arrays.hashCode(stackTraceElements);
+        int result = Arrays.hashCode(exceptionWrappers);
         result = 31 * result + (int) (startTime ^ (startTime >>> 32));
         return result;
     }
@@ -64,9 +52,7 @@ public class SpanEventException {
     @Override
     public String toString() {
         return "SpanEventException{" +
-                "exceptionClassName='" + exceptionClassName + '\'' +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
-                ", stackTraceElements=" + Arrays.toString(stackTraceElements) +
+                "exceptionWrappers=" + Arrays.toString(exceptionWrappers) +
                 ", startTime=" + startTime +
                 '}';
     }

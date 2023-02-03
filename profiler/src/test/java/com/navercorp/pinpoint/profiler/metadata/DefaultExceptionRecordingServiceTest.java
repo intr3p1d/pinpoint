@@ -52,7 +52,7 @@ public class DefaultExceptionRecordingServiceTest {
             methodC();
         } catch (Exception e) {
             actual = exceptionRecordingService.recordException(context, e, 0);
-            expected = new SpanEventException(e, START_TIME);
+            expected = SpanEventException.newSpanEventException(e, START_TIME);
             Assertions.assertNull(actual);
         }
         actual = exceptionRecordingService.recordException(context, null, 0);
