@@ -6,36 +6,19 @@ import java.util.List;
  * @author intr3p1d
  */
 public class SpanEventExceptionBo {
-    private String exceptionClassName;
-    private String exceptionMessage;
-    private List<StackTraceElementWrapperBo> stackTraceElements;
+
+    private List<ExceptionWrapperBo> exceptionWrappers;
     private long startTime;
 
     public SpanEventExceptionBo() {
     }
 
-    public String getExceptionClassName() {
-        return exceptionClassName;
+    public List<ExceptionWrapperBo> getExceptionWrappers() {
+        return exceptionWrappers;
     }
 
-    public void setExceptionClassName(String exceptionClassName) {
-        this.exceptionClassName = exceptionClassName;
-    }
-
-    public String getExceptionMessage() {
-        return exceptionMessage;
-    }
-
-    public void setExceptionMessage(String exceptionMessage) {
-        this.exceptionMessage = exceptionMessage;
-    }
-
-    public List<StackTraceElementWrapperBo> getStackTraceElements() {
-        return stackTraceElements;
-    }
-
-    public void setStackTraceElements(List<StackTraceElementWrapperBo> stackTraceElements) {
-        this.stackTraceElements = stackTraceElements;
+    public void setExceptionWrappers(List<ExceptionWrapperBo> exceptionWrappers) {
+        this.exceptionWrappers = exceptionWrappers;
     }
 
     public long getStartTime() {
@@ -49,9 +32,7 @@ public class SpanEventExceptionBo {
     @Override
     public String toString() {
         return "SpanEventExceptionBo{" +
-                "exceptionClassName='" + exceptionClassName + '\'' +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
-                ", stackTraceElements=" + stackTraceElements +
+                "exceptionWrappers=" + exceptionWrappers +
                 ", startTime=" + startTime +
                 '}';
     }
