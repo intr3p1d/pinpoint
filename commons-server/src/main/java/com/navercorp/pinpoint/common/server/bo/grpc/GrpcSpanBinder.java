@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PSpanEventException;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections4.CollectionUtils;
@@ -58,6 +59,8 @@ public class GrpcSpanBinder {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final AnnotationFactory<PAnnotation> annotationFactory = new AnnotationFactory<>(new GrpcAnnotationHandler());
+
+    private static final GrpcSpanEventExceptionBinder spanEventExceptionBinder = new GrpcSpanEventExceptionBinder();
 
     public GrpcSpanBinder() {
     }
@@ -224,6 +227,10 @@ public class GrpcSpanBinder {
             spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
         }
 
+        if(pSpanEvent.hasFlushedException()) {
+            final PSpanEventException pSpanEventException = pSpanEvent.getFlushedException();
+            spanEvent.setFlushedException(spanEventExceptionBinder.bind(pSpanEventException));
+        }
     }
 
     public SpanChunkBo bindSpanChunkBo(PSpanChunk pSpanChunk, Header header) {
