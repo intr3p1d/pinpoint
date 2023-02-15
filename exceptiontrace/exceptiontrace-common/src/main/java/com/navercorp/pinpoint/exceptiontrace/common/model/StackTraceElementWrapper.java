@@ -1,10 +1,14 @@
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
+@JsonAutoDetect
 public class StackTraceElementWrapper {
     private String className;
     private String fileName;
@@ -14,10 +18,10 @@ public class StackTraceElementWrapper {
     public StackTraceElementWrapper() {
     }
 
-    public StackTraceElementWrapper(String className,
-                                    String fileName,
-                                    int lineNumber,
-                                    String methodName) {
+    public StackTraceElementWrapper(@JsonProperty("className") String className,
+                                    @JsonProperty("fileName") String fileName,
+                                    @JsonProperty("lineNumber") int lineNumber,
+                                    @JsonProperty("methodName") String methodName) {
         this.className = Objects.requireNonNull(className, "className");
         this.fileName = Objects.requireNonNull(fileName, "fileName");
         this.lineNumber = lineNumber;
@@ -54,6 +58,28 @@ public class StackTraceElementWrapper {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StackTraceElementWrapper)) return false;
+
+        StackTraceElementWrapper that = (StackTraceElementWrapper) o;
+
+        if (lineNumber != that.lineNumber) return false;
+        if (!className.equals(that.className)) return false;
+        if (!fileName.equals(that.fileName)) return false;
+        return methodName.equals(that.methodName);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = className.hashCode();
+        result = 31 * result + fileName.hashCode();
+        result = 31 * result + lineNumber;
+        result = 31 * result + methodName.hashCode();
+        return result;
     }
 
     @Override

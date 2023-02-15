@@ -52,7 +52,15 @@ public class SpanEventException {
                                              String errorClassName, String errorMessage,
                                              List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
         return new SpanEventException(
-                timestamp, transactionId, spanId, applicationServiceType, applicationName, agentId, errorClassName, errorMessage, toStackTrace(stackTraceElementWrapperBos)
+                timestamp,
+                transactionId,
+                spanId,
+                applicationServiceType,
+                applicationName,
+                agentId,
+                errorClassName,
+                errorMessage,
+                toStackTrace(stackTraceElementWrapperBos)
         );
     }
 
@@ -101,9 +109,19 @@ public class SpanEventException {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof SpanEventException)) return false;
+
         SpanEventException that = (SpanEventException) o;
-        return applicationName.equals(that.applicationName) && agentId.equals(that.agentId) && errorClassName.equals(that.errorClassName) && errorMessage.equals(that.errorMessage) && stackTrace.equals(that.stackTrace);
+
+        if (timestamp != that.timestamp) return false;
+        if (spanId != that.spanId) return false;
+        if (!transactionId.equals(that.transactionId)) return false;
+        if (!applicationServiceType.equals(that.applicationServiceType)) return false;
+        if (!applicationName.equals(that.applicationName)) return false;
+        if (!agentId.equals(that.agentId)) return false;
+        if (!errorClassName.equals(that.errorClassName)) return false;
+        if (!errorMessage.equals(that.errorMessage)) return false;
+        return stackTrace.equals(that.stackTrace);
     }
 
     @Override

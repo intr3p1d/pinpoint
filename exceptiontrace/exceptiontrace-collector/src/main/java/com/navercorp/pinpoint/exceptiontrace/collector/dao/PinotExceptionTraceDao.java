@@ -19,11 +19,11 @@ import java.util.Objects;
 public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final KafkaTemplate<String, SpanEventException> kafkaSpanEventExceptionTemplate;
+    private final KafkaTemplate<String, SpanEventExceptionVo> kafkaSpanEventExceptionTemplate;
 
     private final String topic;
 
-    public PinotExceptionTraceDao(@Qualifier("kafkaSpanEventExceptionTemplate") KafkaTemplate<String, SpanEventException> kafkaSpanEventExceptionTemplate,
+    public PinotExceptionTraceDao(@Qualifier("kafkaSpanEventExceptionTemplate") KafkaTemplate<String, SpanEventExceptionVo> kafkaSpanEventExceptionTemplate,
                                   @Value("${kafka.exceptiontrace.topic}") String topic) {
         this.kafkaSpanEventExceptionTemplate = Objects.requireNonNull(kafkaSpanEventExceptionTemplate, "kafkaSpanEventExceptionTemplate");
         this.topic = StringPrecondition.requireHasLength(topic, "topic");
@@ -36,7 +36,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
         for (SpanEventException spanEventException : spanEventExceptions) {
             logger.warn(spanEventException.toString());
-            this.kafkaSpanEventExceptionTemplate.send(topic, spanEventException);
+            this.kafkaSpanEventExceptionTemplate.send(topic, SpanEventExceptionVo.toSpanEventExceptionVo(spanEventException));
         }
     }
 }

@@ -23,7 +23,7 @@ import java.util.Objects;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/exception-trace")
+@RequestMapping(value = "/exceptionTrace")
 public class ExceptionTraceController {
     private final ExceptionTraceService exceptionTraceService;
 
@@ -35,7 +35,7 @@ public class ExceptionTraceController {
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
-    @GetMapping("/transaction-info")
+    @GetMapping("/transactionInfo")
     public SpanEventException getSpanEventExceptionFromTransactionId(
             @RequestParam("traceId") String traceId,
             @RequestParam(value = "traceTimestamp", required = false, defaultValue = "0") long timestamp
@@ -48,7 +48,7 @@ public class ExceptionTraceController {
         return exceptionTraceService.getExactSpanEventException(transactionBuilder.build());
     }
 
-    @GetMapping("/error-list")
+    @GetMapping("/errorList")
     public List<SpanEventException> getListOfSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,

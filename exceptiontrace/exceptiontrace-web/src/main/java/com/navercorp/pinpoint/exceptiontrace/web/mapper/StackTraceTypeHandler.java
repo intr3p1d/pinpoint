@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -16,6 +17,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class StackTraceTypeHandler extends BaseTypeHandler<List<StackTraceElemen
 
     private static final Logger logger = LogManager.getLogger(StackTraceTypeHandler.class);
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Override
@@ -54,13 +56,18 @@ public class StackTraceTypeHandler extends BaseTypeHandler<List<StackTraceElemen
         return convertToList(callableStatement.getString(i));
     }
 
-    private List<StackTraceElementWrapper> convertToList(String s) {
+    protected List<StackTraceElementWrapper> convertToList(String s) {
         if (StringUtils.isEmpty(s)) {
             return Collections.emptyList();
         }
         try {
-            return objectMapper.readValue(s, new TypeReference<>() {
+            List<String> strings = objectMapper.readValue(s, new TypeReference<List<String>>() {
             });
+            List<StackTraceElementWrapper> stackTraceElementWrapperList = new ArrayList<>();
+            for(String str : strings) {
+                stackTraceElementWrapperList.add(objectMapper.readValue(str, StackTraceElementWrapper.class));
+            }
+            return stackTraceElementWrapperList;
         } catch (IOException e) {
             logger.error(e);
         }
