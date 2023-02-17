@@ -16,8 +16,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final SpanEventException spanEventException;
 
     private final TransactionId transactionId;
-
     private final long spanEventTimestamp;
+    private final int exceptionDepth;
 
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
@@ -26,6 +26,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.spanEventException = builder.spanEventException;
         this.transactionId = builder.transactionId;
         this.spanEventTimestamp = builder.spanEventTimestamp;
+        this.exceptionDepth = builder.exceptionDepth;
     }
 
     public static class Builder extends QueryParameter.Builder {
@@ -36,6 +37,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private TransactionId transactionId = null;
 
         private long spanEventTimestamp = 0;
+
+        private int exceptionDepth = 0;
 
         public void setApplicationName(String applicationName) {
             this.applicationName = applicationName;
@@ -55,6 +58,10 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public void setSpanEventTimestamp(long spanEventTimestamp) {
             this.spanEventTimestamp = spanEventTimestamp;
+        }
+
+        public void setExceptionDepth(int exceptionDepth) {
+            this.exceptionDepth = exceptionDepth;
         }
 
         @Override

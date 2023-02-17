@@ -12,6 +12,4 @@ public interface ExceptionTraceService {
     List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 
     SpanEventException getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-
-    List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }

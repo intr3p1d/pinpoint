@@ -37,10 +37,4 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         }
         return spanEventExceptions.get(0);
     }
-
-    @Override
-    public List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return exceptionTraceDao.getCollectedSpanEventExceptions(exceptionTraceQueryParameter);
-    }
-
 }
