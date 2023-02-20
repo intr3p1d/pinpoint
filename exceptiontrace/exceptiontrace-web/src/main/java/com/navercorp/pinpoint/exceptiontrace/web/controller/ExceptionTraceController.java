@@ -124,14 +124,13 @@ public class ExceptionTraceController {
         ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder();
         transactionBuilder.setApplicationName(applicationName);
         transactionBuilder.setAgentId(transactionId.getAgentId());
-        transactionBuilder.setTransactionId(transactionId);
-        transactionBuilder.setSpanEventTimestamp(timestamp);
+        transactionBuilder.forFindingSpecificException(transactionId, timestamp, 0);
         final SpanEventException spanEventException = exceptionTraceService.getExactSpanEventException(transactionBuilder.build());
 
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
         builder.setApplicationName(applicationName);
         builder.setAgentId(transactionId.getAgentId());
-        builder.setSpanEventException(spanEventException);
+        builder.forFindingSameExceptions(spanEventException);
         builder.setRange(Range.newRange(from, to));
 
         return exceptionTraceService.getCollectedSpanEventException(builder.build());
@@ -146,7 +145,6 @@ public class ExceptionTraceController {
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
         builder.setApplicationName(applicationName);
         builder.setAgentId(agentId);
-        builder.setSpanEventException(null);
         builder.setRange(Range.newRange(from, to));
 
         return exceptionTraceService.getCollectedSpanEventException(builder.build());

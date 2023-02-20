@@ -42,12 +42,12 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
     @Override
     public List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return exceptionTraceDao.getCollectedSpanEventExceptions(exceptionTraceQueryParameter);
+        return exceptionTraceDao.getExceptions(exceptionTraceQueryParameter);
     }
 
     @Override
     public SpanEventException getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExactSpanEventException(exceptionTraceQueryParameter);
+        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(exceptionTraceQueryParameter);
         if (spanEventExceptions.isEmpty()) {
             return null;
         }

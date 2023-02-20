@@ -76,7 +76,7 @@ public class StackTraceTypeHandler extends BaseTypeHandler<List<StackTraceElemen
             return Collections.emptyList();
         }
         try {
-            List<String> strings = objectMapper.readValue(s, new TypeReference<List<String>>() {
+            List<String> strings = objectMapper.readValue(s, new TypeReference<>() {
             });
             List<StackTraceElementWrapper> stackTraceElementWrapperList = new ArrayList<>();
             for(String str : strings) {

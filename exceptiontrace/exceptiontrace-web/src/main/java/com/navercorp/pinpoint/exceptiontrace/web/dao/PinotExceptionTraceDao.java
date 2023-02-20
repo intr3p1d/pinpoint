@@ -24,6 +24,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +37,8 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private static final String NAMESPACE = PinotExceptionTraceDao.class.getName() + ".";
 
+    private static final String SELECT_QUERY = "selectExceptions";
+
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
     public PinotExceptionTraceDao(@Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
@@ -43,12 +46,12 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public List<SpanEventException> getCollectedSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSpanExceptionList", exceptionTraceQueryParameter);
-    }
-
-    @Override
-    public List<SpanEventException> getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSpanExceptionList", exceptionTraceQueryParameter);
+    public List<SpanEventException> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        try {
+            return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return Collections.emptyList();
     }
 }

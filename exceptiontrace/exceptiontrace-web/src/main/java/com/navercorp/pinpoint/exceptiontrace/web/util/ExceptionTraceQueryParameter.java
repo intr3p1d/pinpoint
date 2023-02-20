@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,13 +49,12 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     public static class Builder extends QueryParameter.Builder {
         private String applicationName = null;
         private String agentId = null;
+
         private SpanEventException spanEventException = null;
 
         private TransactionId transactionId = null;
-
-        private long spanEventTimestamp = 0;
-
-        private int exceptionDepth = 0;
+        private long spanEventTimestamp = Long.MIN_VALUE;
+        private int exceptionDepth = Integer.MIN_VALUE;
 
         public void setApplicationName(String applicationName) {
             this.applicationName = applicationName;
@@ -64,20 +64,22 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             this.agentId = agentId;
         }
 
-        public void setSpanEventException(SpanEventException spanEventException) {
-            this.spanEventException = spanEventException;
+        public void forFindingSameExceptions(SpanEventException spanEventException) {
+            this.spanEventException = Objects.requireNonNull(spanEventException, "spanEventException");
+        }
+
+        public void forFindingSpecificException(TransactionId transactionId, long spanEventTimestamp, int exceptionDepth) {
+            this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
+            this.spanEventTimestamp = spanEventTimestamp;
+            this.exceptionDepth = exceptionDepth;
         }
 
         public void setTransactionId(TransactionId transactionId) {
-            this.transactionId = transactionId;
+            this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
         }
 
         public void setSpanEventTimestamp(long spanEventTimestamp) {
             this.spanEventTimestamp = spanEventTimestamp;
-        }
-
-        public void setExceptionDepth(int exceptionDepth) {
-            this.exceptionDepth = exceptionDepth;
         }
 
         @Override
