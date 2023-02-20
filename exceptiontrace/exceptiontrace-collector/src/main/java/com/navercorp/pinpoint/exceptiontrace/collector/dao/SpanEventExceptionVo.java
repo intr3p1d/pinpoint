@@ -42,11 +42,11 @@ public class SpanEventExceptionVo {
 
     private final String errorClassName;
     private final String errorMessage;
-
+    private final int exceptionDepth;
     private final List<String> stackTrace;
 
 
-    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, List<String> stackTrace) {
+    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace) {
         this.timestamp = timestamp;
         this.transactionId = transactionId;
         this.spanId = spanId;
@@ -55,6 +55,7 @@ public class SpanEventExceptionVo {
         this.agentId = agentId;
         this.errorClassName = errorClassName;
         this.errorMessage = errorMessage;
+        this.exceptionDepth = exceptionDepth;
         this.stackTrace = stackTrace;
     }
 
@@ -69,6 +70,7 @@ public class SpanEventExceptionVo {
                 spanEventException.getAgentId(),
                 spanEventException.getErrorClassName(),
                 spanEventException.getErrorMessage(),
+                spanEventException.getExceptionDepth(),
                 toJsonString(spanEventException.getStackTrace())
         );
     }
@@ -118,6 +120,10 @@ public class SpanEventExceptionVo {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public int getExceptionDepth() {
+        return exceptionDepth;
     }
 
     public List<String> getStackTrace() {

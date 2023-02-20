@@ -39,6 +39,7 @@ public class SpanEventException {
 
     private final String errorClassName;
     private final String errorMessage;
+    private final int exceptionDepth;
     private final List<StackTraceElementWrapper> stackTrace;
 
     public SpanEventException(
@@ -50,6 +51,7 @@ public class SpanEventException {
             String agentId,
             String errorClassName,
             String errorMessage,
+            int exceptionDepth,
             List<StackTraceElementWrapper> stackTrace
     ) {
         this.timestamp = timestamp;
@@ -60,12 +62,13 @@ public class SpanEventException {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
+        this.exceptionDepth = exceptionDepth;
         this.stackTrace = stackTrace;
     }
 
     public static SpanEventException valueOf(long timestamp, String transactionId, long spanId,
                                              String applicationServiceType, String applicationName, String agentId,
-                                             String errorClassName, String errorMessage,
+                                             String errorClassName, String errorMessage, int exceptionDepth,
                                              List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
         return new SpanEventException(
                 timestamp,
@@ -76,6 +79,7 @@ public class SpanEventException {
                 agentId,
                 errorClassName,
                 errorMessage,
+                exceptionDepth,
                 toStackTrace(stackTraceElementWrapperBos)
         );
     }
@@ -116,6 +120,10 @@ public class SpanEventException {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public int getExceptionDepth() {
+        return exceptionDepth;
     }
 
     public List<StackTraceElementWrapper> getStackTrace() {

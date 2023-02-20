@@ -30,8 +30,12 @@
       "dataType": "STRING"
     },
     {
+      "name": "exceptionDepth",
+      "dataType": "INT"
+    },
+    {
       "name": "stackTrace",
-      "dataType": "STRING",
+      "dataType": "JSON",
       "singleValueField": false
     }
   ],
