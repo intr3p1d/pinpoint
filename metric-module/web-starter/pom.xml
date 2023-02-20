@@ -48,10 +48,6 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-exceptiontrace-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-exceptiontrace-web</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
