@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.service;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.metric.web.util.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -40,14 +41,19 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");
     }
 
-    @Override
-    public List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return exceptionTraceDao.getExceptions(exceptionTraceQueryParameter);
+
+    public List<SpanEventException> getCollectedExceptionByTransactionId(ExceptionTraceQueryParameter queryParameter) {
+        return null;
     }
 
     @Override
-    public SpanEventException getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(exceptionTraceQueryParameter);
+    public List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
+        return exceptionTraceDao.getExceptions(queryParameter);
+    }
+
+    @Override
+    public SpanEventException getSpanEventException(ExceptionTraceQueryParameter queryParameter) {
+        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
         if (spanEventExceptions.isEmpty()) {
             return null;
         }

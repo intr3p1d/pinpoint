@@ -25,7 +25,7 @@ import java.util.List;
  * @author intr3p1d
  */
 public interface ExceptionTraceService {
-    List<SpanEventException> getCollectedSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 
-    SpanEventException getExactSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    SpanEventException getSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }

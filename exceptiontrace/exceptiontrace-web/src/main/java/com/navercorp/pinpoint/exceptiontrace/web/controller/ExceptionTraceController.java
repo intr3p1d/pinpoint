@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalLong;
 
 /**
  * @author intr3p1d
@@ -54,14 +55,16 @@ public class ExceptionTraceController {
     @GetMapping("/transactionInfo")
     public SpanEventException getSpanEventExceptionFromTransactionId(
             @RequestParam("traceId") String traceId,
-            @RequestParam(value = "traceTimestamp", required = false, defaultValue = "0") long timestamp
+            @RequestParam("traceTimestamp") OptionalLong timestamp
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder();
         transactionBuilder.setAgentId(transactionId.getAgentId());
         transactionBuilder.setTransactionId(transactionId);
-        transactionBuilder.setSpanEventTimestamp(timestamp);
-        return exceptionTraceService.getExactSpanEventException(transactionBuilder.build());
+        if (timestamp.isPresent()) {
+            transactionBuilder.setSpanEventTimestamp(timestamp.getAsLong());
+        }
+        return exceptionTraceService.getSpanEventException(transactionBuilder.build());
     }
 
     @GetMapping("/errorList")
@@ -125,7 +128,7 @@ public class ExceptionTraceController {
         transactionBuilder.setApplicationName(applicationName);
         transactionBuilder.setAgentId(transactionId.getAgentId());
         transactionBuilder.forFindingSpecificException(transactionId, timestamp, 0);
-        final SpanEventException spanEventException = exceptionTraceService.getExactSpanEventException(transactionBuilder.build());
+        final SpanEventException spanEventException = exceptionTraceService.getSpanEventException(transactionBuilder.build());
 
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
         builder.setApplicationName(applicationName);
@@ -133,7 +136,7 @@ public class ExceptionTraceController {
         builder.forFindingSameExceptions(spanEventException);
         builder.setRange(Range.newRange(from, to));
 
-        return exceptionTraceService.getCollectedSpanEventException(builder.build());
+        return exceptionTraceService.getSpanEventExceptions(builder.build());
     }
 
     private List<SpanEventException> getAllCollectedSpanEventExceptionList(
@@ -147,6 +150,6 @@ public class ExceptionTraceController {
         builder.setAgentId(agentId);
         builder.setRange(Range.newRange(from, to));
 
-        return exceptionTraceService.getCollectedSpanEventException(builder.build());
+        return exceptionTraceService.getSpanEventExceptions(builder.build());
     }
 }
