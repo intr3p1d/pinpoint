@@ -56,6 +56,6 @@
             </if>
         </if>
         ORDER BY "timestamp" asc
-        LIMIT 6584625
+        LIMIT 65846
     </select>
 </mapper>

@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,19 +42,22 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");
     }
 
-
-    public List<SpanEventException> getCollectedExceptionByTransactionId(ExceptionTraceQueryParameter queryParameter) {
-        return null;
-    }
-
     @Override
     public List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
-        return exceptionTraceDao.getExceptions(queryParameter);
+        logger.info(queryParameter);
+        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
+        logger.info(spanEventExceptions);
+        if (spanEventExceptions.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return spanEventExceptions;
     }
 
     @Override
     public SpanEventException getSpanEventException(ExceptionTraceQueryParameter queryParameter) {
+        logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
+        logger.info(spanEventExceptions);
         if (spanEventExceptions.isEmpty()) {
             return null;
         }

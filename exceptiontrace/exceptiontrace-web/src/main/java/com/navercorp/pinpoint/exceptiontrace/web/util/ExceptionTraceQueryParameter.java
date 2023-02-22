@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
@@ -32,7 +33,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final String agentId;
     private final SpanEventException spanEventException;
 
-    private final TransactionId transactionId;
+    private final String transactionId;
     private final long spanEventTimestamp;
     private final int exceptionDepth;
 
@@ -41,7 +42,12 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.spanEventException = builder.spanEventException;
-        this.transactionId = builder.transactionId;
+
+        if (builder.transactionId != null) {
+            this.transactionId = TransactionIdUtils.formatString(builder.transactionId);
+        } else {
+            this.transactionId = null;
+        }
         this.spanEventTimestamp = builder.spanEventTimestamp;
         this.exceptionDepth = builder.exceptionDepth;
     }

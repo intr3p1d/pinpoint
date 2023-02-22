@@ -27,11 +27,14 @@ import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalLong;
@@ -44,6 +47,7 @@ import java.util.OptionalLong;
 public class ExceptionTraceController {
     private final ExceptionTraceService exceptionTraceService;
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
     private final TenantProvider tenantProvider;
 
@@ -55,15 +59,15 @@ public class ExceptionTraceController {
     @GetMapping("/transactionInfo")
     public SpanEventException getSpanEventExceptionFromTransactionId(
             @RequestParam("traceId") String traceId,
-            @RequestParam("traceTimestamp") OptionalLong timestamp
+            @RequestParam("traceTimestamp") long timestamp
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder();
+        transactionBuilder.setApplicationName("");
         transactionBuilder.setAgentId(transactionId.getAgentId());
         transactionBuilder.setTransactionId(transactionId);
-        if (timestamp.isPresent()) {
-            transactionBuilder.setSpanEventTimestamp(timestamp.getAsLong());
-        }
+        transactionBuilder.setSpanEventTimestamp(timestamp);
+        transactionBuilder.setRange(Range.newRange(timestamp - 1, timestamp + 1));
         return exceptionTraceService.getSpanEventException(transactionBuilder.build());
     }
 
@@ -128,7 +132,14 @@ public class ExceptionTraceController {
         transactionBuilder.setApplicationName(applicationName);
         transactionBuilder.setAgentId(transactionId.getAgentId());
         transactionBuilder.forFindingSpecificException(transactionId, timestamp, 0);
+        transactionBuilder.setRange(Range.newRange(from, to));
         final SpanEventException spanEventException = exceptionTraceService.getSpanEventException(transactionBuilder.build());
+
+        logger.info(spanEventException);
+
+        if (spanEventException == null) {
+            return Collections.emptyList();
+        }
 
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder();
         builder.setApplicationName(applicationName);
