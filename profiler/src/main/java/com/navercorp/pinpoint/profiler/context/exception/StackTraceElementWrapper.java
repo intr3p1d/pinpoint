@@ -1,10 +1,13 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import java.util.Optional;
+
 /**
  * @author intr3p1d
  */
 public class StackTraceElementWrapper {
 
+    private static final String EMPTY_STRING = "";
     private final String className;
     private final String fileName;
     private final int lineNumber;
@@ -14,10 +17,10 @@ public class StackTraceElementWrapper {
                                      String fileName,
                                      int lineNumber,
                                      String methodName) {
-        this.className = className;
-        this.fileName = fileName;
+        this.className = Optional.ofNullable(className).orElse(EMPTY_STRING);
+        this.fileName = Optional.ofNullable(fileName).orElse(EMPTY_STRING);
         this.lineNumber = lineNumber;
-        this.methodName = methodName;
+        this.methodName = Optional.ofNullable(methodName).orElse(EMPTY_STRING);
     }
 
     protected static StackTraceElementWrapper[] valueOf(StackTraceElement[] stackTraceElements) {
