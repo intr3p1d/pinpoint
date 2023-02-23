@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
+import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
 import java.util.Objects;
@@ -53,7 +54,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     }
 
     public static class Builder extends QueryParameter.Builder {
-        private String applicationName = null;
+        private final String applicationName;
         private String agentId = null;
 
         private SpanEventException spanEventException = null;
@@ -62,15 +63,19 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private long spanEventTimestamp = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
-        public void setApplicationName(String applicationName) {
+        public Builder(
+                String applicationName,
+                Range range
+        ) {
             this.applicationName = applicationName;
+            setRange(range);
         }
 
         public void setAgentId(String agentId) {
             this.agentId = agentId;
         }
 
-        public void forFindingSameExceptions(SpanEventException spanEventException) {
+        public void setSpanEventException(SpanEventException spanEventException) {
             this.spanEventException = Objects.requireNonNull(spanEventException, "spanEventException");
         }
 
@@ -86,6 +91,10 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public void setSpanEventTimestamp(long spanEventTimestamp) {
             this.spanEventTimestamp = spanEventTimestamp;
+        }
+
+        public void setExceptionDepth(int exceptionDepth) {
+            this.exceptionDepth = exceptionDepth;
         }
 
         @Override

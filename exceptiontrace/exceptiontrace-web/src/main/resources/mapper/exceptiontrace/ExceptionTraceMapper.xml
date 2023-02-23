@@ -36,11 +36,9 @@
         <include refid="exceptionTraceTable"></include>
         WHERE
             applicationName = #{applicationName}
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         <if test="agentId != null">
             AND agentId = #{agentId}
-        </if>
-        <if test="range != null">
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         </if>
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}

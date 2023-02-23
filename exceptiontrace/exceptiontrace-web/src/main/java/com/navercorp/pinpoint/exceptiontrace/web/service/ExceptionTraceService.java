@@ -19,12 +19,20 @@ package com.navercorp.pinpoint.exceptiontrace.web.service;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * @author intr3p1d
  */
 public interface ExceptionTraceService {
+
+    List<SpanEventException> getTransactionExceptions(String applicationName, String traceId, long timestamp);
+
+    List<SpanEventException> getExceptionsInRange(String applicationName, @Nullable String agentId, long from, long to);
+
+    List<SpanEventException> getSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to);
+
     List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 
     SpanEventException getSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);

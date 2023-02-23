@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
@@ -24,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +43,76 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
     public ExceptionTraceServiceImpl(ExceptionTraceDao exceptionTraceDao) {
         this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");
+    }
+
+    @Override
+    public List<SpanEventException> getTransactionExceptions(
+        String applicationName,
+        String traceId,
+        long timestamp
+    ) {
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+
+        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder(
+                applicationName,
+                Range.newRange(timestamp - 1, timestamp + 1)
+        );
+        transactionBuilder.setAgentId(transactionId.getAgentId());
+        transactionBuilder.setTransactionId(transactionId);
+        transactionBuilder.setSpanEventTimestamp(timestamp);
+        return getSpanEventExceptions(transactionBuilder.build());
+    }
+
+    @Override
+    public List<SpanEventException> getExceptionsInRange(
+            String applicationName,
+            @Nullable String agentId,
+            long from,
+            long to
+    ) {
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
+                applicationName,
+                Range.newRange(from, to)
+        );
+        builder.setAgentId(agentId);
+
+        return getSpanEventExceptions(builder.build());
+    }
+
+    @Override
+    public List<SpanEventException> getSimilarExceptions(
+            String agentId,
+            String traceId,
+            long traceTimestamp,
+            int exceptionDepth,
+            String applicationName,
+            long from,
+            long to
+    ) {
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder(
+                applicationName,
+                Range.newRange(traceTimestamp - 1, traceTimestamp + 1)
+        );
+        transactionBuilder.setAgentId(agentId);
+        transactionBuilder.forFindingSpecificException(transactionId, traceTimestamp, exceptionDepth);
+        transactionBuilder.setRange(Range.newRange(from, to));
+        final SpanEventException spanEventException = getSpanEventException(transactionBuilder.build());
+
+        logger.info(spanEventException);
+
+        if (spanEventException == null) {
+            return Collections.emptyList();
+        }
+
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
+                applicationName,
+                Range.newRange(from, to)
+        );
+        builder.setAgentId(transactionId.getAgentId());
+        builder.setSpanEventException(spanEventException);
+
+        return getSpanEventExceptions(builder.build());
     }
 
     @Override
