@@ -115,7 +115,6 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return getSpanEventExceptions(builder.build());
     }
 
-    @Override
     public List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
         logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
@@ -126,7 +125,6 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return spanEventExceptions;
     }
 
-    @Override
     public SpanEventException getSpanEventException(ExceptionTraceQueryParameter queryParameter) {
         logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);

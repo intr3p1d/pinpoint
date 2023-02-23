@@ -32,8 +32,4 @@ public interface ExceptionTraceService {
     List<SpanEventException> getExceptionsInRange(String applicationName, @Nullable String agentId, long from, long to);
 
     List<SpanEventException> getSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to);
-
-    List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-
-    SpanEventException getSpanEventException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }
