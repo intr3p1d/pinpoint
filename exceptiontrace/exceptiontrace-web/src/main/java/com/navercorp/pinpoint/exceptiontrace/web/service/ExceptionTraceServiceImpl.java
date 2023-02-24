@@ -99,11 +99,10 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         transactionBuilder.setRange(Range.newRange(from, to));
         final SpanEventException spanEventException = getSpanEventException(transactionBuilder.build());
 
-        logger.info(spanEventException);
-
         if (spanEventException == null) {
             return Collections.emptyList();
         }
+        logger.info(spanEventException.getErrorMessage());
 
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
                 applicationName,
@@ -118,7 +117,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     public List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
         logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
-        logger.info(spanEventExceptions);
+        logger.info(spanEventExceptions.size());
         if (spanEventExceptions.isEmpty()) {
             return Collections.emptyList();
         }
@@ -128,7 +127,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     public SpanEventException getSpanEventException(ExceptionTraceQueryParameter queryParameter) {
         logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
-        logger.info(spanEventExceptions);
+        logger.info(spanEventExceptions.size());
         if (spanEventExceptions.isEmpty()) {
             return null;
         }

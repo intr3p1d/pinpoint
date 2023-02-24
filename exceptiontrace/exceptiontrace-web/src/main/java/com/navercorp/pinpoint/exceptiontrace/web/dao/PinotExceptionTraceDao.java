@@ -50,7 +50,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         try {
             return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
         } catch (Exception e) {
-            logger.error(e);
+            // logger.error(e);
         }
         return Collections.emptyList();
     }

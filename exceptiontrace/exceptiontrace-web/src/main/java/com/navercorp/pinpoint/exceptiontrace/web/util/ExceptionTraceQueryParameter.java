@@ -106,4 +106,19 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return new ExceptionTraceQueryParameter(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ExceptionTraceQueryParameter{" +
+                "applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", spanEventException=" + spanEventException +
+                ", transactionId='" + transactionId + '\'' +
+                ", spanEventTimestamp=" + spanEventTimestamp +
+                ", exceptionDepth=" + exceptionDepth +
+                ", range=" + range +
+                ", timePrecision=" + timePrecision +
+                ", limit=" + limit +
+                '}';
+    }
 }
