@@ -54,6 +54,43 @@
             </if>
         </if>
         ORDER BY "timestamp" asc
-        LIMIT 65846
+        LIMIT ${limit}
     </select>
+
+    <select id="selectExceptionsGroupBySimilarity" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        count(*),
+        <if test="spanEventException != null">
+            errorClassName, errorMessage, stackTrace
+        </if>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="spanEventException != null">
+            AND errorClassName = #{spanEventException.errorClassName}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            <if test="spanEventTimestamp >= 0">
+                AND "timestamp" = #{spanEventTimestamp}
+            </if>
+            <if test="exceptionDepth >= 0">
+                AND exceptionDepth = #{exceptionDepth}
+            </if>
+        </if>
+        ORDER BY "timestamp" asc
+        GROUP BY "timestamp",
+        <if test="spanEventException != null">
+            errorClassName, errorMessage, stackTrace
+        </if>
+        LIMIT ${limit}
+    </select>
+
+
 </mapper>
