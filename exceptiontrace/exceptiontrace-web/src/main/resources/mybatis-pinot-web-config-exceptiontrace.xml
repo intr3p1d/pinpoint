@@ -19,6 +19,8 @@
                    alias="SpanEventException"/>
         <typeAlias type="com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper"
                    alias="StackTraceElementWrapper"/>
+        <typeAlias type="com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary"
+                   alias="ExceptionTraceSummary"/>
         <typeAlias type="com.navercorp.pinpoint.exceptiontrace.web.mapper.StackTraceTypeHandler"
                    alias="StackTraceTypeHandler"/>
         <typeAlias type="com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter"

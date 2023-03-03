@@ -71,30 +71,31 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             setRange(range);
         }
 
-        public void setAgentId(String agentId) {
+        public Builder setAgentId(String agentId) {
             this.agentId = agentId;
+            return this;
         }
 
-        public void setSpanEventException(SpanEventException spanEventException) {
+        public Builder setSpanEventException(SpanEventException spanEventException) {
             this.spanEventException = Objects.requireNonNull(spanEventException, "spanEventException");
+            return this;
         }
 
-        public void forFindingSpecificException(TransactionId transactionId, long spanEventTimestamp, int exceptionDepth) {
+        public Builder forFindingSpecificException(TransactionId transactionId, long spanEventTimestamp, int exceptionDepth) {
             this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
             this.spanEventTimestamp = spanEventTimestamp;
             this.exceptionDepth = exceptionDepth;
+            return this;
         }
 
-        public void setTransactionId(TransactionId transactionId) {
+        public Builder setTransactionId(TransactionId transactionId) {
             this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
+            return this;
         }
 
-        public void setSpanEventTimestamp(long spanEventTimestamp) {
+        public Builder setSpanEventTimestamp(long spanEventTimestamp) {
             this.spanEventTimestamp = spanEventTimestamp;
-        }
-
-        public void setExceptionDepth(int exceptionDepth) {
-            this.exceptionDepth = exceptionDepth;
+            return this;
         }
 
         @Override

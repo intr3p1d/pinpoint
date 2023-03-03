@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +40,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private static final String SELECT_QUERY = "selectExceptions";
 
+    private static final String SELECT_CHART_QUERY = "selectExceptionsGroupBySimilarity";
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
     public PinotExceptionTraceDao(@Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
@@ -53,5 +55,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
             // logger.error(e);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<ExceptionTraceSummary> getCharts(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_CHART_QUERY, exceptionTraceQueryParameter);
     }
 }

@@ -18,6 +18,16 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="errorClassName" javaType="string"/>
+            <arg column="errorMessage" javaType="string"/>
+            <arg column="stackTrace" javaType="string"/>
+            <arg column="count" javaType="_long"/>
+        </constructor>
+    </resultMap>
+
     <sql id="exceptionTraceTable">exceptionTrace</sql>
 
     <select id="selectExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
@@ -57,7 +67,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectExceptionsGroupBySimilarity" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExceptionsGroupBySimilarity" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
         SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         count(*),
