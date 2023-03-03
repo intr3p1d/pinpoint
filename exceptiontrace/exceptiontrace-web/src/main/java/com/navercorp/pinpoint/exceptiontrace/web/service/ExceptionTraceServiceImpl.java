@@ -91,6 +91,31 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         );
     }
 
+    @Override
+    public List<ExceptionTraceSummary> getSummaryInRange(String applicationName, @Nullable String agentId, long from, long to) {
+        return getExceptionsInRange(
+                applicationName,
+                agentId,
+                from,
+                to,
+                this::getExceptionTraceSummarys
+        );
+    }
+
+    @Override
+    public List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to) {
+        return getSimilarExceptions(
+                agentId,
+                traceId,
+                traceTimestamp,
+                exceptionDepth,
+                applicationName,
+                from,
+                to,
+                this::getExceptionTraceSummarys
+        );
+    }
+
     private <T> List<T> getTransactionExceptions(
             String applicationName,
             String traceId,
@@ -102,10 +127,10 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder(
                 applicationName,
                 Range.newRange(timestamp - 1, timestamp + 1)
-        );
-        transactionBuilder.setAgentId(transactionId.getAgentId());
-        transactionBuilder.setTransactionId(transactionId);
-        transactionBuilder.setSpanEventTimestamp(timestamp);
+        )
+                .setAgentId(transactionId.getAgentId())
+                .setTransactionId(transactionId)
+                .setSpanEventTimestamp(timestamp);
         return queryFunction.apply(transactionBuilder.build());
     }
 
@@ -119,8 +144,8 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
                 applicationName,
                 Range.newRange(from, to)
-        );
-        builder.setAgentId(agentId);
+        )
+                .setAgentId(agentId);
 
         return queryFunction.apply(builder.build());
     }
@@ -152,36 +177,19 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
             return Collections.emptyList();
         }
         logger.info(spanEventException.getErrorClassName());
-        return queryFunction.apply(
-                buildFromSpanEventException(
-                        spanEventException,
-                        traceId,
-                        applicationName,
-                        from,
-                        to
-                )
-        );
-    }
-
-    private ExceptionTraceQueryParameter buildFromSpanEventException(
-            SpanEventException spanEventException,
-            String traceId,
-            String applicationName,
-            long from,
-            long to
-    ) {
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
                 applicationName,
                 Range.newRange(from, to)
+        )
+                .setAgentId(transactionId.getAgentId())
+                .setSpanEventException(spanEventException);
+
+        return queryFunction.apply(
+                builder.build()
         );
-        builder.setAgentId(transactionId.getAgentId());
-        builder.setSpanEventException(spanEventException);
-        return builder.build();
     }
 
     private List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
-        // logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
         logger.info(spanEventExceptions.size());
         if (spanEventExceptions.isEmpty()) {
@@ -191,7 +199,6 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     private SpanEventException getSpanEventException(ExceptionTraceQueryParameter queryParameter) {
-        // logger.info(queryParameter);
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
         logger.info(spanEventExceptions.size());
         if (spanEventExceptions.isEmpty()) {
@@ -200,8 +207,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return spanEventExceptions.get(0);
     }
 
-    private List<ExceptionTraceSummary> getExceptionTraceSummary(ExceptionTraceQueryParameter queryParameter) {
-        // logger.info(queryParameter);
+    private List<ExceptionTraceSummary> getExceptionTraceSummarys(ExceptionTraceQueryParameter queryParameter) {
         List<ExceptionTraceSummary> spanEventExceptions = exceptionTraceDao.getCharts(queryParameter);
         logger.info(spanEventExceptions.size());
         if (spanEventExceptions.isEmpty()) {

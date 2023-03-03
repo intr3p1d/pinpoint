@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -32,4 +32,8 @@ public interface ExceptionTraceService {
     List<SpanEventException> getExceptionsInRange(String applicationName, @Nullable String agentId, long from, long to);
 
     List<SpanEventException> getSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to);
+
+    List<ExceptionTraceSummary> getSummaryInRange(String applicationName, @Nullable String agentId, long from, long to);
+
+    List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to);
 }

@@ -53,7 +53,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.exceptionDepth = builder.exceptionDepth;
     }
 
-    public static class Builder extends QueryParameter.Builder {
+    public static class Builder extends QueryParameter.Builder<Builder> {
         private final String applicationName;
         private String agentId = null;
 
@@ -63,6 +63,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private long spanEventTimestamp = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
         public Builder(
                 String applicationName,
                 Range range
@@ -71,32 +76,37 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             setRange(range);
         }
 
+        public void setExceptionDepth(int exceptionDepth) {
+            this.exceptionDepth = exceptionDepth;
+        }
+
         public Builder setAgentId(String agentId) {
             this.agentId = agentId;
-            return this;
+            return self();
         }
 
         public Builder setSpanEventException(SpanEventException spanEventException) {
             this.spanEventException = Objects.requireNonNull(spanEventException, "spanEventException");
-            return this;
+            return self();
         }
 
         public Builder forFindingSpecificException(TransactionId transactionId, long spanEventTimestamp, int exceptionDepth) {
             this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
             this.spanEventTimestamp = spanEventTimestamp;
             this.exceptionDepth = exceptionDepth;
-            return this;
+            return self();
         }
 
         public Builder setTransactionId(TransactionId transactionId) {
             this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
-            return this;
+            return self();
         }
 
         public Builder setSpanEventTimestamp(long spanEventTimestamp) {
             this.spanEventTimestamp = spanEventTimestamp;
-            return this;
+            return self();
         }
+
 
         @Override
         public ExceptionTraceQueryParameter build() {

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
@@ -94,17 +95,17 @@ public class ExceptionTraceController {
     ) {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        List<SpanEventException> spanEventExceptions;
+        List<ExceptionTraceSummary> exceptionTraceSummaries;
         if (argumentsAreGiven(traceId, timestamp, depth)) {
-            spanEventExceptions = exceptionTraceService.getSimilarExceptions(
+            exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
                     agentId, traceId, timestamp, depth, applicationName, from, to
             );
         } else {
-            spanEventExceptions = exceptionTraceService.getExceptionsInRange(
+            exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
                     applicationName, agentId, from, to
             );
         }
-        return new ExceptionTraceView("", timeWindow, spanEventExceptions);
+        return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
     }
 
     private boolean argumentsAreGiven(Object... objects) {

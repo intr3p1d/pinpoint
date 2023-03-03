@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
@@ -38,18 +39,42 @@ public class ExceptionTraceView implements TimeSeriesView {
 
     private final List<TimeseriesValueGroupView> exceptionTrace = new ArrayList<>();
 
-    public ExceptionTraceView(String exceptionClass, TimeWindow timeWindow, List<SpanEventException> spanEventExceptions) {
-        Objects.requireNonNull(timeWindow, "timeWindow");
-        Objects.requireNonNull(spanEventExceptions, "spanEventException");
-        this.timestampList = createTimeStampList(timeWindow);
-        if (spanEventExceptions.isEmpty()) {
-            this.exceptionTrace.add(ExceptionTraceGroup.EMPTY_EXCEPTION_TRACE_GROUP);
-        } else {
-            this.exceptionTrace.add(new ExceptionTraceGroup(exceptionClass, timeWindow, spanEventExceptions));
-        }
+    private ExceptionTraceView(List<Long> timestampList, List<TimeseriesValueGroupView> exceptionTraces) {
+        this.timestampList = timestampList;
+        this.exceptionTrace.addAll(exceptionTraces);
     }
 
-    private List<Long> createTimeStampList(TimeWindow timeWindow) {
+    public static ExceptionTraceView newViewFromExceptions(String exceptionClass, TimeWindow timeWindow, List<SpanEventException> spanEventExceptions) {
+        Objects.requireNonNull(timeWindow, "timeWindow");
+        Objects.requireNonNull(spanEventExceptions, "spanEventException");
+        List<Long> timestampList = createTimeStampList(timeWindow);
+        List<TimeseriesValueGroupView> timeseriesValueGroupViews = new ArrayList<>();
+        if (spanEventExceptions.isEmpty()) {
+            timeseriesValueGroupViews.add(ExceptionTraceGroup.EMPTY_EXCEPTION_TRACE_GROUP);
+        } else {
+            timeseriesValueGroupViews.add(ExceptionTraceGroup.newGroupFromExceptions(exceptionClass, timeWindow, spanEventExceptions));
+        }
+        return new ExceptionTraceView(
+                timestampList, timeseriesValueGroupViews
+        );
+    }
+
+    public static ExceptionTraceView newViewFromSummaries(String exceptionClass, TimeWindow timeWindow, List<ExceptionTraceSummary> exceptionTraceSummaries) {
+        Objects.requireNonNull(timeWindow, "timeWindow");
+        Objects.requireNonNull(exceptionTraceSummaries, "exceptionTraceSummaries");
+        List<Long> timestampList = createTimeStampList(timeWindow);
+        List<TimeseriesValueGroupView> timeseriesValueGroupViews = new ArrayList<>();
+        if (exceptionTraceSummaries.isEmpty()) {
+            timeseriesValueGroupViews.add(ExceptionTraceGroup.EMPTY_EXCEPTION_TRACE_GROUP);
+        } else {
+            timeseriesValueGroupViews.add(ExceptionTraceGroup.newGroupFromSummaries(exceptionClass, timeWindow, exceptionTraceSummaries));
+        }
+        return new ExceptionTraceView(
+                timestampList, timeseriesValueGroupViews
+        );
+    }
+
+    private static List<Long> createTimeStampList(TimeWindow timeWindow) {
         List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
 
         for (Long timestamp : timeWindow) {

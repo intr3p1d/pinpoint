@@ -40,15 +40,29 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
     public static final ExceptionTraceGroup EMPTY_EXCEPTION_TRACE_GROUP = new ExceptionTraceGroup();
 
-    public ExceptionTraceGroup() {
+    private ExceptionTraceGroup() {
         this.exceptionClass = StringUtils.EMPTY;
         this.values = Collections.emptyList();
 
     }
 
-    public ExceptionTraceGroup(String exceptionClass, TimeWindow timeWindow, List<SpanEventException> spanEventExceptions) {
+    private ExceptionTraceGroup(String exceptionClass, List<TimeSeriesValueView> values) {
         this.exceptionClass = exceptionClass;
-        this.values = ExceptionTraceValue.createValueList(timeWindow, spanEventExceptions);
+        this.values = values;
+    }
+
+    public static ExceptionTraceGroup newGroupFromExceptions(String exceptionClass, TimeWindow timeWindow, List<SpanEventException> spanEventExceptions) {
+        return new ExceptionTraceGroup(
+                exceptionClass,
+                ExceptionTraceValue.createValueList(timeWindow, spanEventExceptions)
+        );
+    }
+
+    public static ExceptionTraceGroup newGroupFromSummaries(String exceptionClass, TimeWindow timeWindow, List<ExceptionTraceSummary> exceptionTraceSummaries) {
+        return new ExceptionTraceGroup(
+                exceptionClass,
+                ExceptionTraceValue.createValueListFromSummary(timeWindow, exceptionTraceSummaries)
+        );
     }
 
     @Override
@@ -78,6 +92,17 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             ).forEach(
                     (i, e) -> values.set(i, e.size())
             );
+
+            TimeSeriesValueView exceptionTraceValue = new ExceptionTraceValue(FIELD_NAME, values);
+            return List.of(exceptionTraceValue);
+        }
+
+        public static List<TimeSeriesValueView> createValueListFromSummary(TimeWindow timeWindow, List<ExceptionTraceSummary> exceptionTraceSummaries) {
+            Objects.requireNonNull(exceptionTraceSummaries);
+
+            List<Integer> values = new ArrayList<>(Collections.nCopies((int) timeWindow.getWindowRangeCount(), 0));
+
+            // TODO: make multiple list of counts
 
             TimeSeriesValueView exceptionTraceValue = new ExceptionTraceValue(FIELD_NAME, values);
             return List.of(exceptionTraceValue);
