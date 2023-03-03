@@ -37,29 +37,41 @@ public class UriStatQueryParameter extends QueryParameter {
         this.uri = builder.uri;
     }
 
-    public static class Builder extends QueryParameter.Builder {
+    public static class Builder extends QueryParameter.Builder<Builder> {
         private String tenantId;
         private String serviceName;
         private String applicationName;
         private String agentId;
         private String uri;
 
-        public void setTenantId(String tenantId) {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        public Builder setTenantId(String tenantId) {
             this.tenantId = tenantId;
+            return self();
         }
-        public void setServiceName(String serviceName) {
+        public Builder setServiceName(String serviceName) {
             this.serviceName = serviceName;
+            return self();
         }
 
-        public void setApplicationName(String applicationName) {
+        public Builder setApplicationName(String applicationName) {
             this.applicationName = applicationName;
+            return self();
         }
 
-        public void setAgentId(String agentId) {
+        public Builder setAgentId(String agentId) {
             this.agentId = agentId;
+            return self();
         }
 
-        public void setUri(String uri) { this.uri = uri; }
+        public Builder setUri(String uri) {
+            this.uri = uri;
+            return self();
+        }
 
         @Override
         public UriStatQueryParameter build() {

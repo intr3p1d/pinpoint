@@ -74,13 +74,13 @@ public class UriStatController {
                                            @RequestParam("from") long from,
                                            @RequestParam("to") long to) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
-        builder.setTenantId(tenantProvider.getTenantId());
-        builder.setApplicationName(applicationName);
-        builder.setUri(uri);
-        builder.setRange(timeWindow.getWindowRange());
-        builder.setTimeSize((int) timeWindow.getWindowSlotSize());
-        builder.setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
+        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
+                .setApplicationName(applicationName)
+                .setUri(uri)
+                .setRange(timeWindow.getWindowRange())
+                .setTimeSize((int) timeWindow.getWindowSlotSize())
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
 
         List<UriStat> uriStats;
         if (StringUtils.isEmpty(agentId)) {
