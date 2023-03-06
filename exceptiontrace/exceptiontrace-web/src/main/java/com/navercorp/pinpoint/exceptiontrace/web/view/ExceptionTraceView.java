@@ -59,7 +59,12 @@ public class ExceptionTraceView implements TimeSeriesView {
         );
     }
 
-    public static ExceptionTraceView newViewFromSummaries(String exceptionClass, TimeWindow timeWindow, List<ExceptionTraceSummary> exceptionTraceSummaries) {
+    public static ExceptionTraceView newViewFromSummaries(
+            String exceptionClass,
+            TimeWindow timeWindow,
+            SpanEventException spanEventException,
+            List<ExceptionTraceSummary> exceptionTraceSummaries
+    ) {
         Objects.requireNonNull(timeWindow, "timeWindow");
         Objects.requireNonNull(exceptionTraceSummaries, "exceptionTraceSummaries");
         List<Long> timestampList = createTimeStampList(timeWindow);
@@ -67,7 +72,7 @@ public class ExceptionTraceView implements TimeSeriesView {
         if (exceptionTraceSummaries.isEmpty()) {
             timeseriesValueGroupViews.add(ExceptionTraceGroup.EMPTY_EXCEPTION_TRACE_GROUP);
         } else {
-            timeseriesValueGroupViews.add(ExceptionTraceGroup.newGroupFromSummaries(exceptionClass, timeWindow, exceptionTraceSummaries));
+            timeseriesValueGroupViews.add(ExceptionTraceGroup.newGroupFromSummaries(exceptionClass, timeWindow, spanEventException, exceptionTraceSummaries));
         }
         return new ExceptionTraceView(
                 timestampList, timeseriesValueGroupViews

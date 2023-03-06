@@ -23,9 +23,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -58,10 +63,18 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
         );
     }
 
-    public static ExceptionTraceGroup newGroupFromSummaries(String exceptionClass, TimeWindow timeWindow, List<ExceptionTraceSummary> exceptionTraceSummaries) {
+    public static ExceptionTraceGroup newGroupFromSummaries(
+            String exceptionClass,
+            TimeWindow timeWindow,
+            @Nullable SpanEventException spanEventException,
+            List<ExceptionTraceSummary> exceptionTraceSummaries
+    ) {
+        if (spanEventException == null) {
+            // TODO
+        }
         return new ExceptionTraceGroup(
                 exceptionClass,
-                ExceptionTraceValue.createValueListFromSummary(timeWindow, exceptionTraceSummaries)
+                ExceptionTraceValue.createValueListFromSummary(timeWindow, spanEventException, exceptionTraceSummaries)
         );
     }
 
@@ -97,15 +110,62 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             return List.of(exceptionTraceValue);
         }
 
-        public static List<TimeSeriesValueView> createValueListFromSummary(TimeWindow timeWindow, List<ExceptionTraceSummary> exceptionTraceSummaries) {
+        public static List<TimeSeriesValueView> createValueListFromSummary(
+                TimeWindow timeWindow,
+                SpanEventException spanEventException,
+                List<ExceptionTraceSummary> exceptionTraceSummaries
+        ) {
             Objects.requireNonNull(exceptionTraceSummaries);
 
-            List<Integer> values = new ArrayList<>(Collections.nCopies((int) timeWindow.getWindowRangeCount(), 0));
+            Map<Similarity, int[]> fieldNameToListMap = new EnumMap<>(Similarity.class);
+            for (Similarity similarity : Similarity.values()) {
+                int[] values = new int[(int) timeWindow.getWindowRangeCount()];
+                Arrays.fill(values, 0);
+                fieldNameToListMap.put(similarity, values);
+            }
 
-            // TODO: make multiple list of counts
+            for (ExceptionTraceSummary e : exceptionTraceSummaries) {
+                fieldNameToListMap.get(
+                        similarityToFieldName(spanEventException, e)
+                )[timeWindow.getWindowIndex(e.getTimestamp())] += e.getCount();
+            }
 
-            TimeSeriesValueView exceptionTraceValue = new ExceptionTraceValue(FIELD_NAME, values);
-            return List.of(exceptionTraceValue);
+            List<TimeSeriesValueView> timeSeriesValueViews = new ArrayList<>();
+            for (Map.Entry<Similarity, int[]> e : fieldNameToListMap.entrySet()) {
+                timeSeriesValueViews.add(
+                        new ExceptionTraceValue(e.toString(), Arrays.stream(e.getValue()).boxed().collect(Collectors.toList()))
+                );
+            }
+
+            return timeSeriesValueViews;
+        }
+
+        private static Similarity similarityToFieldName(SpanEventException base, ExceptionTraceSummary given) {
+            return Similarity.valueOf(
+                    Objects.equals(base.getErrorMessage(), given.getErrorMessage()),
+                    Objects.equals(base.getStackTrace().toString(), given.getStackTrace())
+            );
+        }
+
+        private enum Similarity {
+            IDENTICAL,
+            DIFFERENT_MESSAGE,
+            DIFFERENT_STACKTRACE,
+            DIFFERENT_MESSAGE_AND_STACKTRACE;
+
+            public static Similarity valueOf(boolean messagesAreSame, boolean stacktraceAreSame) {
+                if (messagesAreSame) {
+                    if (stacktraceAreSame) {
+                        return IDENTICAL;
+                    }
+                    return DIFFERENT_STACKTRACE;
+                } else {
+                    if (stacktraceAreSame) {
+                        return DIFFERENT_MESSAGE;
+                    }
+                    return DIFFERENT_MESSAGE_AND_STACKTRACE;
+                }
+            }
         }
 
         public ExceptionTraceValue(String fieldName, List<Integer> values) {

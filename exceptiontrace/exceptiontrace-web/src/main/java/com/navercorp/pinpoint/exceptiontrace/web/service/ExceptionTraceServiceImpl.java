@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,6 +90,10 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
                 to,
                 this::getSpanEventExceptions
         );
+    }
+
+    public ExceptionTraceView getViewInRange(String applicationName, @Nullable String agentId, long from, long to) {
+
     }
 
     @Override
