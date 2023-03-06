@@ -70,7 +70,7 @@
     <select id="selectExceptionsGroupBySimilarity" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
         SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        count(*),
+        count(*) as "count",
         <if test="spanEventException != null">
             errorClassName, errorMessage, stackTrace
         </if>
@@ -94,11 +94,11 @@
                 AND exceptionDepth = #{exceptionDepth}
             </if>
         </if>
-        ORDER BY "timestamp" asc
         GROUP BY "timestamp",
         <if test="spanEventException != null">
             errorClassName, errorMessage, stackTrace
         </if>
+        ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>
 
