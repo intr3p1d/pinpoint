@@ -67,12 +67,17 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectExceptionsGroupBySimilarity" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSummaries" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
         SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         count(*) as "count",
         <if test="spanEventException != null">
             errorClassName, errorMessage, stackTrace
+        </if>
+        <if test="spanEventException == null">
+            'null' as "errorClassName",
+            'null' as "errorMessage",
+            'null' as "stackTrace"
         </if>
         FROM
         <include refid="exceptionTraceTable"></include>
@@ -85,22 +90,15 @@
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}
         </if>
-        <if test="transactionId != null">
-            AND transactionId = #{transactionId}
-            <if test="spanEventTimestamp >= 0">
-                AND "timestamp" = #{spanEventTimestamp}
-            </if>
-            <if test="exceptionDepth >= 0">
-                AND exceptionDepth = #{exceptionDepth}
-            </if>
-        </if>
-        GROUP BY "timestamp",
+        GROUP BY "timestamp"
         <if test="spanEventException != null">
-            errorClassName, errorMessage, stackTrace
+            , errorClassName, errorMessage, stackTrace
+        </if>
+        <if test="spanEventException == null">
+            , "errorClassName", "errorMessage", "stackTrace"
         </if>
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>
-
 
 </mapper>

@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,9 +68,6 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             @Nullable SpanEventException spanEventException,
             List<ExceptionTraceSummary> exceptionTraceSummaries
     ) {
-        if (spanEventException == null) {
-            // TODO
-        }
         return new ExceptionTraceGroup(
                 exceptionClass,
                 ExceptionTraceValue.createValueListFromSummary(timeWindow, spanEventException, exceptionTraceSummaries)
@@ -115,10 +111,20 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
                 SpanEventException spanEventException,
                 List<ExceptionTraceSummary> exceptionTraceSummaries
         ) {
-            Objects.requireNonNull(exceptionTraceSummaries);
+            if(spanEventException == null) {
+                return createValueListGroupedBySimilarity(timeWindow, spanEventException, Similarity.notCheckedSimilarities(), exceptionTraceSummaries);
+            }
+            return createValueListGroupedBySimilarity(timeWindow, spanEventException, Similarity.similarities(), exceptionTraceSummaries);
+        }
 
+        private static List<TimeSeriesValueView> createValueListGroupedBySimilarity(
+                TimeWindow timeWindow,
+                SpanEventException spanEventException,
+                Similarity[] keyGroup,
+                List<ExceptionTraceSummary> exceptionTraceSummaries
+        ) {
             Map<Similarity, int[]> fieldNameToListMap = new EnumMap<>(Similarity.class);
-            for (Similarity similarity : Similarity.values()) {
+            for (Similarity similarity : keyGroup) {
                 int[] values = new int[(int) timeWindow.getWindowRangeCount()];
                 Arrays.fill(values, 0);
                 fieldNameToListMap.put(similarity, values);
@@ -141,6 +147,9 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
         }
 
         private static Similarity similarityToFieldName(SpanEventException base, ExceptionTraceSummary given) {
+            if (base == null) {
+                return Similarity.NOT_CHECKED;
+            }
             return Similarity.valueOf(
                     Objects.equals(base.getErrorMessage(), given.getErrorMessage()),
                     Objects.equals(base.getStackTrace().toString(), given.getStackTrace())
@@ -151,7 +160,11 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             IDENTICAL,
             DIFFERENT_MESSAGE,
             DIFFERENT_STACKTRACE,
-            DIFFERENT_MESSAGE_AND_STACKTRACE;
+            DIFFERENT_MESSAGE_AND_STACKTRACE,
+            NOT_CHECKED;
+
+            private static final Similarity[] checkedSimilarities = new Similarity[]{Similarity.IDENTICAL, Similarity.DIFFERENT_MESSAGE, Similarity.DIFFERENT_STACKTRACE, Similarity.DIFFERENT_MESSAGE_AND_STACKTRACE};
+            private static final Similarity[] notCheckedSimilarities = new Similarity[]{Similarity.NOT_CHECKED};
 
             public static Similarity valueOf(boolean messagesAreSame, boolean stacktraceAreSame) {
                 if (messagesAreSame) {
@@ -165,6 +178,14 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
                     }
                     return DIFFERENT_MESSAGE_AND_STACKTRACE;
                 }
+            }
+
+            public static Similarity[] similarities() {
+                return checkedSimilarities;
+            }
+
+            public static Similarity[] notCheckedSimilarities() {
+                return notCheckedSimilarities;
             }
         }
 

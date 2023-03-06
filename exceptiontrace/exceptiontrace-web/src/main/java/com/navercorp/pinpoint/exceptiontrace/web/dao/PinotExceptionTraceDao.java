@@ -40,7 +40,8 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private static final String SELECT_QUERY = "selectExceptions";
 
-    private static final String SELECT_CHART_QUERY = "selectExceptionsGroupBySimilarity";
+    private static final String SELECT_SUMMARIES_WITH_SIMILARITY_QUERY = "selectSummaries";
+
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
     public PinotExceptionTraceDao(@Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
@@ -58,7 +59,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public List<ExceptionTraceSummary> getCharts(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_CHART_QUERY, exceptionTraceQueryParameter);
+    public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_WITH_SIMILARITY_QUERY, exceptionTraceQueryParameter);
     }
 }

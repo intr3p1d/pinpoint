@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,17 +96,20 @@ public class ExceptionTraceController {
     ) {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        SpanEventException spanEventException = null;
         List<ExceptionTraceSummary> exceptionTraceSummaries;
         if (argumentsAreGiven(traceId, timestamp, depth)) {
-            exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
+            ImmutablePair<SpanEventException, List<ExceptionTraceSummary>> pair = exceptionTraceService.getSummaryOfSimilarExceptions(
                     agentId, traceId, timestamp, depth, applicationName, from, to
             );
+            spanEventException = pair.getLeft();
+            exceptionTraceSummaries = pair.getRight();
         } else {
             exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
                     applicationName, agentId, from, to
             );
         }
-        return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
+        return ExceptionTraceView.newViewFromSummaries("", timeWindow, spanEventException, exceptionTraceSummaries);
     }
 
     private boolean argumentsAreGiven(Object... objects) {
