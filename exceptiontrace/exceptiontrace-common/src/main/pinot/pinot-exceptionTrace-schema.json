@@ -37,6 +37,10 @@
       "name": "stackTrace",
       "dataType": "STRING",
       "singleValueField": false
+    },
+    {
+      "name": "stackTraceHash",
+      "dataType": "BYTES"
     }
   ],
   "dateTimeFieldSpecs": [

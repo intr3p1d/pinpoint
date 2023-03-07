@@ -51,7 +51,8 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         logger.info("Pinot data insert: {}", spanEventExceptions.toString());
 
         for (SpanEventException spanEventException : spanEventExceptions) {
-            this.kafkaSpanEventExceptionTemplate.send(topic, SpanEventExceptionVo.valueOf(spanEventException));
+            SpanEventExceptionVo spanEventExceptionVo = SpanEventExceptionVo.valueOf(spanEventException);
+            this.kafkaSpanEventExceptionTemplate.send(topic, spanEventExceptionVo);
         }
     }
 }

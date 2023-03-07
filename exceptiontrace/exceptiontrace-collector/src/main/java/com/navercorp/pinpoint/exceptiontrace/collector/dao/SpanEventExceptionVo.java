@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,9 +45,10 @@ public class SpanEventExceptionVo {
     private final String errorMessage;
     private final int exceptionDepth;
     private final List<String> stackTrace;
+    private final byte[] stackTraceHash;
 
 
-    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace) {
+    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace, byte[] stackTraceHash) {
         this.timestamp = timestamp;
         this.transactionId = transactionId;
         this.spanId = spanId;
@@ -57,6 +59,7 @@ public class SpanEventExceptionVo {
         this.errorMessage = errorMessage;
         this.exceptionDepth = exceptionDepth;
         this.stackTrace = stackTrace;
+        this.stackTraceHash = stackTraceHash;
     }
 
 
@@ -71,7 +74,8 @@ public class SpanEventExceptionVo {
                 spanEventException.getErrorClassName(),
                 spanEventException.getErrorMessage(),
                 spanEventException.getExceptionDepth(),
-                toJsonString(spanEventException.getStackTrace())
+                toJsonString(spanEventException.getStackTrace()),
+                spanEventException.getStackTraceHash()
         );
     }
 
@@ -130,6 +134,10 @@ public class SpanEventExceptionVo {
         return stackTrace;
     }
 
+    public byte[] getStackTraceHash() {
+        return stackTraceHash;
+    }
+
     @Override
     public String toString() {
         return "SpanEventExceptionVo{" +
@@ -141,7 +149,9 @@ public class SpanEventExceptionVo {
                 ", agentId='" + agentId + '\'' +
                 ", errorClassName='" + errorClassName + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
+                ", exceptionDepth=" + exceptionDepth +
                 ", stackTrace=" + stackTrace +
+                ", stackTraceHash=" + Arrays.toString(stackTraceHash) +
                 '}';
     }
 }

@@ -15,6 +15,7 @@
             <arg column="stackTrace"
                  javaType="java.util.List" jdbcType="VARCHAR"
                  typeHandler="StackTraceTypeHandler"/>
+            <arg column="stackTraceHash" javaType="_byte[]"/>
         </constructor>
     </resultMap>
 
@@ -41,7 +42,8 @@
         errorClassName,
         errorMessage,
         exceptionDepth,
-        stackTrace
+        stackTrace,
+        stackTraceHash
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -72,12 +74,12 @@
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         count(*) as "count",
         <if test="spanEventException != null">
-            errorClassName, errorMessage, stackTrace
+            errorClassName, errorMessage, stackTraceHash
         </if>
         <if test="spanEventException == null">
             'null' as "errorClassName",
             'null' as "errorMessage",
-            'null' as "stackTrace"
+            'null' as "stackTraceHash"
         </if>
         FROM
         <include refid="exceptionTraceTable"></include>
@@ -92,10 +94,10 @@
         </if>
         GROUP BY "timestamp"
         <if test="spanEventException != null">
-            , errorClassName, errorMessage, stackTrace
+            , errorClassName, errorMessage, stackTraceHash
         </if>
         <if test="spanEventException == null">
-            , "errorClassName", "errorMessage", "stackTrace"
+            , "errorClassName", "errorMessage", "stackTraceHash"
         </if>
         ORDER BY "timestamp" asc
         LIMIT ${limit}

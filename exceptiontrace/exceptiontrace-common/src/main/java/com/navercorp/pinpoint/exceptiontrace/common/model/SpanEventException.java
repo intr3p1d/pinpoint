@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.exceptiontrace.common.model;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -42,6 +46,8 @@ public class SpanEventException {
     private final int exceptionDepth;
     private final List<StackTraceElementWrapper> stackTrace;
 
+    private final byte[] stackTraceHash;
+
     public SpanEventException(
             long timestamp,
             String transactionId,
@@ -52,7 +58,8 @@ public class SpanEventException {
             String errorClassName,
             String errorMessage,
             int exceptionDepth,
-            List<StackTraceElementWrapper> stackTrace
+            List<StackTraceElementWrapper> stackTrace,
+            byte[] stackTraceHash
     ) {
         this.timestamp = timestamp;
         this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
@@ -64,12 +71,15 @@ public class SpanEventException {
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
         this.stackTrace = stackTrace;
+        this.stackTraceHash = stackTraceHash;
     }
 
     public static SpanEventException valueOf(long timestamp, String transactionId, long spanId,
                                              String applicationServiceType, String applicationName, String agentId,
                                              String errorClassName, String errorMessage, int exceptionDepth,
                                              List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
+        List<StackTraceElementWrapper> wrappers = toStackTrace(stackTraceElementWrapperBos);
+
         return new SpanEventException(
                 timestamp,
                 transactionId,
@@ -80,7 +90,8 @@ public class SpanEventException {
                 errorClassName,
                 errorMessage,
                 exceptionDepth,
-                toStackTrace(stackTraceElementWrapperBos)
+                wrappers,
+                toStackTraceHash(wrappers)
         );
     }
 
@@ -88,6 +99,17 @@ public class SpanEventException {
         return stackTraceElementWrapperBos.stream().map(
                 (StackTraceElementWrapperBo s) -> new StackTraceElementWrapper(s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName())
         ).collect(Collectors.toList());
+    }
+
+    public static byte[] toStackTraceHash(List<StackTraceElementWrapper> stackTraceElementWrappers) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return digest.digest(
+                    stackTraceElementWrappers.toString().getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (NoSuchAlgorithmException e) {
+            return new byte[0];
+        }
     }
 
     public long getTimestamp() {
@@ -130,6 +152,10 @@ public class SpanEventException {
         return stackTrace;
     }
 
+    public byte[] getStackTraceHash() {
+        return stackTraceHash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -164,7 +190,9 @@ public class SpanEventException {
                 ", agentId='" + agentId + '\'' +
                 ", errorClassName='" + errorClassName + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
-                ", stackTrace='" + stackTrace + '\'' +
+                ", exceptionDepth=" + exceptionDepth +
+                ", stackTrace=" + stackTrace +
+                ", stackTraceHash=" + Arrays.toString(stackTraceHash) +
                 '}';
     }
 }
