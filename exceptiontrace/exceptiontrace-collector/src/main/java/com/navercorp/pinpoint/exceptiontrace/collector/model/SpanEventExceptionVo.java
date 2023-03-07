@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.navercorp.pinpoint.exceptiontrace.collector.dao;
+package com.navercorp.pinpoint.exceptiontrace.collector.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,6 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,10 +43,10 @@ public class SpanEventExceptionVo {
     private final String errorMessage;
     private final int exceptionDepth;
     private final List<String> stackTrace;
-    private final byte[] stackTraceHash;
+    private final String stackTraceHash;
 
 
-    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace, byte[] stackTraceHash) {
+    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace, String stackTraceHash) {
         this.timestamp = timestamp;
         this.transactionId = transactionId;
         this.spanId = spanId;
@@ -134,7 +132,7 @@ public class SpanEventExceptionVo {
         return stackTrace;
     }
 
-    public byte[] getStackTraceHash() {
+    public String getStackTraceHash() {
         return stackTraceHash;
     }
 
@@ -151,7 +149,7 @@ public class SpanEventExceptionVo {
                 ", errorMessage='" + errorMessage + '\'' +
                 ", exceptionDepth=" + exceptionDepth +
                 ", stackTrace=" + stackTrace +
-                ", stackTraceHash=" + Arrays.toString(stackTraceHash) +
+                ", stackTraceHash='" + stackTraceHash + '\'' +
                 '}';
     }
 }

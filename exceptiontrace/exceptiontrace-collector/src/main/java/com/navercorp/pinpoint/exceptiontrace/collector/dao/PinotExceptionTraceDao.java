@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.exceptiontrace.collector.dao;
 
+import com.navercorp.pinpoint.exceptiontrace.collector.model.SpanEventExceptionVo;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 import org.apache.logging.log4j.LogManager;
@@ -51,8 +52,9 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         logger.info("Pinot data insert: {}", spanEventExceptions.toString());
 
         for (SpanEventException spanEventException : spanEventExceptions) {
-            SpanEventExceptionVo spanEventExceptionVo = SpanEventExceptionVo.valueOf(spanEventException);
-            this.kafkaSpanEventExceptionTemplate.send(topic, spanEventExceptionVo);
+            this.kafkaSpanEventExceptionTemplate.send(
+                    topic, SpanEventExceptionVo.valueOf(spanEventException)
+            );
         }
     }
 }

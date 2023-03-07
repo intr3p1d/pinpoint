@@ -22,14 +22,14 @@ public class ExceptionTraceSummary {
     private final long timestamp;
     private final String errorClassName;
     private final String errorMessage;
-    private final String stackTrace;
+    private final String stackTraceHash;
     private final long count;
 
-    public ExceptionTraceSummary(long timestamp, String errorClassName, String errorMessage, String stackTrace, long count) {
+    public ExceptionTraceSummary(long timestamp, String errorClassName, String errorMessage, String stackTraceHash, long count) {
         this.timestamp = timestamp;
         this.errorClassName = errorClassName;
         this.errorMessage = errorMessage;
-        this.stackTrace = stackTrace;
+        this.stackTraceHash = stackTraceHash;
         this.count = count;
     }
 
@@ -45,8 +45,8 @@ public class ExceptionTraceSummary {
         return errorMessage;
     }
 
-    public String getStackTrace() {
-        return stackTrace;
+    public String getStackTraceHash() {
+        return stackTraceHash;
     }
 
     public long getCount() {

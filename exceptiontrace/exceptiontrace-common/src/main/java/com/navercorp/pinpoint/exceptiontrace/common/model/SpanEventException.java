@@ -17,12 +17,9 @@
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
+import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,7 +43,7 @@ public class SpanEventException {
     private final int exceptionDepth;
     private final List<StackTraceElementWrapper> stackTrace;
 
-    private final byte[] stackTraceHash;
+    private final String stackTraceHash;
 
     public SpanEventException(
             long timestamp,
@@ -59,7 +56,7 @@ public class SpanEventException {
             String errorMessage,
             int exceptionDepth,
             List<StackTraceElementWrapper> stackTrace,
-            byte[] stackTraceHash
+            String stackTraceHash
     ) {
         this.timestamp = timestamp;
         this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
@@ -101,15 +98,8 @@ public class SpanEventException {
         ).collect(Collectors.toList());
     }
 
-    public static byte[] toStackTraceHash(List<StackTraceElementWrapper> stackTraceElementWrappers) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return digest.digest(
-                    stackTraceElementWrappers.toString().getBytes(StandardCharsets.UTF_8)
-            );
-        } catch (NoSuchAlgorithmException e) {
-            return new byte[0];
-        }
+    public static String toStackTraceHash(List<StackTraceElementWrapper> stackTraceElementWrappers) {
+        return HashUtils.wrappersToHashString(stackTraceElementWrappers);
     }
 
     public long getTimestamp() {
@@ -152,7 +142,7 @@ public class SpanEventException {
         return stackTrace;
     }
 
-    public byte[] getStackTraceHash() {
+    public String getStackTraceHash() {
         return stackTraceHash;
     }
 
@@ -192,7 +182,7 @@ public class SpanEventException {
                 ", errorMessage='" + errorMessage + '\'' +
                 ", exceptionDepth=" + exceptionDepth +
                 ", stackTrace=" + stackTrace +
-                ", stackTraceHash=" + Arrays.toString(stackTraceHash) +
+                ", stackTraceHash='" + stackTraceHash + '\'' +
                 '}';
     }
 }

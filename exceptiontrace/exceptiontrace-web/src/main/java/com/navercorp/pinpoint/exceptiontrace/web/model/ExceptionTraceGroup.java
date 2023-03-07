@@ -152,7 +152,7 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             }
             return Similarity.valueOf(
                     Objects.equals(base.getErrorMessage(), given.getErrorMessage()),
-                    Objects.equals(base.getStackTrace().toString(), given.getStackTrace())
+                    Objects.equals(base.getStackTrace().toString(), given.getStackTraceHash())
             );
         }
 

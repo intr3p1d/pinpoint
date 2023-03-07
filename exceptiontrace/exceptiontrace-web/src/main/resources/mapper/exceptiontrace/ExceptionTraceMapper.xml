@@ -15,7 +15,7 @@
             <arg column="stackTrace"
                  javaType="java.util.List" jdbcType="VARCHAR"
                  typeHandler="StackTraceTypeHandler"/>
-            <arg column="stackTraceHash" javaType="_byte[]"/>
+            <arg column="stackTraceHash" javaType="string"/>
         </constructor>
     </resultMap>
 
@@ -24,7 +24,7 @@
             <arg column="timestamp" javaType="_long"/>
             <arg column="errorClassName" javaType="string"/>
             <arg column="errorMessage" javaType="string"/>
-            <arg column="stackTrace" javaType="string"/>
+            <arg column="stackTraceHash" javaType="string"/>
             <arg column="count" javaType="_long"/>
         </constructor>
     </resultMap>
@@ -55,6 +55,7 @@
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}
             AND errorMessage = #{spanEventException.errorMessage}
+            AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
         <if test="transactionId != null">
             AND transactionId = #{transactionId}
@@ -77,9 +78,9 @@
             errorClassName, errorMessage, stackTraceHash
         </if>
         <if test="spanEventException == null">
-            'null' as "errorClassName",
-            'null' as "errorMessage",
-            'null' as "stackTraceHash"
+            '' as "errorClassName",
+            '' as "errorMessage",
+            '' as "stackTraceHash"
         </if>
         FROM
         <include refid="exceptionTraceTable"></include>
