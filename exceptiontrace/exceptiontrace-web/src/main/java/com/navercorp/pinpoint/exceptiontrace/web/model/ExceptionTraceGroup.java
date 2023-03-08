@@ -19,18 +19,18 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import org.apache.commons.lang3.StringUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -39,38 +39,28 @@ import java.util.stream.Collectors;
 public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
     private final String exceptionClass;
-
     private final List<TimeSeriesValueView> values;
-
-    public static final ExceptionTraceGroup EMPTY_EXCEPTION_TRACE_GROUP = new ExceptionTraceGroup();
-
-    private ExceptionTraceGroup() {
-        this.exceptionClass = StringUtils.EMPTY;
-        this.values = Collections.emptyList();
-
-    }
 
     private ExceptionTraceGroup(String exceptionClass, List<TimeSeriesValueView> values) {
         this.exceptionClass = exceptionClass;
         this.values = values;
     }
 
-    public static ExceptionTraceGroup newGroupFromExceptions(String exceptionClass, TimeWindow timeWindow, List<SpanEventException> spanEventExceptions) {
-        return new ExceptionTraceGroup(
-                exceptionClass,
-                ExceptionTraceValue.createValueList(timeWindow, spanEventExceptions)
-        );
-    }
-
     public static ExceptionTraceGroup newGroupFromSummaries(
-            String exceptionClass,
             TimeWindow timeWindow,
-            @Nullable SpanEventException spanEventException,
+            SpanEventException base,
             List<ExceptionTraceSummary> exceptionTraceSummaries
     ) {
+        if (base == null) {
+            return new ExceptionTraceGroup(
+                    "",
+                    ExceptionTraceValue.createValueList(timeWindow, exceptionTraceSummaries)
+            );
+        }
+
         return new ExceptionTraceGroup(
-                exceptionClass,
-                ExceptionTraceValue.createValueListFromSummary(timeWindow, spanEventException, exceptionTraceSummaries)
+                base.getErrorClassName(),
+                ExceptionTraceValue.createValueListGroupedBySimilarity(timeWindow, base, exceptionTraceSummaries)
         );
     }
 
@@ -86,73 +76,89 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
     public static class ExceptionTraceValue implements TimeSeriesValueView {
 
-        private static final String FIELD_NAME = "trace-count";
         private final String fieldName;
         private final List<Integer> values;
 
-        public static List<TimeSeriesValueView> createValueList(TimeWindow timeWindow, List<SpanEventException> spanEventExceptions) {
-            Objects.requireNonNull(spanEventExceptions);
-
-            // List<SpanEventException> to number of occasion
-            List<Integer> values = new ArrayList<>(Collections.nCopies((int) timeWindow.getWindowRangeCount(), 0));
-
-            spanEventExceptions.stream().collect(
-                    Collectors.groupingBy((SpanEventException x) -> timeWindow.getWindowIndex(x.getTimestamp()))
-            ).forEach(
-                    (i, e) -> values.set(i, e.size())
-            );
-
-            TimeSeriesValueView exceptionTraceValue = new ExceptionTraceValue(FIELD_NAME, values);
-            return List.of(exceptionTraceValue);
-        }
-
-        public static List<TimeSeriesValueView> createValueListFromSummary(
+        public static List<TimeSeriesValueView> createValueList(
                 TimeWindow timeWindow,
-                SpanEventException spanEventException,
                 List<ExceptionTraceSummary> exceptionTraceSummaries
         ) {
-            if(spanEventException == null) {
-                return createValueListGroupedBySimilarity(timeWindow, spanEventException, Similarity.notCheckedSimilarities(), exceptionTraceSummaries);
-            }
-            return createValueListGroupedBySimilarity(timeWindow, spanEventException, Similarity.similarities(), exceptionTraceSummaries);
+            return createValueListGroupedBySimilarity(
+                    timeWindow, null, Similarity.getNotCheckedSimilarities(), exceptionTraceSummaries
+            );
+        }
+
+        public static List<TimeSeriesValueView> createValueListGroupedBySimilarity(
+                TimeWindow timeWindow,
+                @Nonnull SpanEventException base,
+                List<ExceptionTraceSummary> exceptionTraceSummaries
+        ) {
+            return createValueListGroupedBySimilarity(
+                    timeWindow, base, Similarity.getCheckedSimilarities(), exceptionTraceSummaries
+            );
         }
 
         private static List<TimeSeriesValueView> createValueListGroupedBySimilarity(
                 TimeWindow timeWindow,
                 SpanEventException spanEventException,
-                Similarity[] keyGroup,
+                Similarity[] keyGroups,
                 List<ExceptionTraceSummary> exceptionTraceSummaries
         ) {
+            Map<Similarity, int[]> fieldNameToListMap = newSimilarityToValueListMap(timeWindow, keyGroups);
+
+            for (ExceptionTraceSummary e : exceptionTraceSummaries) {
+                fieldNameToListMap.get(
+                        compareAndGetSimilarity(spanEventException, e)
+                )[timeWindow.getWindowIndex(e.getTimestamp())] += e.getCount();
+            }
+
+            return newTimeSeriesValueView(
+                    fieldNameToListMap.entrySet(),
+                    (Map.Entry<Similarity, int[]> e) -> e.getKey().toString(),
+                    (Map.Entry<Similarity, int[]> e) -> Arrays.stream(e.getValue()).boxed().collect(Collectors.toList())
+            );
+        }
+
+        private static Map<Similarity, int[]> newSimilarityToValueListMap(
+                TimeWindow timeWindow,
+                Similarity[] similarities
+        ) {
             Map<Similarity, int[]> fieldNameToListMap = new EnumMap<>(Similarity.class);
-            for (Similarity similarity : keyGroup) {
+            for (Similarity similarity : similarities) {
                 int[] values = new int[(int) timeWindow.getWindowRangeCount()];
                 Arrays.fill(values, 0);
                 fieldNameToListMap.put(similarity, values);
             }
+            return fieldNameToListMap;
+        }
 
-            for (ExceptionTraceSummary e : exceptionTraceSummaries) {
-                fieldNameToListMap.get(
-                        similarityToFieldName(spanEventException, e)
-                )[timeWindow.getWindowIndex(e.getTimestamp())] += e.getCount();
-            }
-
+        private static <T> List<TimeSeriesValueView> newTimeSeriesValueView(
+                Collection<T> collections,
+                Function<T, String> toString,
+                Function<T, List<Integer>> toIntegerArray
+        ) {
             List<TimeSeriesValueView> timeSeriesValueViews = new ArrayList<>();
-            for (Map.Entry<Similarity, int[]> e : fieldNameToListMap.entrySet()) {
+            for (T t : collections) {
                 timeSeriesValueViews.add(
-                        new ExceptionTraceValue(e.toString(), Arrays.stream(e.getValue()).boxed().collect(Collectors.toList()))
+                        new ExceptionTraceValue(
+                                toString.apply(t),
+                                toIntegerArray.apply(t)
+                        )
                 );
             }
-
             return timeSeriesValueViews;
         }
 
-        private static Similarity similarityToFieldName(SpanEventException base, ExceptionTraceSummary given) {
-            if (base == null) {
+        private static Similarity compareAndGetSimilarity(
+                SpanEventException base,
+                ExceptionTraceSummary given
+        ) {
+            if (base == null || given == null) {
                 return Similarity.NOT_CHECKED;
             }
             return Similarity.valueOf(
                     Objects.equals(base.getErrorMessage(), given.getErrorMessage()),
-                    Objects.equals(base.getStackTrace().toString(), given.getStackTraceHash())
+                    Objects.equals(base.getStackTraceHash(), given.getStackTraceHash())
             );
         }
 
@@ -161,10 +167,20 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             DIFFERENT_MESSAGE,
             DIFFERENT_STACKTRACE,
             DIFFERENT_MESSAGE_AND_STACKTRACE,
+
             NOT_CHECKED;
 
             private static final Similarity[] checkedSimilarities = new Similarity[]{Similarity.IDENTICAL, Similarity.DIFFERENT_MESSAGE, Similarity.DIFFERENT_STACKTRACE, Similarity.DIFFERENT_MESSAGE_AND_STACKTRACE};
+
             private static final Similarity[] notCheckedSimilarities = new Similarity[]{Similarity.NOT_CHECKED};
+
+            public static Similarity[] getCheckedSimilarities() {
+                return checkedSimilarities;
+            }
+
+            public static Similarity[] getNotCheckedSimilarities() {
+                return notCheckedSimilarities;
+            }
 
             public static Similarity valueOf(boolean messagesAreSame, boolean stacktraceAreSame) {
                 if (messagesAreSame) {
@@ -178,14 +194,6 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
                     }
                     return DIFFERENT_MESSAGE_AND_STACKTRACE;
                 }
-            }
-
-            public static Similarity[] similarities() {
-                return checkedSimilarities;
-            }
-
-            public static Similarity[] notCheckedSimilarities() {
-                return notCheckedSimilarities;
             }
         }
 
