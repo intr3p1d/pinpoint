@@ -37,16 +37,19 @@ public enum ExceptionRecordingState {
     STACKING {
         @Override
         public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
+            SpanEventException spanEventException = null;
+            if (!isContinued(exceptionRecordingContext.getPrevious(), current)) {
+                spanEventException = newSpanEventException(exceptionRecordingContext);
+            }
             exceptionRecordingContext.setPrevious(current);
-            return null;
+            exceptionRecordingContext.setStartTime(currentStartTime);
+            return spanEventException;
         }
     },
     FLUSH {
         @Override
         public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
-            SpanEventException spanEventException = SpanEventException.newSpanEventException(
-                    exceptionRecordingContext.getPrevious(), exceptionRecordingContext.getStartTime()
-            );
+            SpanEventException spanEventException = newSpanEventException(exceptionRecordingContext);
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.resetStartTime();
             return spanEventException;
@@ -65,6 +68,23 @@ public enum ExceptionRecordingState {
             }
             return STACKING;
         }
+    }
+
+    public static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
+        return SpanEventException.newSpanEventException(
+                context.getPrevious(), context.getStartTime()
+        );
+    }
+
+    public static boolean isContinued(Throwable previous, Throwable current) {
+        Throwable throwable = current;
+        while (throwable.getCause() != null) {
+            if (throwable == previous) {
+                return true;
+            }
+            throwable = throwable.getCause();
+        }
+        return false;
     }
 
     public abstract SpanEventException apply(
