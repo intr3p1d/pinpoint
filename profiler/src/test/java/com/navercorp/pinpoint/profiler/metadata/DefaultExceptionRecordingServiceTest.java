@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.profiler.context.DefaultReference;
 import com.navercorp.pinpoint.profiler.context.Reference;
+import com.navercorp.pinpoint.profiler.context.exception.AtomicExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionIdGenerator;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
@@ -34,7 +36,8 @@ public class DefaultExceptionRecordingServiceTest {
 
     private final static Logger logger = LogManager.getLogger(DefaultExceptionRecordingServiceTest.class);
 
-    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService();
+    ExceptionIdGenerator exceptionIdGenerator = new AtomicExceptionIdGenerator();
+    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(exceptionIdGenerator);
 
     ExceptionRecordingContext context;
 
@@ -86,7 +89,7 @@ public class DefaultExceptionRecordingServiceTest {
             methodC(throwableInterceptor);
         } catch (Throwable e) {
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            expected = SpanEventException.newSpanEventException(e, START_TIME);
+            expected = SpanEventException.newSpanEventException(e, START_TIME, exceptionIdGenerator.getCurrentExceptionId());
             Assertions.assertNull(actual);
         }
         actual = exceptionRecordingService.recordException(context, null, 0);
@@ -120,18 +123,20 @@ public class DefaultExceptionRecordingServiceTest {
 
         Reference<Throwable> reference = new DefaultReference<>();
         Function<Throwable, Throwable> throwableInterceptor = throwableInterceptor(reference);
+        Throwable throwable = null;
 
         try {
             notChainedException(throwableInterceptor);
         } catch (Throwable e) {
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            expected1 = SpanEventException.newSpanEventException(reference.get(), START_TIME);
-            expected2 = SpanEventException.newSpanEventException(e, START_TIME);
+            expected1 = SpanEventException.newSpanEventException(reference.get(), START_TIME, exceptionIdGenerator.getCurrentExceptionId());
+            throwable = e;
             Assertions.assertNotNull(actual);
             Assertions.assertEquals(actual, expected1);
         }
 
         actual = exceptionRecordingService.recordException(context, null, 0);
+        expected2 = SpanEventException.newSpanEventException(throwable, START_TIME, exceptionIdGenerator.getCurrentExceptionId());
         Assertions.assertEquals(actual, expected2);
     }
 
@@ -156,7 +161,7 @@ public class DefaultExceptionRecordingServiceTest {
             rethrowGivenException(throwableInterceptor);
         } catch (Throwable e) {
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            expected = SpanEventException.newSpanEventException(e, START_TIME);
+            expected = SpanEventException.newSpanEventException(e, START_TIME, exceptionIdGenerator.getCurrentExceptionId());
             Assertions.assertNull(actual);
         }
 

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.exception;
 /**
  * @author intr3p1d
  */
-public interface ExceptionRecordingService {
-    SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime);
-
+public interface ExceptionIdGenerator {
+    long getCurrentExceptionId();
+    long nextExceptionId();
 }

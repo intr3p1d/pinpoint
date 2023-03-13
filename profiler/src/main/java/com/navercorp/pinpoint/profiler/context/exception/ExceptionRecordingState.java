@@ -21,14 +21,22 @@ package com.navercorp.pinpoint.profiler.context.exception;
 public enum ExceptionRecordingState {
     CLEAN {
         @Override
-        public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
+        public SpanEventException apply(
+                ExceptionRecordingContext exceptionRecordingContext,
+                Throwable current,
+                long currentStartTime,
+                ExceptionIdGenerator idGenerator) {
             // do nothing
             return null;
         }
     },
     STARTED {
         @Override
-        public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
+        public SpanEventException apply(
+                ExceptionRecordingContext exceptionRecordingContext,
+                Throwable current,
+                long currentStartTime,
+                ExceptionIdGenerator idGenerator) {
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.setStartTime(currentStartTime);
             return null;
@@ -36,10 +44,16 @@ public enum ExceptionRecordingState {
     },
     STACKING {
         @Override
-        public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
+        public SpanEventException apply(
+                ExceptionRecordingContext exceptionRecordingContext,
+                Throwable current,
+                long currentStartTime,
+                ExceptionIdGenerator idGenerator) {
             SpanEventException spanEventException = null;
             if (!isContinued(exceptionRecordingContext.getPrevious(), current)) {
-                spanEventException = newSpanEventException(exceptionRecordingContext);
+                spanEventException = newSpanEventException(
+                        exceptionRecordingContext, idGenerator.nextExceptionId()
+                );
             }
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.setStartTime(currentStartTime);
@@ -48,8 +62,14 @@ public enum ExceptionRecordingState {
     },
     FLUSH {
         @Override
-        public SpanEventException apply(ExceptionRecordingContext exceptionRecordingContext, Throwable current, long currentStartTime) {
-            SpanEventException spanEventException = newSpanEventException(exceptionRecordingContext);
+        public SpanEventException apply(
+                ExceptionRecordingContext exceptionRecordingContext,
+                Throwable current,
+                long currentStartTime,
+                ExceptionIdGenerator idGenerator) {
+            SpanEventException spanEventException = newSpanEventException(
+                    exceptionRecordingContext, idGenerator.nextExceptionId()
+            );
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.resetStartTime();
             return spanEventException;
@@ -70,9 +90,9 @@ public enum ExceptionRecordingState {
         }
     }
 
-    public static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
+    public static SpanEventException newSpanEventException(ExceptionRecordingContext context, long exceptionId) {
         return SpanEventException.newSpanEventException(
-                context.getPrevious(), context.getStartTime()
+                context.getPrevious(), context.getStartTime(), exceptionId
         );
     }
 
@@ -90,6 +110,7 @@ public enum ExceptionRecordingState {
     public abstract SpanEventException apply(
             ExceptionRecordingContext exceptionRecordingContext,
             Throwable current,
-            long currentStartTime
+            long currentStartTime,
+            ExceptionIdGenerator idGenerator
     );
 }

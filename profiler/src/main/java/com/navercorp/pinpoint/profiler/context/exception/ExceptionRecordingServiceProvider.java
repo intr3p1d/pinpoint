@@ -26,14 +26,16 @@ import javax.inject.Provider;
 public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
     private final ProfilerConfig profilerConfig;
+    private final ExceptionIdGenerator exceptionIdGenerator;
 
     @Inject
-    public ExceptionRecordingServiceProvider(ProfilerConfig profilerConfig) {
+    public ExceptionRecordingServiceProvider(ProfilerConfig profilerConfig, ExceptionIdGenerator exceptionIdGenerator) {
         this.profilerConfig = profilerConfig;
+        this.exceptionIdGenerator = exceptionIdGenerator;
     }
 
     @Override
     public ExceptionRecordingService get() {
-        return new DefaultExceptionRecordingService();
+        return new DefaultExceptionRecordingService(exceptionIdGenerator);
     }
 }

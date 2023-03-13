@@ -15,10 +15,30 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import com.google.inject.Inject;
+
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @author intr3p1d
  */
-public interface ExceptionRecordingService {
-    SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime);
+public class AtomicExceptionIdGenerator implements ExceptionIdGenerator {
 
+    public static final long INITIAL_EXCEPTION_ID = 1L;
+
+    private final AtomicLong errorId = new AtomicLong(INITIAL_EXCEPTION_ID);
+
+    @Inject
+    public AtomicExceptionIdGenerator() {
+    }
+
+    @Override
+    public long getCurrentExceptionId() {
+        return this.errorId.get();
+    }
+
+    @Override
+    public long nextExceptionId() {
+        return this.errorId.getAndIncrement();
+    }
 }

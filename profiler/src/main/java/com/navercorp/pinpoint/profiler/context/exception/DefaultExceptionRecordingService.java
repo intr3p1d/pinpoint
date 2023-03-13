@@ -29,8 +29,10 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     private static final boolean IS_DEBUG = logger.isDebugEnabled();
 
-    public DefaultExceptionRecordingService() {
-        // do nothing
+    private final ExceptionIdGenerator exceptionIdGenerator;
+
+    public DefaultExceptionRecordingService(ExceptionIdGenerator exceptionIdGenerator) {
+        this.exceptionIdGenerator = exceptionIdGenerator;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         Objects.requireNonNull(context);
 
         ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
-        SpanEventException spanEventException = state.apply(context, current, startTime);
+        SpanEventException spanEventException = state.apply(context, current, startTime, exceptionIdGenerator);
 
         logException(spanEventException);
 
