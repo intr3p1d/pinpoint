@@ -401,6 +401,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
             pSpanEventException.addAllExceptions(buildPExceptions(Arrays.asList(spanEventException.getExceptionWrappers())));
         }
         pSpanEventException.setStartTime(spanEventException.getStartTime());
+        pSpanEventException.setExceptionId(spanEventException.getExceptionId());
         return pSpanEventException;
     }
 
