@@ -95,22 +95,18 @@ public class ExceptionTraceController {
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
-
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        SpanEventException spanEventException = null;
         List<ExceptionTraceSummary> exceptionTraceSummaries;
         if (argumentsAreGiven(traceId, timestamp, depth)) {
-            ImmutablePair<SpanEventException, List<ExceptionTraceSummary>> pair = exceptionTraceService.getSummaryOfSimilarExceptions(
+            exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
                     agentId, traceId, timestamp, depth, applicationName, from, to
             );
-            spanEventException = pair.getLeft();
-            exceptionTraceSummaries = pair.getRight();
         } else {
             exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
                     applicationName, agentId, from, to
             );
         }
-        return ExceptionTraceView.newViewFromSummaries("", timeWindow, spanEventException, exceptionTraceSummaries);
+        return ExceptionTraceView.newViewFromSummaries(timeWindow, exceptionTraceSummaries);
     }
 
     private boolean argumentsAreGiven(Object... objects) {

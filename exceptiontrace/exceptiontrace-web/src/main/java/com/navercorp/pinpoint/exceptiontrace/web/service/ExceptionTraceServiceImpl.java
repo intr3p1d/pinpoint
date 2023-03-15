@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -91,7 +90,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
                 from,
                 to,
                 this::getSpanEventExceptions
-        ).getRight();
+        );
     }
 
     @Override
@@ -106,7 +105,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public ImmutablePair<SpanEventException, List<ExceptionTraceSummary>> getSummaryOfSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to) {
+    public List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to) {
         return getSimilarExceptions(
                 agentId,
                 traceId,
@@ -154,7 +153,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return queryFunction.apply(builder.build());
     }
 
-    private <T> ImmutablePair<SpanEventException, List<T>> getSimilarExceptions(
+    private <T> List<T> getSimilarExceptions(
             String agentId,
             String traceId,
             long traceTimestamp,
@@ -178,7 +177,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         );
 
         if (spanEventException == null) {
-            return new ImmutablePair<>(spanEventException, Collections.emptyList());
+            return Collections.emptyList();
         }
         ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
                 applicationName,
@@ -187,11 +186,8 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
                 .setAgentId(transactionId.getAgentId())
                 .setSpanEventException(spanEventException);
 
-        return new ImmutablePair<>(
-                spanEventException,
-                queryFunction.apply(
-                        builder.build()
-                )
+        return queryFunction.apply(
+                builder.build()
         );
     }
 

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.exceptiontrace.web.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
@@ -33,7 +32,7 @@ import java.util.Objects;
  */
 public class ExceptionTraceView implements TimeSeriesView {
 
-    private static final String TITLE = "exceptionTrace";
+    private static final String TITLE = "exceptionChart";
 
     private final List<Long> timestampList;
 
@@ -45,9 +44,7 @@ public class ExceptionTraceView implements TimeSeriesView {
     }
 
     public static ExceptionTraceView newViewFromSummaries(
-            String exceptionClass,
             TimeWindow timeWindow,
-            SpanEventException spanEventException,
             List<ExceptionTraceSummary> exceptionTraceSummaries
     ) {
         Objects.requireNonNull(timeWindow, "timeWindow");
@@ -56,7 +53,7 @@ public class ExceptionTraceView implements TimeSeriesView {
         List<Long> timestampList = createTimeStampList(timeWindow);
         List<TimeseriesValueGroupView> timeseriesValueGroupViews = new ArrayList<>();
         timeseriesValueGroupViews.add(
-                ExceptionTraceGroup.newGroupFromSummaries(timeWindow, spanEventException, exceptionTraceSummaries)
+                ExceptionTraceGroup.newGroupFromSummaries(timeWindow, exceptionTraceSummaries)
         );
 
         return new ExceptionTraceView(

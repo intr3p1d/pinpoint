@@ -6,6 +6,7 @@
             <arg column="timestamp" javaType="_long"/>
             <arg column="transactionId" javaType="string"/>
             <arg column="spanId" javaType="_long"/>
+            <arg column="exceptionId" javaType="_long"/>
             <arg column="applicationServiceType" javaType="string"/>
             <arg column="applicationName" javaType="string"/>
             <arg column="agentId" javaType="string"/>
@@ -36,6 +37,7 @@
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         transactionId,
         spanId,
+        exceptionId,
         applicationServiceType,
         applicationName,
         agentId,
@@ -73,15 +75,7 @@
     <select id="selectSummaries" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
         SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        count(*) as "count",
-        <if test="spanEventException != null">
-            errorClassName, errorMessage, stackTraceHash
-        </if>
-        <if test="spanEventException == null">
-            '' as "errorClassName",
-            '' as "errorMessage",
-            '' as "stackTraceHash"
-        </if>
+        count(*) as "count", errorClassName, errorMessage, stackTraceHash
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -92,14 +86,10 @@
         </if>
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}
+            AND errorMessage = #{spanEventException.errorMessage}
+            AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
-        GROUP BY "timestamp"
-        <if test="spanEventException != null">
-            , errorClassName, errorMessage, stackTraceHash
-        </if>
-        <if test="spanEventException == null">
-            , "errorClassName", "errorMessage", "stackTraceHash"
-        </if>
+        GROUP BY "timestamp", errorClassName, errorMessage, stackTraceHash
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>

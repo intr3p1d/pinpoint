@@ -36,5 +36,5 @@ public interface ExceptionTraceService {
 
     List<ExceptionTraceSummary> getSummaryInRange(String applicationName, @Nullable String agentId, long from, long to);
 
-    ImmutablePair<SpanEventException, List<ExceptionTraceSummary>> getSummaryOfSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to);
+    List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(String agentId, String traceId, long traceTimestamp, int exceptionDepth, String applicationName, long from, long to);
 }
