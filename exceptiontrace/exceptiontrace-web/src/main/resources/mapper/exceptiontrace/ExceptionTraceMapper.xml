@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.exceptiontrace.web.dao.PinotExceptionTraceDao">
+    <resultMap id="spanEventException" type="SpanEventException">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="transactionId" javaType="string"/>
+            <arg column="spanId" javaType="_long"/>
+            <arg column="applicationServiceType" javaType="string"/>
+            <arg column="applicationName" javaType="string"/>
+            <arg column="agentId" javaType="string"/>
+            <arg column="errorClassName" javaType="string"/>
+            <arg column="errorMessage" javaType="string"/>
+            <arg column="exceptionDepth" javaType="_int"/>
+            <arg column="stackTrace"
+                 javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="StackTraceTypeHandler"/>
+            <arg column="stackTraceHash" javaType="string"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="errorClassName" javaType="string"/>
+            <arg column="errorMessage" javaType="string"/>
+            <arg column="stackTraceHash" javaType="string"/>
+            <arg column="count" javaType="_long"/>
+        </constructor>
+    </resultMap>
+
+    <sql id="exceptionTraceTable">exceptionTrace</sql>
+
+    <select id="selectExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        errorClassName,
+        errorMessage,
+        exceptionDepth,
+        stackTrace,
+        stackTraceHash
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+            applicationName = #{applicationName}
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="spanEventException != null">
+            AND errorClassName = #{spanEventException.errorClassName}
+            AND errorMessage = #{spanEventException.errorMessage}
+            AND stackTraceHash = #{spanEventException.stackTraceHash}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            <if test="spanEventTimestamp >= 0">
+                AND "timestamp" = #{spanEventTimestamp}
+            </if>
+            <if test="exceptionDepth >= 0">
+                AND exceptionDepth = #{exceptionDepth}
+            </if>
+        </if>
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectSummaries" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
+        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        count(*) as "count",
+        <if test="spanEventException != null">
+            errorClassName, errorMessage, stackTraceHash
+        </if>
+        <if test="spanEventException == null">
+            '' as "errorClassName",
+            '' as "errorMessage",
+            '' as "stackTraceHash"
+        </if>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="spanEventException != null">
+            AND errorClassName = #{spanEventException.errorClassName}
+        </if>
+        GROUP BY "timestamp"
+        <if test="spanEventException != null">
+            , errorClassName, errorMessage, stackTraceHash
+        </if>
+        <if test="spanEventException == null">
+            , "errorClassName", "errorMessage", "stackTraceHash"
+        </if>
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+</mapper>
