@@ -56,11 +56,12 @@ public class ExceptionTraceController {
     @GetMapping("/transactionInfo")
     public List<SpanEventException> getSpanEventExceptionFromTransactionId(
             @RequestParam("applicationName") String applicationName,
+            @RequestParam("agentId") String agentId,
             @RequestParam("traceId") String traceId,
             @RequestParam("traceTimestamp") long timestamp
     ) {
         return exceptionTraceService.getTransactionExceptions(
-                applicationName, traceId, timestamp
+                applicationName, agentId, traceId, timestamp
         );
     }
 

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public interface ExceptionTraceService {
 
-    List<SpanEventException> getTransactionExceptions(String applicationName, String traceId, long timestamp);
+    List<SpanEventException> getTransactionExceptions(String applicationName, String agentId, String traceId, long timestamp);
 
     List<SpanEventException> getExceptionsInRange(String applicationName, @Nullable String agentId, long from, long to);
 

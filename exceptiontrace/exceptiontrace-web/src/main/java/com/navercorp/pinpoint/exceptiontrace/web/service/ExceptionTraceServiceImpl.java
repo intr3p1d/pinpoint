@@ -51,11 +51,13 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     @Override
     public List<SpanEventException> getTransactionExceptions(
             String applicationName,
+            String agentId,
             String traceId,
             long timestamp
     ) {
         return getTransactionExceptions(
                 applicationName,
+                agentId,
                 traceId,
                 timestamp,
                 this::getSpanEventExceptions
@@ -119,6 +121,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
     private <T> List<T> getTransactionExceptions(
             String applicationName,
+            String agentId,
             String traceId,
             long timestamp,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
@@ -129,7 +132,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
                 applicationName,
                 Range.newRange(timestamp - 1, timestamp + 1)
         )
-                .setAgentId(transactionId.getAgentId())
+                .setAgentId(agentId)
                 .setTransactionId(transactionId)
                 .setSpanEventTimestamp(timestamp);
         return queryFunction.apply(transactionBuilder.build());
