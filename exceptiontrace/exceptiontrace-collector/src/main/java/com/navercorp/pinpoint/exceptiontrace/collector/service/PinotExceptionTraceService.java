@@ -64,6 +64,7 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
                             exceptions.get(i), i,
                             applicationServiceType, applicationId, agentId,
                             transactionId, spanId,
+                            spanEventExceptionBo.getExceptionId(),
                             spanEventExceptionBo.getStartTime()
                     )
             );
@@ -76,11 +77,13 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
             int exceptionDepth,
             ServiceType applicationServiceType, String applicationId, String agentId,
             TransactionId transactionId, long spanId,
+            long exceptionId,
             long startTime) {
         return SpanEventException.valueOf(
                 startTime,
                 transactionIdToString(transactionId),
                 spanId,
+                exceptionId,
                 applicationServiceType.getName(),
                 applicationId,
                 agentId,

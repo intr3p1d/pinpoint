@@ -10,6 +10,10 @@
       "dataType": "LONG"
     },
     {
+      "name": "exceptionId",
+      "dataType": "LONG"
+    },
+    {
       "name": "applicationServiceType",
       "dataType": "STRING"
     },
