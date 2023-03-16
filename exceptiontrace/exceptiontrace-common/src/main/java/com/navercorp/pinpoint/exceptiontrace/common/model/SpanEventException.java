@@ -33,6 +33,7 @@ public class SpanEventException {
 
     private final String transactionId;
     private final long spanId;
+    private final long exceptionId;
 
     private final String applicationServiceType;
     private final String applicationName;
@@ -49,6 +50,7 @@ public class SpanEventException {
             long timestamp,
             String transactionId,
             long spanId,
+            long exceptionId,
             String applicationServiceType,
             String applicationName,
             String agentId,
@@ -61,6 +63,7 @@ public class SpanEventException {
         this.timestamp = timestamp;
         this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
         this.spanId = spanId;
+        this.exceptionId = exceptionId;
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
@@ -71,7 +74,7 @@ public class SpanEventException {
         this.stackTraceHash = stackTraceHash;
     }
 
-    public static SpanEventException valueOf(long timestamp, String transactionId, long spanId,
+    public static SpanEventException valueOf(long timestamp, String transactionId, long spanId, long exceptionId,
                                              String applicationServiceType, String applicationName, String agentId,
                                              String errorClassName, String errorMessage, int exceptionDepth,
                                              List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
@@ -81,6 +84,7 @@ public class SpanEventException {
                 timestamp,
                 transactionId,
                 spanId,
+                exceptionId,
                 applicationServiceType,
                 applicationName,
                 agentId,
@@ -112,6 +116,10 @@ public class SpanEventException {
 
     public long getSpanId() {
         return spanId;
+    }
+
+    public long getExceptionId() {
+        return exceptionId;
     }
 
     public String getApplicationServiceType() {

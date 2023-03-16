@@ -34,6 +34,7 @@ public class SpanEventExceptionVo {
 
     private final String transactionId;
     private final long spanId;
+    private final long exceptionId;
 
     private final String applicationServiceType;
     private final String applicationName;
@@ -46,10 +47,11 @@ public class SpanEventExceptionVo {
     private final String stackTraceHash;
 
 
-    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace, String stackTraceHash) {
+    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, long exceptionId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace, String stackTraceHash) {
         this.timestamp = timestamp;
         this.transactionId = transactionId;
         this.spanId = spanId;
+        this.exceptionId = exceptionId;
         this.applicationServiceType = applicationServiceType;
         this.applicationName = applicationName;
         this.agentId = agentId;
@@ -66,6 +68,7 @@ public class SpanEventExceptionVo {
                 spanEventException.getTimestamp(),
                 spanEventException.getTransactionId(),
                 spanEventException.getSpanId(),
+                spanEventException.getExceptionId(),
                 spanEventException.getApplicationServiceType(),
                 spanEventException.getApplicationName(),
                 spanEventException.getAgentId(),
@@ -102,6 +105,10 @@ public class SpanEventExceptionVo {
 
     public long getSpanId() {
         return spanId;
+    }
+
+    public long getExceptionId() {
+        return exceptionId;
     }
 
     public String getApplicationServiceType() {

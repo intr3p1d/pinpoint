@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
