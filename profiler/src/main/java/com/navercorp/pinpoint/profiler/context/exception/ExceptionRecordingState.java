@@ -39,6 +39,7 @@ public enum ExceptionRecordingState {
                 ExceptionIdGenerator idGenerator) {
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.setStartTime(currentStartTime);
+            exceptionRecordingContext.setExceptionId(idGenerator.nextExceptionId());
             return null;
         }
     },
@@ -52,8 +53,9 @@ public enum ExceptionRecordingState {
             SpanEventException spanEventException = null;
             if (!isContinued(exceptionRecordingContext.getPrevious(), current)) {
                 spanEventException = newSpanEventException(
-                        exceptionRecordingContext, idGenerator.nextExceptionId()
+                        exceptionRecordingContext
                 );
+                exceptionRecordingContext.setExceptionId(idGenerator.nextExceptionId());
             }
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.setStartTime(currentStartTime);
@@ -68,10 +70,11 @@ public enum ExceptionRecordingState {
                 long currentStartTime,
                 ExceptionIdGenerator idGenerator) {
             SpanEventException spanEventException = newSpanEventException(
-                    exceptionRecordingContext, idGenerator.nextExceptionId()
+                    exceptionRecordingContext
             );
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.resetStartTime();
+            exceptionRecordingContext.resetExceptionId();
             return spanEventException;
         }
     };
@@ -90,9 +93,9 @@ public enum ExceptionRecordingState {
         }
     }
 
-    public static SpanEventException newSpanEventException(ExceptionRecordingContext context, long exceptionId) {
+    public static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
         return SpanEventException.newSpanEventException(
-                context.getPrevious(), context.getStartTime(), exceptionId
+                context.getPrevious(), context.getStartTime(), context.getExceptionId()
         );
     }
 
