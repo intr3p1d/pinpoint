@@ -31,6 +31,10 @@ public class ExceptionRecordingContext {
         return new ExceptionRecordingContext();
     }
 
+    public boolean hasValidExceptionId(){
+        return this.exceptionId != INITIAL_EXCEPTION_ID;
+    }
+
     public void resetExceptionId() {
         setExceptionId(INITIAL_EXCEPTION_ID);
     }

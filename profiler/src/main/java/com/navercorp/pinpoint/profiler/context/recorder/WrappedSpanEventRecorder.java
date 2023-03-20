@@ -188,11 +188,13 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                 spanEvent.getStartTime()
         );
         spanEvent.setFlushedException(spanEventException);
-        spanEvent.addAnnotation(
-                exceptionRecordingService.recordExceptionLinkId(
-                        this.exceptionRecordingContext
-                )
-        );
+        if (this.exceptionRecordingContext.hasValidExceptionId()) {
+            spanEvent.addAnnotation(
+                    exceptionRecordingService.recordExceptionLinkId(
+                            this.exceptionRecordingContext
+                    )
+            );
+        }
     }
 
     @Override
