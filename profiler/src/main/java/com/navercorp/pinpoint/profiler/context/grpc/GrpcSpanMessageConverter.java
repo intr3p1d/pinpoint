@@ -351,7 +351,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
             pSpanEvent.addAllAnnotation(pAnnotations);
         }
 
-        pSpanEvent.setFlushedExceptionId(spanEvent.getFlushedExceptionId());
         final SpanEventException spanEventException = spanEvent.getFlushedException();
         if (spanEventException != null) {
             final PSpanEventException pSpanEventException = buildPSpanEventException(spanEventException).build();

@@ -51,7 +51,6 @@ public class SpanEvent extends DefaultFrameAttachment {
     private int apiId; // optional
     private IntStringValue exceptionInfo; // optional
 
-    private long flushedExceptionId; // optional
     private SpanEventException flushedException; // optional
 
     private AsyncId asyncIdObject;
@@ -68,14 +67,6 @@ public class SpanEvent extends DefaultFrameAttachment {
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         this.exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
-    }
-
-    public long getFlushedExceptionId() {
-        return flushedExceptionId;
-    }
-
-    public void setFlushedExceptionId(long flushedExceptionId) {
-        this.flushedExceptionId = flushedExceptionId;
     }
 
     public SpanEventException getFlushedException() {

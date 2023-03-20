@@ -15,6 +15,9 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,5 +54,10 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         if (IS_DEBUG && spanEventException != null) {
             logger.debug(spanEventException);
         }
+    }
+
+    @Override
+    public Annotation<Long> recordExceptionLinkId(ExceptionRecordingContext context) {
+        return Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), context.getExceptionId());
     }
 }

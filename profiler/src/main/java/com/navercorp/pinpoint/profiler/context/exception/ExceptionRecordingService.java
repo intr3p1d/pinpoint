@@ -15,10 +15,12 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import com.navercorp.pinpoint.profiler.context.Annotation;
+
 /**
  * @author intr3p1d
  */
 public interface ExceptionRecordingService {
     SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime);
-
+    Annotation<Long> recordExceptionLinkId(ExceptionRecordingContext context);
 }
