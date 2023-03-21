@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 public class ExceptionRecordingContext {
 
     private static final long INITIAL_EXCEPTION_ID = Long.MIN_VALUE;
+    private static final Throwable INITIAL_EXCEPTION = null;
+
     private Throwable previous = null;
     private long exceptionId = INITIAL_EXCEPTION_ID;
     private long startTime = 0;
@@ -31,8 +33,12 @@ public class ExceptionRecordingContext {
         return new ExceptionRecordingContext();
     }
 
-    public boolean hasValidExceptionId(){
+    public boolean hasValidExceptionId() {
         return this.exceptionId != INITIAL_EXCEPTION_ID;
+    }
+
+    public void resetPrevious() {
+        setPrevious(null);
     }
 
     public void resetExceptionId() {

@@ -60,6 +60,7 @@ public class SpanEventException {
         SpanEventException that = (SpanEventException) o;
 
         if (startTime != that.startTime) return false;
+        if (exceptionId != that.exceptionId) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(exceptionWrappers, that.exceptionWrappers);
     }
@@ -68,6 +69,7 @@ public class SpanEventException {
     public int hashCode() {
         int result = Arrays.hashCode(exceptionWrappers);
         result = 31 * result + (int) (startTime ^ (startTime >>> 32));
+        result = 31 * result + (int) (exceptionId ^ (exceptionId >>> 32));
         return result;
     }
 

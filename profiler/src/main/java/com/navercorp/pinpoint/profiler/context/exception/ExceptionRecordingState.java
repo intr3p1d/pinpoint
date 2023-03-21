@@ -50,16 +50,19 @@ public enum ExceptionRecordingState {
                 Throwable current,
                 long currentStartTime,
                 ExceptionIdGenerator idGenerator) {
-            SpanEventException spanEventException = null;
             if (!isContinued(exceptionRecordingContext.getPrevious(), current)) {
-                spanEventException = newSpanEventException(
+                SpanEventException spanEventException = newSpanEventException(
                         exceptionRecordingContext
                 );
+                exceptionRecordingContext.setPrevious(current);
+                exceptionRecordingContext.setStartTime(currentStartTime);
                 exceptionRecordingContext.setExceptionId(idGenerator.nextExceptionId());
+                return spanEventException;
             }
-            exceptionRecordingContext.setPrevious(current);
-            exceptionRecordingContext.setStartTime(currentStartTime);
-            return spanEventException;
+            else {
+                exceptionRecordingContext.setPrevious(current);
+                return null;
+            }
         }
     },
     FLUSH {
@@ -72,7 +75,7 @@ public enum ExceptionRecordingState {
             SpanEventException spanEventException = newSpanEventException(
                     exceptionRecordingContext
             );
-            exceptionRecordingContext.setPrevious(current);
+            exceptionRecordingContext.resetPrevious();
             exceptionRecordingContext.resetStartTime();
             exceptionRecordingContext.resetExceptionId();
             return spanEventException;
@@ -101,7 +104,7 @@ public enum ExceptionRecordingState {
 
     public static boolean isContinued(Throwable previous, Throwable current) {
         Throwable throwable = current;
-        while (throwable.getCause() != null) {
+        while (throwable != null) {
             if (throwable == previous) {
                 return true;
             }

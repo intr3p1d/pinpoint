@@ -41,7 +41,7 @@ public class ExceptionWrapper {
         }
         List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
         Throwable curr = throwable;
-        while (curr.getCause() != null) {
+        while (curr != null) {
             exceptionWrappers.add(new ExceptionWrapper(curr));
             curr = curr.getCause();
         }
@@ -65,20 +65,22 @@ public class ExceptionWrapper {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ExceptionWrapper)) return false;
 
         ExceptionWrapper that = (ExceptionWrapper) o;
 
-        if (!exceptionClassName.equals(that.exceptionClassName)) return false;
-        if (!exceptionMessage.equals(that.exceptionMessage)) return false;
+        if (!Objects.equals(exceptionClassName, that.exceptionClassName))
+            return false;
+        if (!Objects.equals(exceptionMessage, that.exceptionMessage))
+            return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(stackTraceElements, that.stackTraceElements);
     }
 
     @Override
     public int hashCode() {
-        int result = exceptionClassName.hashCode();
-        result = 31 * result + exceptionMessage.hashCode();
+        int result = exceptionClassName != null ? exceptionClassName.hashCode() : 0;
+        result = 31 * result + (exceptionMessage != null ? exceptionMessage.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(stackTraceElements);
         return result;
     }
