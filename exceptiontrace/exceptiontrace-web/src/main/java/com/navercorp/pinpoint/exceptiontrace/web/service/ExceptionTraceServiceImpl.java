@@ -122,18 +122,18 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
             String applicationName,
             String agentId,
             String traceId,
-            long timestamp,
+            long spanId,
+            long exceptionId,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
 
-        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder(
-                applicationName,
-                Range.newRange(timestamp - 1, timestamp + 1)
-        )
+        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setTransactionId(transactionId)
-                .setSpanEventTimestamp(timestamp);
+                .setSpanId(spanId)
+                .setExceptionId(exceptionId);
         return queryFunction.apply(transactionBuilder.build());
     }
 
@@ -144,10 +144,9 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
             long to,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
-        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
-                applicationName,
-                Range.newRange(from, to)
-        )
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setRange(Range.newRange(from, to))
                 .setAgentId(agentId);
 
         return queryFunction.apply(builder.build());
@@ -164,10 +163,8 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
-        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder(
-                applicationName,
-                Range.newRange(traceTimestamp - 1, traceTimestamp + 1)
-        )
+        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .forFindingSpecificException(transactionId, traceTimestamp, exceptionDepth)
                 .setRange(Range.newRange(from, to));
@@ -179,10 +176,9 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         if (spanEventException == null) {
             return Collections.emptyList();
         }
-        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder(
-                applicationName,
-                Range.newRange(from, to)
-        )
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setRange(Range.newRange(from, to))
                 .setAgentId(transactionId.getAgentId())
                 .setSpanEventException(spanEventException);
 

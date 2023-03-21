@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
 import java.util.Objects;
@@ -35,6 +34,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final SpanEventException spanEventException;
 
     private final String transactionId;
+    private final long spanId;
+    private final long exceptionId;
     private final long spanEventTimestamp;
     private final int exceptionDepth;
 
@@ -49,17 +50,22 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         } else {
             this.transactionId = null;
         }
+        this.spanId = builder.spanId;
+        this.exceptionId = builder.exceptionId;
         this.spanEventTimestamp = builder.spanEventTimestamp;
         this.exceptionDepth = builder.exceptionDepth;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
-        private final String applicationName;
+        private static final int LIMIT = 65536;
+        private String applicationName;
         private String agentId = null;
 
         private SpanEventException spanEventException = null;
 
         private TransactionId transactionId = null;
+        private long spanId = Long.MIN_VALUE;
+        private long exceptionId = Long.MIN_VALUE;
         private long spanEventTimestamp = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
@@ -68,16 +74,14 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return this;
         }
 
-        public Builder(
-                String applicationName,
-                Range range
-        ) {
+        public Builder setApplicationName(String applicationName) {
             this.applicationName = applicationName;
-            setRange(range);
+            return self();
         }
 
-        public void setExceptionDepth(int exceptionDepth) {
+        public Builder setExceptionDepth(int exceptionDepth) {
             this.exceptionDepth = exceptionDepth;
+            return self();
         }
 
         public Builder setAgentId(String agentId) {
@@ -102,6 +106,16 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
+        public Builder setSpanId(long spanId) {
+            this.spanId = spanId;
+            return self();
+        }
+
+        public Builder setExceptionId(long exceptionId) {
+            this.exceptionId = exceptionId;
+            return self();
+        }
+
         public Builder setSpanEventTimestamp(long spanEventTimestamp) {
             this.spanEventTimestamp = spanEventTimestamp;
             return self();
@@ -113,7 +127,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             if (timePrecision == null) {
                 this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 30000);
             }
-            this.limit = estimateLimit();
+            if (this.range != null) {
+                this.limit = estimateLimit();
+            } else {
+                this.limit = LIMIT;
+            }
             return new ExceptionTraceQueryParameter(this);
         }
     }
