@@ -48,12 +48,12 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
     public static ExceptionTraceGroup newGroupFromSummaries(
             TimeWindow timeWindow,
-            SpanEventException base,
+            String exceptionClass,
             List<ExceptionTraceSummary> exceptionTraceSummaries
     ) {
         return new ExceptionTraceGroup(
-                base.getErrorClassName(),
-                ExceptionTraceValue.createValueListGroupedBySimilarity(timeWindow, base, exceptionTraceSummaries)
+                exceptionClass,
+                ExceptionTraceValue.createValueListGroupedBySimilarity(timeWindow, exceptionTraceSummaries)
         );
     }
 
@@ -74,7 +74,6 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
         private static List<TimeSeriesValueView> createValueListGroupedBySimilarity(
                 TimeWindow timeWindow,
-                SpanEventException spanEventException,
                 List<ExceptionTraceSummary> exceptionTraceSummaries
         ) {
             int[] timeseriesvalues = new int[(int) timeWindow.getWindowRangeCount()];

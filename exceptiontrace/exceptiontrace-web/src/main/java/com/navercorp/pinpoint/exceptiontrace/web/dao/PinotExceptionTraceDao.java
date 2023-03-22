@@ -39,7 +39,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String NAMESPACE = PinotExceptionTraceDao.class.getName() + ".";
 
     private static final String SELECT_QUERY = "selectExceptions";
-
+    private static final String SELECT_EXACT_QUERY = "selectExactException";
     private static final String SELECT_SUMMARIES_WITH_SIMILARITY_QUERY = "selectSummaries";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
@@ -56,6 +56,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
             // logger.error(e);
         }
         return Collections.emptyList();
+    }
+
+    public SpanEventException getException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectOne(NAMESPACE + SELECT_EXACT_QUERY, exceptionTraceQueryParameter);
     }
 
     @Override

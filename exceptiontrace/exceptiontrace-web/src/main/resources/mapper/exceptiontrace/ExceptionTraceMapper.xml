@@ -6,6 +6,7 @@
             <arg column="timestamp" javaType="_long"/>
             <arg column="transactionId" javaType="string"/>
             <arg column="spanId" javaType="_long"/>
+            <arg column="exceptionId" javaType="_long"/>
             <arg column="applicationServiceType" javaType="string"/>
             <arg column="applicationName" javaType="string"/>
             <arg column="agentId" javaType="string"/>
@@ -36,6 +37,7 @@
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         transactionId,
         spanId,
+        exceptionId,
         applicationServiceType,
         applicationName,
         agentId,
@@ -47,25 +49,52 @@
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
-            applicationName = #{applicationName}
+        applicationName = #{applicationName}
+        <if test="range != null">
             AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        </if>
         <if test="agentId != null">
             AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
         </if>
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}
             AND errorMessage = #{spanEventException.errorMessage}
             AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
-        <if test="transactionId != null">
-            AND transactionId = #{transactionId}
-            <if test="spanEventTimestamp >= 0">
-                AND "timestamp" = #{spanEventTimestamp}
-            </if>
-            <if test="exceptionDepth >= 0">
-                AND exceptionDepth = #{exceptionDepth}
-            </if>
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectExactException" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        exceptionId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        errorClassName,
+        errorMessage,
+        exceptionDepth,
+        stackTrace,
+        stackTraceHash
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
         </if>
+        AND transactionId = #{transactionId}
+        AND spanId = #{spanId}
+        AND exceptionId = #{exceptionId}
+        AND exceptionDepth = #{exceptionDepth}
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>
@@ -92,6 +121,8 @@
         </if>
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}
+            AND errorMessage = #{spanEventException.errorMessage}
+            AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
         GROUP BY "timestamp"
         <if test="spanEventException != null">

@@ -36,7 +36,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final String transactionId;
     private final long spanId;
     private final long exceptionId;
-    private final long spanEventTimestamp;
     private final int exceptionDepth;
 
     protected ExceptionTraceQueryParameter(Builder builder) {
@@ -44,15 +43,9 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.spanEventException = builder.spanEventException;
-
-        if (builder.transactionId != null) {
-            this.transactionId = TransactionIdUtils.formatString(builder.transactionId);
-        } else {
-            this.transactionId = null;
-        }
+        this.transactionId = builder.transactionId;
         this.spanId = builder.spanId;
         this.exceptionId = builder.exceptionId;
-        this.spanEventTimestamp = builder.spanEventTimestamp;
         this.exceptionDepth = builder.exceptionDepth;
     }
 
@@ -63,10 +56,9 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         private SpanEventException spanEventException = null;
 
-        private TransactionId transactionId = null;
+        private String transactionId = null;
         private long spanId = Long.MIN_VALUE;
         private long exceptionId = Long.MIN_VALUE;
-        private long spanEventTimestamp = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
         @Override
@@ -94,15 +86,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder forFindingSpecificException(TransactionId transactionId, long spanEventTimestamp, int exceptionDepth) {
-            this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
-            this.spanEventTimestamp = spanEventTimestamp;
-            this.exceptionDepth = exceptionDepth;
-            return self();
-        }
-
-        public Builder setTransactionId(TransactionId transactionId) {
-            this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
+        public Builder setTransactionId(String transactionId) {
+            this.transactionId = transactionId;
             return self();
         }
 
@@ -115,12 +100,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             this.exceptionId = exceptionId;
             return self();
         }
-
-        public Builder setSpanEventTimestamp(long spanEventTimestamp) {
-            this.spanEventTimestamp = spanEventTimestamp;
-            return self();
-        }
-
 
         @Override
         public ExceptionTraceQueryParameter build() {
@@ -143,11 +122,9 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                 ", agentId='" + agentId + '\'' +
                 ", spanEventException=" + spanEventException +
                 ", transactionId='" + transactionId + '\'' +
-                ", spanEventTimestamp=" + spanEventTimestamp +
+                ", spanId=" + spanId +
+                ", exceptionId=" + exceptionId +
                 ", exceptionDepth=" + exceptionDepth +
-                ", range=" + range +
-                ", timePrecision=" + timePrecision +
-                ", limit=" + limit +
                 '}';
     }
 }

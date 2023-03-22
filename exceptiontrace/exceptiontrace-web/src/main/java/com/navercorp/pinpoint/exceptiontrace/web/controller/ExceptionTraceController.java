@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author intr3p1d
@@ -57,10 +58,11 @@ public class ExceptionTraceController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("traceId") String traceId,
-            @RequestParam("traceTimestamp") long timestamp
+            @RequestParam("spanId") long spanId,
+            @RequestParam("exceptionId") long exceptionId
     ) {
         return exceptionTraceService.getTransactionExceptions(
-                applicationName, agentId, traceId, timestamp
+                applicationName, agentId, traceId, spanId, exceptionId
         );
     }
 
@@ -68,15 +70,18 @@ public class ExceptionTraceController {
     public List<SpanEventException> getListOfSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "traceId", required = false) String traceId,
-            @RequestParam(value = "traceTimestamp", required = false, defaultValue = "-1") long timestamp,
-            @RequestParam(value = "exceptionDepth", required = false, defaultValue = "-1") int depth,
             @RequestParam("from") long from,
-            @RequestParam("to") long to
+            @RequestParam("to") long to,
+
+            @RequestParam("traceId") Optional<String> traceId,
+            @RequestParam("spanId") Optional<Long> spanId,
+            @RequestParam("exceptionId") Optional<Long> exceptionId,
+            @RequestParam("exceptionDepth") Optional<Integer> depth
     ) {
-        if (argumentsAreGiven(traceId, timestamp, depth)) {
+        if (optionalsAreGiven(traceId, spanId, exceptionId, depth)) {
             return exceptionTraceService.getSimilarExceptions(
-                    agentId, traceId, timestamp, depth, applicationName, from, to
+                    applicationName, agentId, from, to,
+                    traceId.get(), spanId.get(), exceptionId.get(), depth.get()
             );
         }
         return exceptionTraceService.getExceptionsInRange(
@@ -88,31 +93,33 @@ public class ExceptionTraceController {
     public ExceptionTraceView getCollectedSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "traceId", required = false) String traceId,
-            @RequestParam(value = "traceTimestamp", required = false, defaultValue = "-1") long timestamp,
-            @RequestParam(value = "exceptionDepth", required = false, defaultValue = "-1") int depth,
             @RequestParam("from") long from,
-            @RequestParam("to") long to
+            @RequestParam("to") long to,
+
+            @RequestParam("traceId") Optional<String> traceId,
+            @RequestParam("spanId") Optional<Long> spanId,
+            @RequestParam("exceptionId") Optional<Long> exceptionId,
+            @RequestParam("exceptionDepth") Optional<Integer> depth
     ) {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        SpanEventException spanEventException = null;
         List<ExceptionTraceSummary> exceptionTraceSummaries;
-        if (argumentsAreGiven(traceId, timestamp, depth)) {
+        if (optionalsAreGiven(traceId, spanId, exceptionId, depth)) {
             exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
-                    agentId, traceId, timestamp, depth, applicationName, from, to
+                    applicationName, agentId, from, to,
+                    traceId.get(), spanId.get(), exceptionId.get(), depth.get()
             );
         } else {
             exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
                     applicationName, agentId, from, to
             );
         }
-        return ExceptionTraceView.newViewFromSummaries("", timeWindow, spanEventException, exceptionTraceSummaries);
+        return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
     }
 
-    private boolean argumentsAreGiven(Object... objects) {
-        for (Object o : objects) {
-            if (o == null) {
+    private static boolean optionalsAreGiven(Optional<?>... optionals) {
+        for (Optional<?> o : optionals) {
+            if (o.isEmpty()) {
                 return false;
             }
         }
