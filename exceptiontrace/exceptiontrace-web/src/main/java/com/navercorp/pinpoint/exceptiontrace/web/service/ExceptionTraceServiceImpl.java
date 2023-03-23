@@ -80,7 +80,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
                 agentId,
                 from,
                 to,
-                this::getSpanEventExceptions
+                this::getSimpleSpanEventExceptions
         );
     }
 
@@ -92,7 +92,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return getSimilarExceptions(
                 applicationName, agentId, from, to,
                 traceId, spanId, exceptionId, exceptionDepth,
-                this::getSpanEventExceptions
+                this::getSimpleSpanEventExceptions
         );
     }
 
@@ -108,7 +108,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
                 agentId,
                 from,
                 to,
-                this::getExceptionTraceSummarys
+                this::getExceptionTraceSummaries
         );
     }
 
@@ -120,7 +120,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return getSimilarExceptions(
                 applicationName, agentId, from, to,
                 traceId, spanId, exceptionId, exceptionDepth,
-                this::getExceptionTraceSummarys
+                this::getExceptionTraceSummaries
         );
     }
 
@@ -190,9 +190,12 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     private List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
         logger.info(spanEventExceptions.size());
-        if (spanEventExceptions.isEmpty()) {
-            return Collections.emptyList();
-        }
+        return spanEventExceptions;
+    }
+
+    private List<SpanEventException> getSimpleSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
+        List<SpanEventException> spanEventExceptions = exceptionTraceDao.getSimpleExceptions(queryParameter);
+        logger.info(spanEventExceptions.size());
         return spanEventExceptions;
     }
 
@@ -200,12 +203,9 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return exceptionTraceDao.getException(queryParameter);
     }
 
-    private List<ExceptionTraceSummary> getExceptionTraceSummarys(ExceptionTraceQueryParameter queryParameter) {
+    private List<ExceptionTraceSummary> getExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
         List<ExceptionTraceSummary> spanEventExceptions = exceptionTraceDao.getSummaries(queryParameter);
         logger.info(spanEventExceptions.size());
-        if (spanEventExceptions.isEmpty()) {
-            return Collections.emptyList();
-        }
         return spanEventExceptions;
     }
 

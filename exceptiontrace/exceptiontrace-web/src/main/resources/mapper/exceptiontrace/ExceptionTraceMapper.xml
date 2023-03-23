@@ -32,8 +32,9 @@
 
     <sql id="exceptionTraceTable">exceptionTrace</sql>
 
-    <select id="selectExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
-        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+    <sql id="fullExceptionColumns">
+        DATETIME_CONVERT
+        ("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         transactionId,
         spanId,
@@ -46,6 +47,55 @@
         exceptionDepth,
         stackTrace,
         stackTraceHash
+    </sql>
+
+    <sql id="simpleExceptionColumns">
+        DATETIME_CONVERT
+        ("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        exceptionId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        errorClassName,
+        errorMessage,
+        exceptionDepth,
+        '' as "stackTrace",
+        stackTraceHash
+    </sql>
+
+    <select id="selectExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="fillExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        <if test="range != null">
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        </if>
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+        </if>
+        <if test="spanEventException != null">
+            AND errorClassName = #{spanEventException.errorClassName}
+            AND errorMessage = #{spanEventException.errorMessage}
+            AND stackTraceHash = #{spanEventException.stackTraceHash}
+        </if>
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectSimpleExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="simpleExceptionColumns"></include>
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -71,19 +121,8 @@
     </select>
 
     <select id="selectExactException" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
-        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
-        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        transactionId,
-        spanId,
-        exceptionId,
-        applicationServiceType,
-        applicationName,
-        agentId,
-        errorClassName,
-        errorMessage,
-        exceptionDepth,
-        stackTrace,
-        stackTraceHash
+        SELECT
+        <include refid="simpleExceptionColumns"></include>
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
