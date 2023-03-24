@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- default setting-->
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <!-- lazy loading-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="true"/>
+        <!-- don't need "REUSE" because preparedStatements are cached  at dbcp  -->
+        <setting name="defaultExecutorType" value="SIMPLE"/>
+    </settings>
+
+    <typeAliases>
+        <typeAlias type="com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException"
+                   alias="SpanEventException"/>
+        <typeAlias type="com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper"
+                   alias="StackTraceElementWrapper"/>
+        <typeAlias type="com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary"
+                   alias="ExceptionTraceSummary"/>
+        <typeAlias type="com.navercorp.pinpoint.exceptiontrace.web.mapper.StackTraceTypeHandler"
+                   alias="StackTraceTypeHandler"/>
+        <typeAlias type="com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter"
+                   alias="ExceptionTraceQueryParameter"/>
+    </typeAliases>
+</configuration>
