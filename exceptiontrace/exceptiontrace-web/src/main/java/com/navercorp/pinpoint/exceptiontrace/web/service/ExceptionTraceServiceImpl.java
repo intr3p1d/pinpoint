@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
+import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -48,139 +49,88 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
     @Override
     public List<SpanEventException> getTransactionExceptions(
-            String applicationName,
-            String agentId,
-            String traceId,
-            long spanId,
-            long exceptionId
+            ExceptionTraceQueryParameter queryParameter
     ) {
-        List<SpanEventException> spanEventExceptions = getTransactionExceptions(
-                applicationName,
-                agentId,
-                traceId,
-                spanId,
-                exceptionId,
+        // spanEventExceptions.sort(
+        //         Comparator.comparing(SpanEventException::getExceptionDepth)
+        // );
+        return getTransactionExceptions(
+                queryParameter,
                 this::getSpanEventExceptions
         );
-        spanEventExceptions.sort(
-                Comparator.comparing(SpanEventException::getExceptionDepth)
-        );
-        return spanEventExceptions;
     }
 
     @Override
     public List<SpanEventException> getExceptionsInRange(
-            String applicationName,
-            @Nullable String agentId,
-            long from,
-            long to
+            ExceptionTraceQueryParameter queryParameter
     ) {
         return getExceptionsInRange(
-                applicationName,
-                agentId,
-                from,
-                to,
+                queryParameter,
                 this::getSimpleSpanEventExceptions
         );
     }
 
     @Override
     public List<SpanEventException> getSimilarExceptions(
-            String applicationName, String agentId, long from, long to,
-            String traceId, long spanId, long exceptionId, int exceptionDepth
+            ExceptionTraceQueryParameter targetQuery, ExceptionTraceQueryParameter.Builder queryBuilder
     ) {
         return getSimilarExceptions(
-                applicationName, agentId, from, to,
-                traceId, spanId, exceptionId, exceptionDepth,
+                targetQuery,
+                queryBuilder,
                 this::getSimpleSpanEventExceptions
         );
     }
 
     @Override
     public List<ExceptionTraceSummary> getSummaryInRange(
-            String applicationName,
-            @Nullable String agentId,
-            long from,
-            long to
+            ExceptionTraceQueryParameter queryParameter
     ) {
         return getExceptionsInRange(
-                applicationName,
-                agentId,
-                from,
-                to,
+                queryParameter,
                 this::getExceptionTraceSummaries
         );
     }
 
     @Override
     public List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(
-            String applicationName, String agentId, long from, long to,
-            String traceId, long spanId, long exceptionId, int exceptionDepth
+            ExceptionTraceQueryParameter targetQuery,
+            ExceptionTraceQueryParameter.Builder queryBuilder
     ) {
         return getSimilarExceptions(
-                applicationName, agentId, from, to,
-                traceId, spanId, exceptionId, exceptionDepth,
+                targetQuery,
+                queryBuilder,
                 this::getExceptionTraceSummaries
         );
     }
 
     private <T> List<T> getTransactionExceptions(
-            String applicationName,
-            String agentId,
-            String traceId,
-            long spanId,
-            long exceptionId,
+            ExceptionTraceQueryParameter queryParameter,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
-        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setTransactionId(traceId)
-                .setSpanId(spanId)
-                .setExceptionId(exceptionId);
-        return queryFunction.apply(transactionBuilder.build());
+        return queryFunction.apply(queryParameter);
     }
 
     private <T> List<T> getExceptionsInRange(
-            String applicationName,
-            @Nullable String agentId,
-            long from,
-            long to,
+            ExceptionTraceQueryParameter queryParameter,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
-        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(Range.newRange(from, to));
-
-        return queryFunction.apply(builder.build());
+        return queryFunction.apply(queryParameter);
     }
 
     private <T> List<T> getSimilarExceptions(
-            String applicationName, String agentId, long from, long to,
-            String traceId, long spanId, long exceptionId, int exceptionDepth,
+            ExceptionTraceQueryParameter targetQuery,
+            ExceptionTraceQueryParameter.Builder queryBuilder,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
-        ExceptionTraceQueryParameter.Builder transactionBuilder = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setTransactionId(traceId)
-                .setSpanId(spanId)
-                .setExceptionId(exceptionId)
-                .setExceptionDepth(exceptionDepth);
-
-        final SpanEventException spanEventException = getTheExactException(
-                transactionBuilder.build()
+        final SpanEventException targetException = getTheExactException(
+                targetQuery
         );
 
-        if (spanEventException == null) {
+        if (targetException == null) {
             return Collections.emptyList();
         }
-        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(Range.newRange(from, to))
-                .setSpanEventException(spanEventException);
+        ExceptionTraceQueryParameter.Builder builder = queryBuilder
+                .setSpanEventException(targetException);
 
         return queryFunction.apply(
                 builder.build()

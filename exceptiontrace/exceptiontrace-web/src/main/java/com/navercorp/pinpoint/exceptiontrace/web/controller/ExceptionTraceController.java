@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
+import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
+import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
@@ -34,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author intr3p1d
@@ -42,6 +44,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/exceptionTrace")
 public class ExceptionTraceController {
+
+    private static final TimePrecision DETAILED_TIME_PRECISION = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 1);
+
     private final ExceptionTraceService exceptionTraceService;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -61,8 +66,16 @@ public class ExceptionTraceController {
             @RequestParam("spanId") long spanId,
             @RequestParam("exceptionId") long exceptionId
     ) {
+        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setTransactionId(traceId)
+                .setSpanId(spanId)
+                .setExceptionId(exceptionId)
+                .setTimePrecision(DETAILED_TIME_PRECISION)
+                .build();
         return exceptionTraceService.getTransactionExceptions(
-                applicationName, agentId, traceId, spanId, exceptionId
+                queryParameter
         );
     }
 
@@ -71,21 +84,47 @@ public class ExceptionTraceController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
+            @RequestParam("to") long to
+    ) {
+        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setRange(Range.newRange(from, to))
+                .setTimePrecision(DETAILED_TIME_PRECISION)
+                .build();
+        return exceptionTraceService.getExceptionsInRange(
+                queryParameter
+        );
+    }
+
+    @GetMapping("/errorList/similar")
+    public List<SpanEventException> getListOfSpanEventExceptionByGivenRange(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam("from") long from,
             @RequestParam("to") long to,
 
-            @RequestParam("traceId") Optional<String> traceId,
-            @RequestParam("spanId") Optional<Long> spanId,
-            @RequestParam("exceptionId") Optional<Long> exceptionId,
-            @RequestParam("exceptionDepth") Optional<Integer> depth
+            @RequestParam("traceId") String traceId,
+            @RequestParam("spanId") long spanId,
+            @RequestParam("exceptionId") long exceptionId,
+            @RequestParam("exceptionDepth") int exceptionDepth
     ) {
-        if (optionalsAreGiven(traceId, spanId, exceptionId, depth)) {
-            return exceptionTraceService.getSimilarExceptions(
-                    applicationName, agentId, from, to,
-                    traceId.get(), spanId.get(), exceptionId.get(), depth.get()
-            );
-        }
-        return exceptionTraceService.getExceptionsInRange(
-                applicationName, agentId, from, to
+        ExceptionTraceQueryParameter targetQuery = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setTransactionId(traceId)
+                .setSpanId(spanId)
+                .setExceptionId(exceptionId)
+                .setExceptionDepth(exceptionDepth).build();
+
+        ExceptionTraceQueryParameter.Builder queryBuilder = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setRange(Range.newRange(from, to))
+                .setTimePrecision(DETAILED_TIME_PRECISION);
+
+        return exceptionTraceService.getSimilarExceptions(
+                targetQuery, queryBuilder
         );
     }
 
@@ -94,35 +133,52 @@ public class ExceptionTraceController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to,
-
-            @RequestParam("traceId") Optional<String> traceId,
-            @RequestParam("spanId") Optional<Long> spanId,
-            @RequestParam("exceptionId") Optional<Long> exceptionId,
-            @RequestParam("exceptionDepth") Optional<Integer> depth
+            @RequestParam("to") long to
     ) {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        List<ExceptionTraceSummary> exceptionTraceSummaries;
-        if (optionalsAreGiven(traceId, spanId, exceptionId, depth)) {
-            exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
-                    applicationName, agentId, from, to,
-                    traceId.get(), spanId.get(), exceptionId.get(), depth.get()
-            );
-        } else {
-            exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
-                    applicationName, agentId, from, to
-            );
-        }
+        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setRange(Range.newRange(from, to))
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .build();
+        List<ExceptionTraceSummary> exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
+                queryParameter
+        );
         return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
     }
 
-    private static boolean optionalsAreGiven(Optional<?>... optionals) {
-        for (Optional<?> o : optionals) {
-            if (o.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+    @GetMapping("/chart/similar")
+    public ExceptionTraceView getCollectedSpanEventExceptionByGivenRange(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+
+            @RequestParam("traceId") String traceId,
+            @RequestParam("spanId") long spanId,
+            @RequestParam("exceptionId") long exceptionId,
+            @RequestParam("exceptionDepth") int exceptionDepth
+    ) {
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        ExceptionTraceQueryParameter targetQuery = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setTransactionId(traceId)
+                .setSpanId(spanId)
+                .setExceptionId(exceptionId)
+                .setExceptionDepth(exceptionDepth).build();
+
+        ExceptionTraceQueryParameter.Builder queryBuilder = new ExceptionTraceQueryParameter.Builder()
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setRange(Range.newRange(from, to))
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
+
+        List<ExceptionTraceSummary> exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
+                targetQuery, queryBuilder
+        );
+        return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
     }
 }

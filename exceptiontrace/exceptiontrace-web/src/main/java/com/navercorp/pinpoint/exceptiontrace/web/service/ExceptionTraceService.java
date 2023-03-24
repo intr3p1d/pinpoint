@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.exceptiontrace.web.service;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,13 +29,13 @@ import java.util.List;
  */
 public interface ExceptionTraceService {
 
-    List<SpanEventException> getTransactionExceptions(String applicationName, String agentId, String traceId, long spanId, long exceptionId);
+    List<SpanEventException> getTransactionExceptions(ExceptionTraceQueryParameter queryParameter);
 
-    List<SpanEventException> getExceptionsInRange(String applicationName, @Nullable String agentId, long from, long to);
+    List<SpanEventException> getExceptionsInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<SpanEventException> getSimilarExceptions(String applicationName, String agentId, long from, long to, String traceId, long spanId, long exceptionId, int exceptionDepth);
+    List<SpanEventException> getSimilarExceptions(ExceptionTraceQueryParameter targetQuery, ExceptionTraceQueryParameter.Builder queryBuilder);
 
-    List<ExceptionTraceSummary> getSummaryInRange(String applicationName, @Nullable String agentId, long from, long to);
+    List<ExceptionTraceSummary> getSummaryInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(String applicationName, String agentId, long from, long to, String traceId, long spanId, long exceptionId, int exceptionDepth);
+    List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(ExceptionTraceQueryParameter targetQuery, ExceptionTraceQueryParameter.Builder queryBuilder);
 }

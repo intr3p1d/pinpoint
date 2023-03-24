@@ -68,7 +68,7 @@
 
     <select id="selectExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="fillExceptionColumns"></include>
+        <include refid="fullExceptionColumns"></include>
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -89,7 +89,7 @@
             AND errorMessage = #{spanEventException.errorMessage}
             AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
-        ORDER BY "timestamp" asc
+        ORDER BY "timestamp" asc, exceptionDepth asc
         LIMIT ${limit}
     </select>
 
@@ -116,7 +116,7 @@
             AND errorMessage = #{spanEventException.errorMessage}
             AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
-        ORDER BY "timestamp" asc
+        ORDER BY "timestamp" asc, exceptionDepth asc
         LIMIT ${limit}
     </select>
 
