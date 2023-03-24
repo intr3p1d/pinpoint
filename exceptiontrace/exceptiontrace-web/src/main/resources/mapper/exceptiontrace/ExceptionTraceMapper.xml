@@ -20,12 +20,35 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="simpleSpanEventException" type="SpanEventException">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="transactionId" javaType="string"/>
+            <arg column="spanId" javaType="_long"/>
+            <arg column="exceptionId" javaType="_long"/>
+            <arg column="applicationServiceType" javaType="string"/>
+            <arg column="applicationName" javaType="string"/>
+            <arg column="agentId" javaType="string"/>
+            <arg column="errorClassName" javaType="string"/>
+            <arg column="errorMessage" javaType="string"/>
+            <arg column="exceptionDepth" javaType="_int"/>
+            <arg column="stackTraceHash" javaType="string"/>
+        </constructor>
+    </resultMap>
+
     <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
         <constructor>
             <arg column="timestamp" javaType="_long"/>
             <arg column="errorClassName" javaType="string"/>
             <arg column="errorMessage" javaType="string"/>
             <arg column="stackTraceHash" javaType="string"/>
+            <arg column="count" javaType="_long"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="simpleExceptionTraceSummary" type="ExceptionTraceSummary">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
             <arg column="count" javaType="_long"/>
         </constructor>
     </resultMap>
@@ -62,7 +85,6 @@
         errorClassName,
         errorMessage,
         exceptionDepth,
-        '' as "stackTrace",
         stackTraceHash
     </sql>
 
@@ -93,7 +115,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSimpleExceptions" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSimpleExceptions" resultMap="simpleSpanEventException" parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="simpleExceptionColumns"></include>
         FROM
@@ -120,7 +142,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectExactException" resultMap="spanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExactException" resultMap="simpleSpanEventException" parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="simpleExceptionColumns"></include>
         FROM
@@ -138,18 +160,10 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSummaries" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSummaries" resultMap="simpleExceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
         SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        count(*) as "count",
-        <if test="spanEventException != null">
-            errorClassName, errorMessage, stackTraceHash
-        </if>
-        <if test="spanEventException == null">
-            '' as "errorClassName",
-            '' as "errorMessage",
-            '' as "stackTraceHash"
-        </if>
+        count(*) as "count"
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -164,12 +178,6 @@
             AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
         GROUP BY "timestamp"
-        <if test="spanEventException != null">
-            , errorClassName, errorMessage, stackTraceHash
-        </if>
-        <if test="spanEventException == null">
-            , "errorClassName", "errorMessage", "stackTraceHash"
-        </if>
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>

@@ -19,11 +19,14 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
  * @author intr3p1d
  */
 public class ExceptionTraceSummary {
+
+    private static final String EMPTY_STRING = null;
     private final long timestamp;
+    private final long count;
+
     private final String errorClassName;
     private final String errorMessage;
     private final String stackTraceHash;
-    private final long count;
 
     public ExceptionTraceSummary(long timestamp, String errorClassName, String errorMessage, String stackTraceHash, long count) {
         this.timestamp = timestamp;
@@ -31,6 +34,14 @@ public class ExceptionTraceSummary {
         this.errorMessage = errorMessage;
         this.stackTraceHash = stackTraceHash;
         this.count = count;
+    }
+
+    public ExceptionTraceSummary(long timestamp, long count) {
+        this.timestamp = timestamp;
+        this.count = count;
+        this.errorClassName = EMPTY_STRING;
+        this.errorMessage = EMPTY_STRING;
+        this.stackTraceHash = EMPTY_STRING;
     }
 
     public long getTimestamp() {

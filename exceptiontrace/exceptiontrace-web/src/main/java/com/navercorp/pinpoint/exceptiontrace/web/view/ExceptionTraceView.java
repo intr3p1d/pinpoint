@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.exceptiontrace.web.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;

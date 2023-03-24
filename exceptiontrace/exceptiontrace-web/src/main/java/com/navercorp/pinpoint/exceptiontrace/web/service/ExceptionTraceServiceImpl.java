@@ -20,15 +20,11 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.metric.web.util.Range;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -51,9 +47,6 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     public List<SpanEventException> getTransactionExceptions(
             ExceptionTraceQueryParameter queryParameter
     ) {
-        // spanEventExceptions.sort(
-        //         Comparator.comparing(SpanEventException::getExceptionDepth)
-        // );
         return getTransactionExceptions(
                 queryParameter,
                 this::getSpanEventExceptions

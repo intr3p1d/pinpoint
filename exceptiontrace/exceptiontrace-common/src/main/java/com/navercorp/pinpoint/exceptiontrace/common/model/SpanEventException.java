@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrappe
 import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -71,6 +72,33 @@ public class SpanEventException {
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
         this.stackTrace = stackTrace;
+        this.stackTraceHash = stackTraceHash;
+    }
+
+    public SpanEventException(
+            long timestamp,
+            String transactionId,
+            long spanId,
+            long exceptionId,
+            String applicationServiceType,
+            String applicationName,
+            String agentId,
+            String errorClassName,
+            String errorMessage,
+            int exceptionDepth,
+            String stackTraceHash
+    ) {
+        this.timestamp = timestamp;
+        this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
+        this.spanId = spanId;
+        this.exceptionId = exceptionId;
+        this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+        this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
+        this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
+        this.exceptionDepth = exceptionDepth;
+        this.stackTrace = Collections.emptyList();
         this.stackTraceHash = stackTraceHash;
     }
 

@@ -25,7 +25,6 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,7 +40,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_QUERY = "selectExceptions";
     private static final String SELECT_SIMPLE_QUERY = "selectSimpleExceptions";
     private static final String SELECT_EXACT_QUERY = "selectExactException";
-    private static final String SELECT_SUMMARIES_WITH_SIMILARITY_QUERY = "selectSummaries";
+    private static final String SELECT_SUMMARIES_QUERY = "selectSummaries";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -51,22 +50,12 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     @Override
     public List<SpanEventException> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        try {
-            return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
-        } catch (Exception e) {
-            // logger.error(e);
-        }
-        return Collections.emptyList();
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
     }
 
     @Override
     public List<SpanEventException> getSimpleExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        try {
-            return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SIMPLE_QUERY, exceptionTraceQueryParameter);
-        } catch (Exception e) {
-            // logger.error(e);
-        }
-        return Collections.emptyList();
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SIMPLE_QUERY, exceptionTraceQueryParameter);
     }
 
     @Override
@@ -76,6 +65,6 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     @Override
     public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_WITH_SIMILARITY_QUERY, exceptionTraceQueryParameter);
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_QUERY, exceptionTraceQueryParameter);
     }
 }

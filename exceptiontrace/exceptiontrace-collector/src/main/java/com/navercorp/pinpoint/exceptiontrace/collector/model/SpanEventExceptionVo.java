@@ -149,6 +149,7 @@ public class SpanEventExceptionVo {
                 "timestamp=" + timestamp +
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
+                ", exceptionId=" + exceptionId +
                 ", applicationServiceType='" + applicationServiceType + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
