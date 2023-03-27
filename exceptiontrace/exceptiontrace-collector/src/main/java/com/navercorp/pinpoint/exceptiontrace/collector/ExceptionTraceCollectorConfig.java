@@ -16,19 +16,22 @@
 
 package com.navercorp.pinpoint.exceptiontrace.collector;
 
+import com.navercorp.pinpoint.exceptiontrace.collector.config.ExceptionMetricKafkaConfiguration;
+import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 /**
  * @author intr3p1d
  */
-@Profile("metric")
+@Profile("exception")
 @Configuration
-@ImportResource({"classpath*:**/applicationContext-collector-metric-namespace.xml","classpath:/applicationContext-collector-exceptiontrace-pinot-kafka.xml",})
+@Import({PinotConfiguration.class, ExceptionMetricKafkaConfiguration.class})
 @ComponentScan({"com.navercorp.pinpoint.exceptiontrace.collector.service", "com.navercorp.pinpoint.exceptiontrace.collector.dao"})
-@PropertySource({"classpath:kafka-topic.properties", "classpath:kafka-producer-factory.properties"})
+@PropertySource({ExceptionTraceCollectorConfig.KAFKA_TOPIC_PROPERTIES})
 public class ExceptionTraceCollectorConfig {
+    public static final String KAFKA_TOPIC_PROPERTIES = "classpath:kafka-topic.properties";
 }

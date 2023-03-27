@@ -41,7 +41,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private final String topic;
 
     public PinotExceptionTraceDao(@Qualifier("kafkaSpanEventExceptionTemplate") KafkaTemplate<String, SpanEventExceptionVo> kafkaSpanEventExceptionTemplate,
-                                  @Value("${kafka.exceptiontrace.topic}") String topic) {
+                                  @Value("${kafka.exception.topic}") String topic) {
         this.kafkaSpanEventExceptionTemplate = Objects.requireNonNull(kafkaSpanEventExceptionTemplate, "kafkaSpanEventExceptionTemplate");
         this.topic = StringPrecondition.requireHasLength(topic, "topic");
     }

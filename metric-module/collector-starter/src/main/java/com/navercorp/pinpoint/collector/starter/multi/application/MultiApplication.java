@@ -48,6 +48,7 @@ public class MultiApplication {
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400, BasicCollectorApp.class, UriStatCollectorConfig.class, ExceptionTraceCollectorConfig.class);
             collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
             collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
+            collectorAppBuilder.listeners(new AdditionalProfileListener("exception"));
             collectorAppBuilder.build().run(args);
         }
 

@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.exceptiontrace.collector.config;
 
-package com.navercorp.pinpoint.exceptiontrace.web;
-
-import com.navercorp.pinpoint.exceptiontrace.web.config.ExceptionTracePinotDaoConfiguration;
-import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import com.navercorp.pinpoint.exceptiontrace.collector.model.SpanEventExceptionVo;
+import com.navercorp.pinpoint.pinot.kafka.KafkaConfiguration;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 
 /**
  * @author intr3p1d
  */
 @Configuration
-@ComponentScan(basePackages = "com.navercorp.pinpoint.exceptiontrace.web")
-@Import({ExceptionTraceWebPropertySources.class, ExceptionTracePinotDaoConfiguration.class, PinotConfiguration.class})
-@Profile("exception")
-public class ExceptionTraceWebConfig {
+@Import({KafkaConfiguration.class})
+public class ExceptionMetricKafkaConfiguration {
+
+    @Bean
+    public KafkaTemplate<String, SpanEventExceptionVo> kafkaSpanEventExceptionTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
 }
