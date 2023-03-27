@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/exceptionTrace")
+@RequestMapping(value = "/error")
 public class ExceptionTraceController {
 
     private static final TimePrecision DETAILED_TIME_PRECISION = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 1);
