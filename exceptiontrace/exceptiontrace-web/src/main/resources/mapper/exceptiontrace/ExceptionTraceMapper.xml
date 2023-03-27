@@ -170,8 +170,6 @@
         </if>
         <if test="spanEventException != null">
             AND errorClassName = #{spanEventException.errorClassName}
-            AND errorMessage = #{spanEventException.errorMessage}
-            AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
         GROUP BY "timestamp"
         ORDER BY "timestamp" asc
