@@ -44,6 +44,7 @@ public class GrpcSpanEventExceptionBinder {
         spanEventExceptionBo.setExceptionWrappers(getExceptions(pSpanEventException.getExceptionsList()));
         spanEventExceptionBo.setStartTime(pSpanEventException.getStartTime());
         spanEventExceptionBo.setExceptionId(pSpanEventException.getExceptionId());
+        spanEventExceptionBo.setUriTemplate(pSpanEventException.getUriTemplate());
 
         return spanEventExceptionBo;
     }

@@ -24,8 +24,8 @@ public class SpanEventExceptionBo {
 
     private List<ExceptionWrapperBo> exceptionWrappers;
     private long startTime;
-
     private long exceptionId;
+    private String uriTemplate;
 
     public SpanEventExceptionBo() {
     }
@@ -54,11 +54,21 @@ public class SpanEventExceptionBo {
         this.exceptionId = exceptionId;
     }
 
+    public String getUriTemplate() {
+        return uriTemplate;
+    }
+
+    public void setUriTemplate(String uriTemplate) {
+        this.uriTemplate = uriTemplate;
+    }
+
     @Override
     public String toString() {
         return "SpanEventExceptionBo{" +
                 "exceptionWrappers=" + exceptionWrappers +
                 ", startTime=" + startTime +
+                ", exceptionId=" + exceptionId +
+                ", uriTemplate='" + uriTemplate + '\'' +
                 '}';
     }
 }
