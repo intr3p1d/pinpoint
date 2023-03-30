@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServi
 import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -181,7 +182,16 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         this.spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
     }
 
+    private Shared getShared() {
+        return traceRoot.getShared();
+    }
+
+    private void setUriTemplateInContext() {
+        exceptionRecordingContext.setUriTemplate(getShared().getUriTemplate());
+    }
+
     void recordDetailedException(Throwable throwable) {
+        setUriTemplateInContext();
         SpanEventException spanEventException = exceptionRecordingService.recordException(
                 this.exceptionRecordingContext,
                 throwable,

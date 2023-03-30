@@ -26,18 +26,19 @@ public class SpanEventException {
     private final ExceptionWrapper[] exceptionWrappers;
 
     private final long startTime;
-
     private final long exceptionId;
+    private final String uriTemplate;
 
-    private SpanEventException(Throwable throwable, long startTime, long exceptionId) {
+    private SpanEventException(Throwable throwable, long startTime, long exceptionId, String uriTemplate) {
         Objects.requireNonNull(throwable);
         this.exceptionWrappers = ExceptionWrapper.newExceptions(throwable);
         this.startTime = startTime;
         this.exceptionId = exceptionId;
+        this.uriTemplate = uriTemplate;
     }
 
-    public static SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId) {
-        return new SpanEventException(throwable, startTime, exceptionId);
+    public static SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId, String uriTemplate) {
+        return new SpanEventException(throwable, startTime, exceptionId, uriTemplate);
     }
 
     public long getStartTime() {
@@ -50,6 +51,10 @@ public class SpanEventException {
 
     public long getExceptionId() {
         return exceptionId;
+    }
+
+    public String getUriTemplate() {
+        return uriTemplate;
     }
 
     @Override

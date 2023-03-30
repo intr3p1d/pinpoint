@@ -25,9 +25,10 @@ public class ExceptionRecordingContext {
     private static final long INITIAL_EXCEPTION_ID = Long.MIN_VALUE;
     private static final Throwable INITIAL_EXCEPTION = null;
 
-    private Throwable previous = null;
+    private Throwable previous = INITIAL_EXCEPTION;
     private long exceptionId = INITIAL_EXCEPTION_ID;
     private long startTime = 0;
+    private String uriTemplate;
 
     public static ExceptionRecordingContext newContext() {
         return new ExceptionRecordingContext();
@@ -71,5 +72,13 @@ public class ExceptionRecordingContext {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+    public String getUriTemplate() {
+        return uriTemplate;
+    }
+
+    public void setUriTemplate(String uriTemplate) {
+        this.uriTemplate = uriTemplate;
     }
 }

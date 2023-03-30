@@ -45,6 +45,15 @@ public class DefaultExceptionRecordingServiceTest {
 
     long START_TIME = 1;
 
+    String URI_TEMPLATE = "";
+
+    private SpanEventException newSpanEventException(Throwable throwable, long exceptionId){
+        return SpanEventException.newSpanEventException(throwable, START_TIME, exceptionId, URI_TEMPLATE);
+    }
+
+    public void resetContext() {
+        context = ExceptionRecordingContext.newContext();
+    }
 
     private Function<Throwable, Throwable> throwableInterceptor(Reference<Throwable> throwableReference) {
         return (Throwable throwable) -> {
@@ -82,10 +91,6 @@ public class DefaultExceptionRecordingServiceTest {
         }
     }
 
-    public void resetContext() {
-        context = ExceptionRecordingContext.newContext();
-    }
-
     @Test
     public void testRecordException() {
         resetContext();
@@ -98,8 +103,9 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             methodC(throwableInterceptor);
         } catch (Throwable e) {
+            expected = newSpanEventException(e, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            expected = SpanEventException.newSpanEventException(e, START_TIME, context.getExceptionId());
+            expected = newSpanEventException(e, context.getExceptionId());
             Assertions.assertNull(actual);
         }
         actual = exceptionRecordingService.recordException(context, null, 0);
@@ -138,14 +144,14 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             notChainedException(throwableInterceptor);
         } catch (Throwable e) {
-            expected1 = SpanEventException.newSpanEventException(reference.get(), START_TIME, context.getExceptionId());
+            expected1 = newSpanEventException(reference.get(), context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             throwable = e;
             Assertions.assertNotNull(actual);
             Assertions.assertEquals(expected1, actual);
         }
 
-        expected2 = SpanEventException.newSpanEventException(throwable, START_TIME, context.getExceptionId());
+        expected2 = newSpanEventException(throwable, context.getExceptionId());
         actual = exceptionRecordingService.recordException(context, null, 0);
         Assertions.assertEquals(expected2, actual);
     }
@@ -170,8 +176,8 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             rethrowGivenException(throwableInterceptor);
         } catch (Throwable e) {
+            expected = newSpanEventException(e, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            expected = SpanEventException.newSpanEventException(e, START_TIME, context.getExceptionId());
             Assertions.assertNull(actual);
         }
 

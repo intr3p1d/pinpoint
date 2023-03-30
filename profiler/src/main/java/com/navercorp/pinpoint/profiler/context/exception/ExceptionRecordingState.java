@@ -98,7 +98,7 @@ public enum ExceptionRecordingState {
 
     public static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
         return SpanEventException.newSpanEventException(
-                context.getPrevious(), context.getStartTime(), context.getExceptionId()
+                context.getPrevious(), context.getStartTime(), context.getExceptionId(), context.getUriTemplate()
         );
     }
 
