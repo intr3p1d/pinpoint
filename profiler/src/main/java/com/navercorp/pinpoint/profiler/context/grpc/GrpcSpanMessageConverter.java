@@ -137,6 +137,10 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         pSpan.setFlag(traceId.getFlags());
         Shared shared = span.getTraceRoot().getShared();
         pSpan.setErr(shared.getErrorCode());
+        final String uriTemplate = shared.getUriTemplate();
+        if (uriTemplate != null) {
+            pSpan.setUriTemplate(uriTemplate);
+        }
 
         pSpan.setApiId(span.getApiId());
 
@@ -284,6 +288,10 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         final String endPoint = shared.getEndPoint();
         if (endPoint != null) {
             pSpanChunk.setEndPoint(endPoint);
+        }
+        final String uriTemplate = shared.getUriTemplate();
+        if (uriTemplate != null) {
+            pSpanChunk.setUriTemplate(uriTemplate);
         }
 
         if (spanChunk instanceof AsyncSpanChunk) {
