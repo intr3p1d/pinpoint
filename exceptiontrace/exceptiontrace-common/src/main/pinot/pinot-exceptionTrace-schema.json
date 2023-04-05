@@ -26,6 +26,10 @@
       "dataType": "STRING"
     },
     {
+      "name": "uriTemplate",
+      "dataType": "STRING"
+    },
+    {
       "name": "errorClassName",
       "dataType": "STRING"
     },
