@@ -47,25 +47,25 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
     public void save(List<SpanEventExceptionBo> spanEventExceptionBoList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId, String uriTemplate) {
         List<SpanEventException> spanEventExceptions = new ArrayList<>();
         for (SpanEventExceptionBo spanEventExceptionBo : spanEventExceptionBoList) {
-            spanEventExceptions.addAll(toSpanEventExceptions(spanEventExceptionBo, applicationServiceType, applicationId, agentId, transactionId, spanId));
+            spanEventExceptions.addAll(toSpanEventExceptions(spanEventExceptionBo, transactionId, spanId, applicationServiceType, applicationId, agentId, uriTemplate));
         }
         exceptionTraceDao.insert(spanEventExceptions);
     }
 
     private static List<SpanEventException> toSpanEventExceptions(
             SpanEventExceptionBo spanEventExceptionBo,
+            TransactionId transactionId, long spanId,
             ServiceType applicationServiceType, String applicationId, String agentId,
-            TransactionId transactionId, long spanId) {
+            String uriTemplate
+    ) {
         List<SpanEventException> spanEventExceptions = new ArrayList<>();
         List<ExceptionWrapperBo> exceptions = spanEventExceptionBo.getExceptionWrappers();
         for (int i = 0; i < exceptions.size(); i++) {
             spanEventExceptions.add(
                     toSpanEventException(
                             exceptions.get(i), i,
-                            applicationServiceType, applicationId, agentId,
-                            transactionId, spanId,
-                            spanEventExceptionBo.getExceptionId(),
-                            spanEventExceptionBo.getStartTime()
+                            spanEventExceptionBo.getStartTime(), transactionId, spanId, spanEventExceptionBo.getExceptionId(), applicationServiceType, agentId, applicationId,
+                            uriTemplate
                     )
             );
         }
@@ -73,12 +73,12 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
     }
 
     private static SpanEventException toSpanEventException(
-            ExceptionWrapperBo exceptionWrapperBo,
-            int exceptionDepth,
-            ServiceType applicationServiceType, String applicationId, String agentId,
-            TransactionId transactionId, long spanId,
-            long exceptionId,
-            long startTime) {
+            ExceptionWrapperBo exceptionWrapperBo, int exceptionDepth,
+            long startTime,
+            TransactionId transactionId, long spanId, long exceptionId,
+            ServiceType applicationServiceType, String agentId, String applicationId,
+            String uriTemplate
+    ) {
         return SpanEventException.valueOf(
                 startTime,
                 transactionIdToString(transactionId),
@@ -87,6 +87,7 @@ public class PinotExceptionTraceService implements ExceptionTraceService {
                 applicationServiceType.getName(),
                 applicationId,
                 agentId,
+                uriTemplate,
                 exceptionWrapperBo.getExceptionClassName(),
                 exceptionWrapperBo.getExceptionMessage(),
                 exceptionDepth,

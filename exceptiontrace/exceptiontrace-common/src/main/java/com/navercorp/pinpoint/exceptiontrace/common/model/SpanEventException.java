@@ -39,6 +39,7 @@ public class SpanEventException {
     private final String applicationServiceType;
     private final String applicationName;
     private final String agentId;
+    private final String uriTemplate;
 
     private final String errorClassName;
     private final String errorMessage;
@@ -55,6 +56,7 @@ public class SpanEventException {
             String applicationServiceType,
             String applicationName,
             String agentId,
+            String uriTemplate,
             String errorClassName,
             String errorMessage,
             int exceptionDepth,
@@ -68,6 +70,7 @@ public class SpanEventException {
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+        this.uriTemplate = StringPrecondition.requireHasLength(uriTemplate, "uriTemplate");
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
@@ -83,6 +86,7 @@ public class SpanEventException {
             String applicationServiceType,
             String applicationName,
             String agentId,
+            String uriTemplate,
             String errorClassName,
             String errorMessage,
             int exceptionDepth,
@@ -95,6 +99,7 @@ public class SpanEventException {
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+        this.uriTemplate = StringPrecondition.requireHasLength(uriTemplate, "uriTemplate");
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
@@ -102,10 +107,13 @@ public class SpanEventException {
         this.stackTraceHash = stackTraceHash;
     }
 
-    public static SpanEventException valueOf(long timestamp, String transactionId, long spanId, long exceptionId,
-                                             String applicationServiceType, String applicationName, String agentId,
-                                             String errorClassName, String errorMessage, int exceptionDepth,
-                                             List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
+    public static SpanEventException valueOf(
+            long timestamp, String transactionId, long spanId, long exceptionId,
+            String applicationServiceType, String applicationName, String agentId,
+            String uriTemplate,
+            String errorClassName, String errorMessage, int exceptionDepth,
+            List<StackTraceElementWrapperBo> stackTraceElementWrapperBos
+    ) {
         List<StackTraceElementWrapper> wrappers = toStackTrace(stackTraceElementWrapperBos);
 
         return new SpanEventException(
@@ -116,6 +124,7 @@ public class SpanEventException {
                 applicationServiceType,
                 applicationName,
                 agentId,
+                uriTemplate,
                 errorClassName,
                 errorMessage,
                 exceptionDepth,
@@ -162,6 +171,10 @@ public class SpanEventException {
         return agentId;
     }
 
+    public String getUriTemplate() {
+        return uriTemplate;
+    }
+
     public String getErrorClassName() {
         return errorClassName;
     }
@@ -189,20 +202,18 @@ public class SpanEventException {
 
         SpanEventException that = (SpanEventException) o;
 
-        if (timestamp != that.timestamp) return false;
-        if (spanId != that.spanId) return false;
-        if (!transactionId.equals(that.transactionId)) return false;
-        if (!applicationServiceType.equals(that.applicationServiceType)) return false;
-        if (!applicationName.equals(that.applicationName)) return false;
-        if (!agentId.equals(that.agentId)) return false;
-        if (!errorClassName.equals(that.errorClassName)) return false;
-        if (!errorMessage.equals(that.errorMessage)) return false;
-        return stackTrace.equals(that.stackTrace);
+        if (!Objects.equals(errorClassName, that.errorClassName))
+            return false;
+        if (!Objects.equals(errorMessage, that.errorMessage)) return false;
+        return Objects.equals(stackTraceHash, that.stackTraceHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(applicationName, agentId, errorClassName, errorMessage, stackTrace);
+        int result = errorClassName != null ? errorClassName.hashCode() : 0;
+        result = 31 * result + (errorMessage != null ? errorMessage.hashCode() : 0);
+        result = 31 * result + (stackTraceHash != null ? stackTraceHash.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -211,9 +222,11 @@ public class SpanEventException {
                 "timestamp=" + timestamp +
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
+                ", exceptionId=" + exceptionId +
                 ", applicationServiceType='" + applicationServiceType + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
+                ", uriTemplate='" + uriTemplate + '\'' +
                 ", errorClassName='" + errorClassName + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 ", exceptionDepth=" + exceptionDepth +

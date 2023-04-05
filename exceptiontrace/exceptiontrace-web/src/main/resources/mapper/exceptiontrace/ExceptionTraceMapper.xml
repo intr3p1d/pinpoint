@@ -10,6 +10,7 @@
             <arg column="applicationServiceType" javaType="string"/>
             <arg column="applicationName" javaType="string"/>
             <arg column="agentId" javaType="string"/>
+            <arg column="uriTemplate" javaType="string"/>
             <arg column="errorClassName" javaType="string"/>
             <arg column="errorMessage" javaType="string"/>
             <arg column="exceptionDepth" javaType="_int"/>
@@ -29,6 +30,7 @@
             <arg column="applicationServiceType" javaType="string"/>
             <arg column="applicationName" javaType="string"/>
             <arg column="agentId" javaType="string"/>
+            <arg column="uriTemplate" javaType="string"/>
             <arg column="errorClassName" javaType="string"/>
             <arg column="errorMessage" javaType="string"/>
             <arg column="exceptionDepth" javaType="_int"/>
@@ -65,6 +67,7 @@
         applicationServiceType,
         applicationName,
         agentId,
+        uriTemplate,
         errorClassName,
         errorMessage,
         exceptionDepth,
@@ -82,6 +85,7 @@
         applicationServiceType,
         applicationName,
         agentId,
+        uriTemplate,
         errorClassName,
         errorMessage,
         exceptionDepth,

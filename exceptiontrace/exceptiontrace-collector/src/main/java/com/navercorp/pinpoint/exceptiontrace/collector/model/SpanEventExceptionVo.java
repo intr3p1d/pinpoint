@@ -39,6 +39,7 @@ public class SpanEventExceptionVo {
     private final String applicationServiceType;
     private final String applicationName;
     private final String agentId;
+    private final String uriTemplate;
 
     private final String errorClassName;
     private final String errorMessage;
@@ -47,7 +48,14 @@ public class SpanEventExceptionVo {
     private final String stackTraceHash;
 
 
-    public SpanEventExceptionVo(long timestamp, String transactionId, long spanId, long exceptionId, String applicationServiceType, String applicationName, String agentId, String errorClassName, String errorMessage, int exceptionDepth, List<String> stackTrace, String stackTraceHash) {
+    public SpanEventExceptionVo(
+            long timestamp,
+            String transactionId, long spanId, long exceptionId,
+            String applicationServiceType, String applicationName, String agentId,
+            String uriTemplate,
+            String errorClassName, String errorMessage, int exceptionDepth,
+            List<String> stackTrace, String stackTraceHash
+    ) {
         this.timestamp = timestamp;
         this.transactionId = transactionId;
         this.spanId = spanId;
@@ -55,6 +63,7 @@ public class SpanEventExceptionVo {
         this.applicationServiceType = applicationServiceType;
         this.applicationName = applicationName;
         this.agentId = agentId;
+        this.uriTemplate = uriTemplate;
         this.errorClassName = errorClassName;
         this.errorMessage = errorMessage;
         this.exceptionDepth = exceptionDepth;
@@ -72,6 +81,7 @@ public class SpanEventExceptionVo {
                 spanEventException.getApplicationServiceType(),
                 spanEventException.getApplicationName(),
                 spanEventException.getAgentId(),
+                spanEventException.getUriTemplate(),
                 spanEventException.getErrorClassName(),
                 spanEventException.getErrorMessage(),
                 spanEventException.getExceptionDepth(),
@@ -153,6 +163,7 @@ public class SpanEventExceptionVo {
                 ", applicationServiceType='" + applicationServiceType + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
+                ", uriTemplate='" + uriTemplate + '\'' +
                 ", errorClassName='" + errorClassName + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 ", exceptionDepth=" + exceptionDepth +
