@@ -70,7 +70,7 @@ public class SpanEventException {
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        this.uriTemplate = StringPrecondition.requireHasLength(uriTemplate, "uriTemplate");
+        this.uriTemplate = uriTemplate;
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
@@ -99,7 +99,7 @@ public class SpanEventException {
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        this.uriTemplate = StringPrecondition.requireHasLength(uriTemplate, "uriTemplate");
+        this.uriTemplate = uriTemplate;
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
