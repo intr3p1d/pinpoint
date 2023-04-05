@@ -73,7 +73,7 @@ public class TraceService {
         if (spanEventList != null) {
             // TODO need to batch update later.
             insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint());
-            insertExceptionInfos(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getTransactionId(), spanChunkBo.getSpanId());
+            insertExceptionInfos(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getTransactionId(), spanChunkBo.getSpanId(), spanChunkBo.getUriTemplate());
         }
     }
 
@@ -206,7 +206,7 @@ public class TraceService {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO need to batch update later.
         insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
-        insertExceptionInfos(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getTransactionId(), span.getSpanId());
+        insertExceptionInfos(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getTransactionId(), span.getSpanId(), span.getUriTemplate());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
