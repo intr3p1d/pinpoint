@@ -104,7 +104,7 @@ public class GrpcSpanBinder {
         spanBo.setApiId(pSpan.getApiId());
 
         spanBo.setErrCode(pSpan.getErr());
-
+        spanBo.setUriTemplate(pSpan.getUriTemplate());
 
         spanBo.setLoggingTransactionInfo((byte) pSpan.getLoggingTransactionInfo());
 
@@ -270,6 +270,7 @@ public class GrpcSpanBinder {
 
         spanChunkBo.setSpanId(pSpanChunk.getSpanId());
         spanChunkBo.setEndPoint(pSpanChunk.getEndPoint());
+        spanChunkBo.setUriTemplate(pSpanChunk.getUriTemplate());
         return spanChunkBo;
     }
 

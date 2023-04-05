@@ -50,6 +50,7 @@ public class SpanBo implements Event, BasicSpan {
     private short serviceType;
     private String endPoint;
     private int apiId;
+    private String uriTemplate;
 
     private List<AnnotationBo> annotationBoList = new ArrayList<>();
     private short flag; // optional
@@ -212,6 +213,14 @@ public class SpanBo implements Event, BasicSpan {
 
     public void setApiId(int apiId) {
         this.apiId = apiId;
+    }
+
+    public String getUriTemplate() {
+        return uriTemplate;
+    }
+
+    public void setUriTemplate(String uriTemplate) {
+        this.uriTemplate = uriTemplate;
     }
 
     public List<AnnotationBo> getAnnotationBoList() {

@@ -247,7 +247,12 @@ public class TraceService {
         }
     }
 
-    private void insertExceptionInfos(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId) {
+    private void insertExceptionInfos(
+            List<SpanEventBo> spanEventList,
+            ServiceType applicationServiceType, String applicationId, String agentId,
+            TransactionId transactionId, long spanId,
+            String uriTemplate
+    ) {
         try {
             List<SpanEventExceptionBo> spanEventExceptionBos = spanEventList.stream()
                     .map(SpanEventBo::getFlushedException)
@@ -259,7 +264,7 @@ public class TraceService {
             }
             exceptionTraceService.save(spanEventExceptionBos,
                     applicationServiceType, applicationId, agentId,
-                    transactionId, spanId);
+                    transactionId, spanId, uriTemplate);
         } catch (Exception e) {
             // ignore
             logger.debug(e);

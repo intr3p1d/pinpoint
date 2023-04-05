@@ -37,6 +37,7 @@ public class SpanChunkBo implements BasicSpan {
 
     private long spanId;
     private String endPoint;
+    private String uriTemplate;
 
     @Deprecated
     private short serviceType;
@@ -133,6 +134,14 @@ public class SpanChunkBo implements BasicSpan {
 
     public void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
+    }
+
+    public String getUriTemplate() {
+        return uriTemplate;
+    }
+
+    public void setUriTemplate(String uriTemplate) {
+        this.uriTemplate = uriTemplate;
     }
 
     public long getCollectorAcceptTime() {

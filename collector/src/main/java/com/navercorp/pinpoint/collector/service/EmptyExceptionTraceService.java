@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 public class EmptyExceptionTraceService implements ExceptionTraceService {
     @Override
-    public void save(List<SpanEventExceptionBo> spanEventExceptionBoList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId) {
+    public void save(List<SpanEventExceptionBo> spanEventExceptionBoList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId, String uriTemplate) {
         // do nothing
     }
 }
