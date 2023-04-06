@@ -33,6 +33,6 @@ public class ExceptionMetricKafkaConfiguration {
 
     @Bean
     public KafkaTemplate<String, SpanEventExceptionVo> kafkaSpanEventExceptionTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
+        return new KafkaTemplate<String, SpanEventExceptionVo>(producerFactory);
     }
 }

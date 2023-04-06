@@ -30,66 +30,21 @@ public class SpanEventExceptionVo {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final long timestamp;
-
-    private final String transactionId;
-    private final long spanId;
-    private final long exceptionId;
-
-    private final String applicationServiceType;
-    private final String applicationName;
-    private final String agentId;
-    private final String uriTemplate;
-
-    private final String errorClassName;
-    private final String errorMessage;
-    private final int exceptionDepth;
-    private final List<String> stackTrace;
-    private final String stackTraceHash;
+    private final SpanEventException spanEventException;
+    private List<String> stackTrace;
 
 
     public SpanEventExceptionVo(
-            long timestamp,
-            String transactionId, long spanId, long exceptionId,
-            String applicationServiceType, String applicationName, String agentId,
-            String uriTemplate,
-            String errorClassName, String errorMessage, int exceptionDepth,
-            List<String> stackTrace, String stackTraceHash
+            SpanEventException spanEventException
     ) {
-        this.timestamp = timestamp;
-        this.transactionId = transactionId;
-        this.spanId = spanId;
-        this.exceptionId = exceptionId;
-        this.applicationServiceType = applicationServiceType;
-        this.applicationName = applicationName;
-        this.agentId = agentId;
-        this.uriTemplate = uriTemplate;
-        this.errorClassName = errorClassName;
-        this.errorMessage = errorMessage;
-        this.exceptionDepth = exceptionDepth;
-        this.stackTrace = stackTrace;
-        this.stackTraceHash = stackTraceHash;
+        this.spanEventException = spanEventException;
     }
-
 
     public static SpanEventExceptionVo valueOf(SpanEventException spanEventException) {
         return new SpanEventExceptionVo(
-                spanEventException.getTimestamp(),
-                spanEventException.getTransactionId(),
-                spanEventException.getSpanId(),
-                spanEventException.getExceptionId(),
-                spanEventException.getApplicationServiceType(),
-                spanEventException.getApplicationName(),
-                spanEventException.getAgentId(),
-                spanEventException.getUriTemplate(),
-                spanEventException.getErrorClassName(),
-                spanEventException.getErrorMessage(),
-                spanEventException.getExceptionDepth(),
-                toJsonString(spanEventException.getStackTrace()),
-                spanEventException.getStackTraceHash()
+                spanEventException
         );
     }
-
 
     private static List<String> toJsonString(List<StackTraceElementWrapper> stackTrace) {
         List<String> strings = new ArrayList<>();
@@ -106,69 +61,65 @@ public class SpanEventExceptionVo {
     }
 
     public long getTimestamp() {
-        return timestamp;
+        return this.spanEventException.getTimestamp();
     }
 
     public String getTransactionId() {
-        return transactionId;
+        return this.spanEventException.getTransactionId();
     }
 
     public long getSpanId() {
-        return spanId;
+        return this.spanEventException.getSpanId();
     }
 
     public long getExceptionId() {
-        return exceptionId;
+        return this.spanEventException.getExceptionId();
     }
 
     public String getApplicationServiceType() {
-        return applicationServiceType;
+        return this.spanEventException.getApplicationServiceType();
     }
 
     public String getApplicationName() {
-        return applicationName;
+        return this.spanEventException.getApplicationName();
     }
 
     public String getAgentId() {
-        return agentId;
+        return this.spanEventException.getAgentId();
+    }
+
+    public String getUriTemplate() {
+        return this.spanEventException.getUriTemplate();
     }
 
     public String getErrorClassName() {
-        return errorClassName;
+        return this.spanEventException.getErrorClassName();
     }
 
     public String getErrorMessage() {
-        return errorMessage;
+        return this.spanEventException.getErrorMessage();
     }
 
     public int getExceptionDepth() {
-        return exceptionDepth;
+        return this.spanEventException.getExceptionDepth();
     }
 
     public List<String> getStackTrace() {
+        if (stackTrace == null) {
+            stackTrace = toJsonString(this.spanEventException.getStackTrace());
+        }
         return stackTrace;
     }
 
     public String getStackTraceHash() {
-        return stackTraceHash;
+        return this.spanEventException.getStackTraceHash();
     }
 
     @Override
     public String toString() {
         return "SpanEventExceptionVo{" +
-                "timestamp=" + timestamp +
-                ", transactionId='" + transactionId + '\'' +
-                ", spanId=" + spanId +
-                ", exceptionId=" + exceptionId +
-                ", applicationServiceType='" + applicationServiceType + '\'' +
-                ", applicationName='" + applicationName + '\'' +
-                ", agentId='" + agentId + '\'' +
-                ", uriTemplate='" + uriTemplate + '\'' +
-                ", errorClassName='" + errorClassName + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
-                ", exceptionDepth=" + exceptionDepth +
+                "spanEventException=" + spanEventException +
                 ", stackTrace=" + stackTrace +
-                ", stackTraceHash='" + stackTraceHash + '\'' +
                 '}';
     }
 }
