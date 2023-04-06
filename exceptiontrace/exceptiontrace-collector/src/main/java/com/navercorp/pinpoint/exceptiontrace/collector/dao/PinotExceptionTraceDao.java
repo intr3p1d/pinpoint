@@ -19,12 +19,16 @@ package com.navercorp.pinpoint.exceptiontrace.collector.dao;
 import com.navercorp.pinpoint.exceptiontrace.collector.model.SpanEventExceptionVo;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
+import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +44,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private final String topic;
 
+    private final ListenableFutureCallback<SendResult<String, SpanEventExceptionVo>> resultCallback
+            = KafkaCallbacks.loggingCallback("Kafka(SpanEventExceptionVo)", logger);
+
+
     public PinotExceptionTraceDao(@Qualifier("kafkaSpanEventExceptionTemplate") KafkaTemplate<String, SpanEventExceptionVo> kafkaSpanEventExceptionTemplate,
                                   @Value("${kafka.exception.topic}") String topic) {
         this.kafkaSpanEventExceptionTemplate = Objects.requireNonNull(kafkaSpanEventExceptionTemplate, "kafkaSpanEventExceptionTemplate");
@@ -52,9 +60,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         logger.info("Pinot data insert: {}", spanEventExceptions.toString());
 
         for (SpanEventException spanEventException : spanEventExceptions) {
-            this.kafkaSpanEventExceptionTemplate.send(
+            ListenableFuture<SendResult<String, SpanEventExceptionVo>> response = this.kafkaSpanEventExceptionTemplate.send(
                     topic, SpanEventExceptionVo.valueOf(spanEventException)
             );
+            response.addCallback(resultCallback);
         }
     }
 }
