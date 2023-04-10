@@ -33,5 +33,5 @@ import org.springframework.context.annotation.PropertySource;
 @ComponentScan({"com.navercorp.pinpoint.exceptiontrace.collector.service", "com.navercorp.pinpoint.exceptiontrace.collector.dao"})
 @PropertySource({ExceptionTraceCollectorConfig.KAFKA_TOPIC_PROPERTIES})
 public class ExceptionTraceCollectorConfig {
-    public static final String KAFKA_TOPIC_PROPERTIES = "classpath:kafka-topic.properties";
+    public static final String KAFKA_TOPIC_PROPERTIES = "classpath:profiles/${pinpoint.profiles.active}/kafka-topic-exception.properties";
 }
