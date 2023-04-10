@@ -156,6 +156,12 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+            AND exceptionDepth = #{exceptionDepth}
+        </if>
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>
