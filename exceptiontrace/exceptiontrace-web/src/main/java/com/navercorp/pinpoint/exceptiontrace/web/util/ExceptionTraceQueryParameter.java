@@ -17,9 +17,13 @@
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.web.model.SummaryGroupBy;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +40,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final long exceptionId;
     private final int exceptionDepth;
 
+    private final List<SummaryGroupBy> groupByList;
+
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.applicationName = builder.applicationName;
@@ -45,6 +51,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.spanId = builder.spanId;
         this.exceptionId = builder.exceptionId;
         this.exceptionDepth = builder.exceptionDepth;
+        this.groupByList = builder.groupBIES;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
@@ -58,6 +65,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private long spanId = Long.MIN_VALUE;
         private long exceptionId = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
+
+        private List<SummaryGroupBy> groupBIES = Collections.emptyList();
 
         @Override
         protected Builder self() {
@@ -96,6 +105,16 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public Builder setExceptionId(long exceptionId) {
             this.exceptionId = exceptionId;
+            return self();
+        }
+
+        public Builder addGroupBy(SummaryGroupBy summaryGroupBy) {
+            this.groupBIES.add(summaryGroupBy);
+            return self();
+        }
+
+        public Builder addAllGroupBies(Collection<SummaryGroupBy> summaryGroupBIES) {
+            this.groupBIES.addAll(summaryGroupBIES);
             return self();
         }
 
