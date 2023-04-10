@@ -42,6 +42,13 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
     private final List<SummaryGroupBy> groupByList;
 
+    private boolean groupByAgentId;
+    private boolean groupByUriTemplate;
+    private boolean groupByErrorClassName;
+    private boolean groupByErrorMessage;
+    private boolean groupByStackTrace;
+
+
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.applicationName = builder.applicationName;
