@@ -27,39 +27,19 @@ public class ExceptionTraceSummary {
     private static final String EMPTY_STRING = null;
     private final long timestamp;
     private final long count;
-    private final GroupNames groupNames;
+    private final String groupName;
+    private String classAndMessage;
 
-    private List<String> mostRecent;
-
-    private static class GroupNames {
-        private final List<String> criteria = new ArrayList<>();
-
-        public GroupNames(){
-        }
-
-        public GroupNames(Collection<String> groups){
-            this.criteria.addAll(groups);
-        }
-
-        public List<String> getCriteria() {
-            return criteria;
-        }
-
-        public String getGroupName(){
-            return String.join(", ", this.criteria);
-        }
-    }
-
-    public ExceptionTraceSummary(long timestamp, long count, List<String> groupBy) {
+    public ExceptionTraceSummary(long timestamp, long count, String groupName) {
         this.timestamp = timestamp;
         this.count = count;
-        this.groupNames = new GroupNames(groupBy);
+        this.groupName = groupName;
     }
 
     public ExceptionTraceSummary(long timestamp, long count) {
         this.timestamp = timestamp;
         this.count = count;
-        this.groupNames = new GroupNames();
+        this.groupName = "";
     }
 
     public long getTimestamp() {
@@ -71,6 +51,10 @@ public class ExceptionTraceSummary {
     }
 
     public String getGroupName() {
-        return groupNames.getGroupName();
+        return groupName;
+    }
+
+    public String getClassAndMessage() {
+        return classAndMessage;
     }
 }

@@ -45,6 +45,14 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="count" javaType="_long"/>
+            <arg column="groupName" javaType="string"/>
+        </constructor>
+    </resultMap>
+
     <sql id="exceptionTraceTable">exceptionTrace</sql>
 
     <sql id="fullExceptionColumns">
@@ -100,11 +108,6 @@
             AND spanId = #{spanId}
             AND exceptionId = #{exceptionId}
         </if>
-        <if test="spanEventException != null">
-            AND errorClassName = #{spanEventException.errorClassName}
-            AND errorMessage = #{spanEventException.errorMessage}
-            AND stackTraceHash = #{spanEventException.stackTraceHash}
-        </if>
         ORDER BY "timestamp" asc, exceptionDepth asc
         LIMIT ${limit}
     </select>
@@ -126,11 +129,6 @@
             AND transactionId = #{transactionId}
             AND spanId = #{spanId}
             AND exceptionId = #{exceptionId}
-        </if>
-        <if test="spanEventException != null">
-            AND errorClassName = #{spanEventException.errorClassName}
-            AND errorMessage = #{spanEventException.errorMessage}
-            AND stackTraceHash = #{spanEventException.stackTraceHash}
         </if>
         ORDER BY "timestamp" asc, exceptionDepth asc
         LIMIT ${limit}
@@ -168,10 +166,35 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        <if test="spanEventException != null">
-            AND errorClassName = #{spanEventException.errorClassName}
+        GROUP BY "timestamp"
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectSummariesWithGroup" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
+        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        count(*) as "count",
+        <foreach collection="groupByAttributes" item="attr" open="CONCAT(" close=", ''" separator=", CONCAT(">
+            ${attr}
+        </foreach>
+        <foreach collection="groupByAttributes" item="attr" open="" close="" separator="">
+            , ', ')
+        </foreach>
+        as "groupName"
+
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
         </if>
         GROUP BY "timestamp"
+        <foreach collection="groupByAttributes" item="attr" open=", " close="" separator=", ">
+            ${attr}
+        </foreach>
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>

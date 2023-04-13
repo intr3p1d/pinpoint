@@ -15,12 +15,24 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
+import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
+
 /**
  * @author intr3p1d
  */
 public enum GroupByAttributes {
-    URI_TEMPLATE,
-    ERROR_CLASS_NAME,
-    ERROR_MESSAGE,
-    STACK_TRACE;
+    URI_TEMPLATE(PinotColumns.URI_TEMPLATE),
+    ERROR_CLASS_NAME(PinotColumns.ERROR_CLASS_NAME),
+    ERROR_MESSAGE(PinotColumns.ERROR_MESSAGE),
+    STACK_TRACE(PinotColumns.STACK_TRACE_HASH);
+
+    private final PinotColumns column;
+
+    GroupByAttributes(PinotColumns column) {
+        this.column = column;
+    }
+
+    public String getAttributeName() {
+        return column.getName();
+    }
 }

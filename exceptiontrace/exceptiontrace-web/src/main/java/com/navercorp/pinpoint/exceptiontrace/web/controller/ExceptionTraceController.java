@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -98,56 +99,31 @@ public class ExceptionTraceController {
         );
     }
 
-    @GetMapping("/errorList/similar")
-    public List<SpanEventException> getListOfSpanEventExceptionByGivenRange(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-
-            @RequestParam("traceId") String traceId,
-            @RequestParam("spanId") long spanId,
-            @RequestParam("exceptionId") long exceptionId,
-            @RequestParam("exceptionDepth") int exceptionDepth
-    ) {
-        ExceptionTraceQueryParameter targetQuery = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setTransactionId(traceId)
-                .setSpanId(spanId)
-                .setExceptionId(exceptionId)
-                .setExceptionDepth(exceptionDepth).build();
-
-        ExceptionTraceQueryParameter.Builder queryBuilder = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(Range.newRange(from, to))
-                .setTimePrecision(DETAILED_TIME_PRECISION);
-
-        return exceptionTraceService.getSimilarExceptions(
-                targetQuery, queryBuilder
-        );
-    }
-
     @GetMapping("/errorList/groupBy")
-    public List<SpanEventException> getListOfSpanEventExceptionWithDynamicGroupBy(
+    public List<ExceptionTraceSummary> getListOfSpanEventExceptionWithDynamicGroupBy(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
 
-            @RequestParam("groupBy") List<GroupByAttributes> groupBIES
+            @RequestParam("groupBy") List<String> groupByList
     ) {
+        List<GroupByAttributes> groupByAttributes = groupByList.stream().map(
+                GroupByAttributes::valueOf
+        ).collect(Collectors.toList());
 
-        ExceptionTraceQueryParameter.Builder queryBuilder = new ExceptionTraceQueryParameter.Builder()
+        logger.info(groupByAttributes);
+
+        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(DETAILED_TIME_PRECISION)
-                .addAllGroupBies(groupBIES);
+                .addAllGroupBies(groupByAttributes)
+                .build();
 
-        return exceptionTraceService.getSimilarExceptions(
-                null, queryBuilder
+        return exceptionTraceService.getSummaryWithGroups(
+                queryParameter
         );
     }
 
@@ -172,36 +148,30 @@ public class ExceptionTraceController {
         return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
     }
 
-    @GetMapping("/chart/similar")
+    @GetMapping("/chart/groupBy")
     public ExceptionTraceView getCollectedSpanEventExceptionByGivenRange(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
 
-            @RequestParam("traceId") String traceId,
-            @RequestParam("spanId") long spanId,
-            @RequestParam("exceptionId") long exceptionId,
-            @RequestParam("exceptionDepth") int exceptionDepth
+            @RequestParam("groupBy") List<String> groupByList
     ) {
+        List<GroupByAttributes> groupByAttributes = groupByList.stream().map(
+                GroupByAttributes::valueOf
+        ).collect(Collectors.toList());
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        ExceptionTraceQueryParameter targetQuery = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setTransactionId(traceId)
-                .setSpanId(spanId)
-                .setExceptionId(exceptionId)
-                .setExceptionDepth(exceptionDepth).build();
-
-        ExceptionTraceQueryParameter.Builder queryBuilder = new ExceptionTraceQueryParameter.Builder()
+        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
-                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
-
-        List<ExceptionTraceSummary> exceptionTraceSummaries = exceptionTraceService.getSummaryOfSimilarExceptions(
-                targetQuery, queryBuilder
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .addAllGroupBies(groupByAttributes)
+                .build();
+        List<ExceptionTraceSummary> exceptionTraceSummaries = exceptionTraceService.getSummaryWithGroups(
+                queryParameter
         );
         return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
     }
+
 }

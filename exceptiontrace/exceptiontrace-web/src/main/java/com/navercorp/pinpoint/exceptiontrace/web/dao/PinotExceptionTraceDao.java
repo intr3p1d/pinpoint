@@ -42,6 +42,8 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_EXACT_QUERY = "selectExactException";
     private static final String SELECT_SUMMARIES_QUERY = "selectSummaries";
 
+    private static final String SELECT_GROUPED_SUMMARY_QUERY = "selectSummariesWithGroup";
+
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
     public PinotExceptionTraceDao(@Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
@@ -66,5 +68,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     @Override
     public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_QUERY, exceptionTraceQueryParameter);
+    }
+
+    @Override
+    public List<ExceptionTraceSummary> getGroupedSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_GROUPED_SUMMARY_QUERY, exceptionTraceQueryParameter);
     }
 }

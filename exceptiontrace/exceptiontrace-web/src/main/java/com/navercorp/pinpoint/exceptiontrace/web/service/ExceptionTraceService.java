@@ -31,9 +31,7 @@ public interface ExceptionTraceService {
 
     List<SpanEventException> getExceptionsInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<SpanEventException> getSimilarExceptions(ExceptionTraceQueryParameter targetQuery, ExceptionTraceQueryParameter.Builder queryBuilder);
-
     List<ExceptionTraceSummary> getSummaryInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(ExceptionTraceQueryParameter targetQuery, ExceptionTraceQueryParameter.Builder queryBuilder);
+    List<ExceptionTraceSummary> getSummaryWithGroups(ExceptionTraceQueryParameter queryParameter);
 }

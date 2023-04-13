@@ -64,17 +64,6 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<SpanEventException> getSimilarExceptions(
-            ExceptionTraceQueryParameter targetQuery, ExceptionTraceQueryParameter.Builder queryBuilder
-    ) {
-        return getSimilarExceptions(
-                targetQuery,
-                queryBuilder,
-                this::getSimpleSpanEventExceptions
-        );
-    }
-
-    @Override
     public List<ExceptionTraceSummary> getSummaryInRange(
             ExceptionTraceQueryParameter queryParameter
     ) {
@@ -85,14 +74,10 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionTraceSummary> getSummaryOfSimilarExceptions(
-            ExceptionTraceQueryParameter targetQuery,
-            ExceptionTraceQueryParameter.Builder queryBuilder
-    ) {
-        return getSimilarExceptions(
-                targetQuery,
-                queryBuilder,
-                this::getExceptionTraceSummaries
+    public List<ExceptionTraceSummary> getSummaryWithGroups(ExceptionTraceQueryParameter queryParameter) {
+        return getExceptionsInRange(
+                queryParameter,
+                this::getGroupedExceptionTraceSummaries
         );
     }
 
@@ -110,25 +95,6 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return queryFunction.apply(queryParameter);
     }
 
-    private <T> List<T> getSimilarExceptions(
-            ExceptionTraceQueryParameter targetQuery,
-            ExceptionTraceQueryParameter.Builder queryBuilder,
-            Function<ExceptionTraceQueryParameter, List<T>> queryFunction
-    ) {
-        final SpanEventException targetException = getTheExactException(
-                targetQuery
-        );
-
-        if (targetException == null) {
-            return Collections.emptyList();
-        }
-        ExceptionTraceQueryParameter.Builder builder = queryBuilder
-                .setSpanEventException(targetException);
-
-        return queryFunction.apply(
-                builder.build()
-        );
-    }
 
     private List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
@@ -142,14 +108,15 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return spanEventExceptions;
     }
 
-    private SpanEventException getTheExactException(ExceptionTraceQueryParameter queryParameter) {
-        return exceptionTraceDao.getException(queryParameter);
-    }
-
     private List<ExceptionTraceSummary> getExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
         List<ExceptionTraceSummary> spanEventExceptions = exceptionTraceDao.getSummaries(queryParameter);
         logger.info(spanEventExceptions.size());
         return spanEventExceptions;
     }
 
+    private List<ExceptionTraceSummary> getGroupedExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
+        List<ExceptionTraceSummary> summaries = exceptionTraceDao.getGroupedSummaries(queryParameter);
+        logger.info(summaries.size());
+        return summaries;
+    }
 }
