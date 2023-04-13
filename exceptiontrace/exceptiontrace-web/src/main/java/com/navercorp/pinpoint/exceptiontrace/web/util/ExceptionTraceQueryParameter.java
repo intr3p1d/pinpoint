@@ -113,16 +113,20 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
+        public long estimateLimit() {
+            if (this.range != null) {
+                return (range.getRange() / Math.max(timePrecision.getInterval(), 30000) + 1);
+            } else {
+                return LIMIT;
+            }
+        }
+
         @Override
         public ExceptionTraceQueryParameter build() {
             if (timePrecision == null) {
                 this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 30000);
             }
-            if (this.range != null) {
-                this.limit = estimateLimit();
-            } else {
-                this.limit = LIMIT;
-            }
+            this.limit = this.estimateLimit();
             return new ExceptionTraceQueryParameter(this);
         }
     }
