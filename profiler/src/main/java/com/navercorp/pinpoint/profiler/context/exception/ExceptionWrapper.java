@@ -19,19 +19,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionWrapper {
+    private static final String EMPTY_STRING = "";
     private final String exceptionClassName;
     private final String exceptionMessage;
     private final StackTraceElementWrapper[] stackTraceElements;
 
-    private ExceptionWrapper(Throwable throwable){
+    private ExceptionWrapper(Throwable throwable) {
         Objects.requireNonNull(throwable);
-        this.exceptionClassName = throwable.getClass().getSimpleName();
-        this.exceptionMessage = throwable.getMessage();
+        this.exceptionClassName = Optional.ofNullable(throwable.getClass().getSimpleName()).orElse(EMPTY_STRING);
+        this.exceptionMessage = Optional.ofNullable(throwable.getMessage()).orElse(EMPTY_STRING);
         this.stackTraceElements = StackTraceElementWrapper.valueOf(throwable.getStackTrace());
     }
 
