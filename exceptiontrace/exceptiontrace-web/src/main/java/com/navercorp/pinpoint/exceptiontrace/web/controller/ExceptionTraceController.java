@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.SummaryGroupBy;
+import com.navercorp.pinpoint.exceptiontrace.web.model.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
@@ -136,7 +136,7 @@ public class ExceptionTraceController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
 
-            @RequestParam("groupBy") List<SummaryGroupBy> groupBIES
+            @RequestParam("groupBy") List<GroupByAttributes> groupBIES
     ) {
 
         ExceptionTraceQueryParameter.Builder queryBuilder = new ExceptionTraceQueryParameter.Builder()

@@ -15,6 +15,10 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @author intr3p1d
  */
@@ -23,44 +27,50 @@ public class ExceptionTraceSummary {
     private static final String EMPTY_STRING = null;
     private final long timestamp;
     private final long count;
+    private final GroupNames groupNames;
 
-    private final String errorClassName;
-    private final String errorMessage;
-    private final String stackTraceHash;
+    private List<String> mostRecent;
 
-    public ExceptionTraceSummary(long timestamp, String errorClassName, String errorMessage, String stackTraceHash, long count) {
+    private static class GroupNames {
+        private final List<String> criteria = new ArrayList<>();
+
+        public GroupNames(){
+        }
+
+        public GroupNames(Collection<String> groups){
+            this.criteria.addAll(groups);
+        }
+
+        public List<String> getCriteria() {
+            return criteria;
+        }
+
+        public String getGroupName(){
+            return String.join(", ", this.criteria);
+        }
+    }
+
+    public ExceptionTraceSummary(long timestamp, long count, List<String> groupBy) {
         this.timestamp = timestamp;
-        this.errorClassName = errorClassName;
-        this.errorMessage = errorMessage;
-        this.stackTraceHash = stackTraceHash;
         this.count = count;
+        this.groupNames = new GroupNames(groupBy);
     }
 
     public ExceptionTraceSummary(long timestamp, long count) {
         this.timestamp = timestamp;
         this.count = count;
-        this.errorClassName = EMPTY_STRING;
-        this.errorMessage = EMPTY_STRING;
-        this.stackTraceHash = EMPTY_STRING;
+        this.groupNames = new GroupNames();
     }
 
     public long getTimestamp() {
         return timestamp;
     }
 
-    public String getErrorClassName() {
-        return errorClassName;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public String getStackTraceHash() {
-        return stackTraceHash;
-    }
-
     public long getCount() {
         return count;
+    }
+
+    public String getGroupName() {
+        return groupNames.getGroupName();
     }
 }

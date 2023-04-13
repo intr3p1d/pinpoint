@@ -38,16 +38,6 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="errorClassName" javaType="string"/>
-            <arg column="errorMessage" javaType="string"/>
-            <arg column="stackTraceHash" javaType="string"/>
-            <arg column="count" javaType="_long"/>
-        </constructor>
-    </resultMap>
-
     <resultMap id="simpleExceptionTraceSummary" type="ExceptionTraceSummary">
         <constructor>
             <arg column="timestamp" javaType="_long"/>

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
-import com.navercorp.pinpoint.exceptiontrace.web.model.SummaryGroupBy;
+import com.navercorp.pinpoint.exceptiontrace.web.model.GroupByAttributes;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
@@ -40,7 +40,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final long exceptionId;
     private final int exceptionDepth;
 
-    private final List<SummaryGroupBy> groupByList;
+    private final List<GroupByAttributes> groupByList;
 
     private boolean groupByAgentId;
     private boolean groupByUriTemplate;
@@ -73,7 +73,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private long exceptionId = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
-        private List<SummaryGroupBy> groupBIES = Collections.emptyList();
+        private List<GroupByAttributes> groupBIES = Collections.emptyList();
 
         @Override
         protected Builder self() {
@@ -115,12 +115,12 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder addGroupBy(SummaryGroupBy summaryGroupBy) {
-            this.groupBIES.add(summaryGroupBy);
+        public Builder addGroupBy(GroupByAttributes groupByAttributes) {
+            this.groupBIES.add(groupByAttributes);
             return self();
         }
 
-        public Builder addAllGroupBies(Collection<SummaryGroupBy> summaryGroupBIES) {
+        public Builder addAllGroupBies(Collection<GroupByAttributes> summaryGroupBIES) {
             this.groupBIES.addAll(summaryGroupBIES);
             return self();
         }

@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
 /**
  * @author intr3p1d
  */
-public enum SummaryGroupBy {
-    URI,
-    CLASS_NAME,
+public enum GroupByAttributes {
+    URI_TEMPLATE,
+    ERROR_CLASS_NAME,
     ERROR_MESSAGE,
     STACK_TRACE;
-
 }
