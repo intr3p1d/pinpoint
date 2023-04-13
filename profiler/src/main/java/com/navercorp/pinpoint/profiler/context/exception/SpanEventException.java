@@ -37,6 +37,9 @@ public class SpanEventException {
     }
 
     public static SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId) {
+        if (throwable == null) {
+            return null;
+        }
         return new SpanEventException(throwable, startTime, exceptionId);
     }
 
@@ -78,6 +81,7 @@ public class SpanEventException {
         return "SpanEventException{" +
                 "exceptionWrappers=" + Arrays.toString(exceptionWrappers) +
                 ", startTime=" + startTime +
+                ", exceptionId=" + exceptionId +
                 '}';
     }
 }

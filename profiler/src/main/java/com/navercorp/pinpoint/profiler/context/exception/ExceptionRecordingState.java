@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import java.util.Objects;
+
 /**
  * @author intr3p1d
  */
@@ -37,6 +39,7 @@ public enum ExceptionRecordingState {
                 Throwable current,
                 long currentStartTime,
                 ExceptionIdGenerator idGenerator) {
+            Objects.requireNonNull(exceptionRecordingContext);
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.setStartTime(currentStartTime);
             exceptionRecordingContext.setExceptionId(idGenerator.nextExceptionId());
@@ -50,6 +53,7 @@ public enum ExceptionRecordingState {
                 Throwable current,
                 long currentStartTime,
                 ExceptionIdGenerator idGenerator) {
+            Objects.requireNonNull(exceptionRecordingContext);
             if (!isContinued(exceptionRecordingContext.getPrevious(), current)) {
                 SpanEventException spanEventException = newSpanEventException(
                         exceptionRecordingContext
@@ -72,6 +76,7 @@ public enum ExceptionRecordingState {
                 Throwable current,
                 long currentStartTime,
                 ExceptionIdGenerator idGenerator) {
+            Objects.requireNonNull(exceptionRecordingContext);
             SpanEventException spanEventException = newSpanEventException(
                     exceptionRecordingContext
             );
