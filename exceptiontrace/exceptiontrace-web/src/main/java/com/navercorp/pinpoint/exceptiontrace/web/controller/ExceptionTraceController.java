@@ -110,7 +110,7 @@ public class ExceptionTraceController {
     ) {
         List<GroupByAttributes> groupByAttributes = groupByList.stream().map(
                 GroupByAttributes::valueOf
-        ).collect(Collectors.toList());
+        ).distinct().collect(Collectors.toList());
 
         logger.info(groupByAttributes);
 
