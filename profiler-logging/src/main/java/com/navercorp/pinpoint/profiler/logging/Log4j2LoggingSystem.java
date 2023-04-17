@@ -82,8 +82,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
 
     private Logger getLoggerContextLogger() {
-        Logger logger = loggerContext.getLogger(getClass().getName());
-        return logger;
+        return loggerContext.getLogger(getClass().getName());
     }
 
 
