@@ -214,6 +214,10 @@ public class ModuleSupport {
         Class<?> loadBalancerProviderClazz = forName(loadBalancerProviderName, classLoader);
         agentModule.addUses(loadBalancerProviderClazz);
 
+        final String log4jSpiProviderName = "org.apache.logging.log4j.spi.Provider";
+        Class<?> log4jSpiProviderClazz = forName(log4jSpiProviderName, classLoader);
+        agentModule.addUses(log4jSpiProviderClazz);
+
         List<Providers> providersList = agentModule.getProviders();
         for (Providers providers : providersList) {
             final String service = providers.getService();
