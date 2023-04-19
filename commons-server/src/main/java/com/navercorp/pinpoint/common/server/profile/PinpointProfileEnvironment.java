@@ -78,7 +78,7 @@ public class PinpointProfileEnvironment {
     }
 
     private Pair<String, String> log4j2Path(String pinpointActiveProfile) {
-        String logConfig = String.format("classpath:profiles/%s/log4j2.xml", pinpointActiveProfile);
+        String logConfig = String.format("classpath:log4j2-spring.xml", pinpointActiveProfile);
 
         return ImmutablePair.of("logging.config", logConfig);
     }
