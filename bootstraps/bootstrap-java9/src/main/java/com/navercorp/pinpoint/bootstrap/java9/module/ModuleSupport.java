@@ -121,8 +121,6 @@ public class ModuleSupport {
         // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.config.xml.XmlConfiguration.<init>(XmlConfiguration.java:138)
         // java.desktop
         // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:369)
-        JavaModule coreModule = loadModule("log4j-core");
-        agentModule.addReads(coreModule);
         addPermissionToLog4jModule(agentModule);
     }
 
@@ -219,6 +217,9 @@ public class ModuleSupport {
         final String log4jSpiProviderName = "org.apache.logging.log4j.spi.Provider";
         Class<?> log4jSpiProviderClazz = forName(log4jSpiProviderName, classLoader);
         agentModule.addUses(log4jSpiProviderClazz);
+
+        JavaModule coreModule = loadModule("org.apache.logging.log4j.core");
+        agentModule.addReads(coreModule);
 
         List<Providers> providersList = agentModule.getProviders();
         for (Providers providers : providersList) {
