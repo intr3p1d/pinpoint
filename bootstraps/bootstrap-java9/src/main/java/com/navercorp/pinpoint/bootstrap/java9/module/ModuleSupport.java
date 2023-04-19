@@ -121,6 +121,8 @@ public class ModuleSupport {
         // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.config.xml.XmlConfiguration.<init>(XmlConfiguration.java:138)
         // java.desktop
         // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:369)
+        JavaModule coreModule = loadModule("log4j-core");
+        agentModule.addReads(coreModule);
         addPermissionToLog4jModule(agentModule);
     }
 
