@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 
 import javax.inject.Provider;
 
@@ -25,17 +25,21 @@ import javax.inject.Provider;
  */
 public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
-    private final ProfilerConfig profilerConfig;
+    private final MonitorConfig monitorConfig;
     private final ExceptionIdGenerator exceptionIdGenerator;
 
     @Inject
-    public ExceptionRecordingServiceProvider(ProfilerConfig profilerConfig, ExceptionIdGenerator exceptionIdGenerator) {
-        this.profilerConfig = profilerConfig;
+    public ExceptionRecordingServiceProvider(MonitorConfig monitorConfig, ExceptionIdGenerator exceptionIdGenerator) {
+        this.monitorConfig = monitorConfig;
         this.exceptionIdGenerator = exceptionIdGenerator;
     }
 
     @Override
     public ExceptionRecordingService get() {
-        return new DefaultExceptionRecordingService(exceptionIdGenerator);
+        if (monitorConfig.isExceptionTraceEnable()) {
+            return new DefaultExceptionRecordingService(exceptionIdGenerator);
+        } else {
+            return DisabledExceptionRecordingService.INSTANCE;
+        }
     }
 }
