@@ -37,7 +37,10 @@ public class ExceptionRecordingServiceProvider implements Provider<ExceptionReco
     @Override
     public ExceptionRecordingService get() {
         if (monitorConfig.isExceptionTraceEnable()) {
-            return new DefaultExceptionRecordingService(exceptionIdGenerator);
+            return new DefaultExceptionRecordingService(
+                    exceptionIdGenerator,
+                    new E
+            );
         } else {
             return DisabledExceptionRecordingService.INSTANCE;
         }

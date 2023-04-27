@@ -29,8 +29,11 @@ public interface MonitorConfig {
 
     boolean isUriStatEnable();
 
-    boolean isExceptionTraceEnable();
-
     int getCompletedUriStatDataLimitSize();
 
+    boolean isExceptionTraceEnable();
+
+    int getExceptionTraceNewThroughput();
+
+    int getExceptionTraceMaxDepth();
 }

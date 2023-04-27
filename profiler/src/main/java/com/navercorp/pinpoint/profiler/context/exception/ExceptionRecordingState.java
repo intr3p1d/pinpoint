@@ -26,8 +26,7 @@ public enum ExceptionRecordingState {
         public SpanEventException apply(
                 ExceptionRecordingContext exceptionRecordingContext,
                 Throwable current,
-                long currentStartTime,
-                ExceptionIdGenerator idGenerator) {
+                long currentStartTime, long exceptionId) {
             // do nothing
             return null;
         }
@@ -37,12 +36,11 @@ public enum ExceptionRecordingState {
         public SpanEventException apply(
                 ExceptionRecordingContext exceptionRecordingContext,
                 Throwable current,
-                long currentStartTime,
-                ExceptionIdGenerator idGenerator) {
+                long currentStartTime, long exceptionId) {
             Objects.requireNonNull(exceptionRecordingContext);
             exceptionRecordingContext.setPrevious(current);
             exceptionRecordingContext.setStartTime(currentStartTime);
-            exceptionRecordingContext.setExceptionId(idGenerator.nextExceptionId());
+            exceptionRecordingContext.setExceptionId(exceptionId);
             return null;
         }
     },
@@ -51,22 +49,28 @@ public enum ExceptionRecordingState {
         public SpanEventException apply(
                 ExceptionRecordingContext exceptionRecordingContext,
                 Throwable current,
-                long currentStartTime,
-                ExceptionIdGenerator idGenerator) {
+                long currentStartTime, long exceptionId) {
             Objects.requireNonNull(exceptionRecordingContext);
-            if (!isContinued(exceptionRecordingContext.getPrevious(), current)) {
-                SpanEventException spanEventException = newSpanEventException(
-                        exceptionRecordingContext
-                );
-                exceptionRecordingContext.setPrevious(current);
-                exceptionRecordingContext.setStartTime(currentStartTime);
-                exceptionRecordingContext.setExceptionId(idGenerator.nextExceptionId());
-                return spanEventException;
-            }
-            else {
-                exceptionRecordingContext.setPrevious(current);
-                return null;
-            }
+            exceptionRecordingContext.setPrevious(current);
+            return null;
+        }
+    },
+    FLUSH_AND_STACK {
+        @Override
+        public SpanEventException apply(
+                ExceptionRecordingContext exceptionRecordingContext,
+                Throwable current,
+                long currentStartTime,
+                long exceptionId
+        ) {
+            Objects.requireNonNull(exceptionRecordingContext);
+            SpanEventException spanEventException = newSpanEventException(
+                    exceptionRecordingContext
+            );
+            exceptionRecordingContext.setPrevious(current);
+            exceptionRecordingContext.setStartTime(currentStartTime);
+            exceptionRecordingContext.setExceptionId(exceptionId);
+            return spanEventException;
         }
     },
     FLUSH {
@@ -74,8 +78,7 @@ public enum ExceptionRecordingState {
         public SpanEventException apply(
                 ExceptionRecordingContext exceptionRecordingContext,
                 Throwable current,
-                long currentStartTime,
-                ExceptionIdGenerator idGenerator) {
+                long currentStartTime, long exceptionId) {
             Objects.requireNonNull(exceptionRecordingContext);
             SpanEventException spanEventException = newSpanEventException(
                     exceptionRecordingContext
@@ -87,7 +90,7 @@ public enum ExceptionRecordingState {
         }
     };
 
-    public static ExceptionRecordingState stateOf(Object previous, Object current) {
+    public static ExceptionRecordingState stateOf(Throwable previous, Throwable current) {
         if (previous == null) {
             if (current == null) {
                 return CLEAN;
@@ -96,18 +99,25 @@ public enum ExceptionRecordingState {
         } else {
             if (current == null) {
                 return FLUSH;
+            } else if (isContinued(previous, current)) {
+                return STACKING;
             }
-            return STACKING;
+            return FLUSH_AND_STACK;
         }
     }
 
-    public static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
-        return SpanEventException.newSpanEventException(
-                context.getPrevious(), context.getStartTime(), context.getExceptionId()
-        );
+    public abstract SpanEventException apply(
+            ExceptionRecordingContext exceptionRecordingContext,
+            Throwable current,
+            long currentStartTime,
+            long exceptionId
+    );
+
+    public boolean needsNewExceptionId() {
+        return this == FLUSH_AND_STACK || this == STARTED;
     }
 
-    public static boolean isContinued(Throwable previous, Throwable current) {
+    private static boolean isContinued(Throwable previous, Throwable current) {
         Throwable throwable = current;
         while (throwable != null) {
             if (throwable == previous) {
@@ -118,10 +128,10 @@ public enum ExceptionRecordingState {
         return false;
     }
 
-    public abstract SpanEventException apply(
-            ExceptionRecordingContext exceptionRecordingContext,
-            Throwable current,
-            long currentStartTime,
-            ExceptionIdGenerator idGenerator
-    );
+    private static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
+        return SpanEventException.newSpanEventException(
+                context.getPrevious(), context.getStartTime(), context.getExceptionId()
+        );
+    }
+
 }

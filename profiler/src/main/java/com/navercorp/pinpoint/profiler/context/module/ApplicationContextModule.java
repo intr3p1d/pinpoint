@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.exception.AtomicExceptionIdGenera
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionIdGenerator;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceProvider;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionTraceRateLimiter;
 import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
@@ -170,7 +171,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
 
         bind(ExceptionIdGenerator.class).to(AtomicExceptionIdGenerator.class).in(Scopes.SINGLETON);
-
+        bind(ExceptionTraceRateLimiter.class).to(ExceptionTraceRateLimiter.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
         bind(TraceSampler.class).toProvider(TraceSamplerProvider.class).in(Scopes.SINGLETON);
