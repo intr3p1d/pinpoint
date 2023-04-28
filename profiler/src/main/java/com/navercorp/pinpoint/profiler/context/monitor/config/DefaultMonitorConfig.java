@@ -91,7 +91,7 @@ public class DefaultMonitorConfig implements MonitorConfig {
     public int getExceptionTraceNewThroughput() {
         return exceptionTraceNewThroughPut;
     }
-
++
     @Override
     public int getExceptionTraceMaxDepth() {
         return exceptionTraceMaxDepth;
