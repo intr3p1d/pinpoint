@@ -34,14 +34,14 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     private final ExceptionIdGenerator exceptionIdGenerator;
 
-    private final ExceptionTraceRateLimiter exceptionTraceRateLimiter;
+    private final ExceptionTraceSampler exceptionTraceSampler;
 
     public DefaultExceptionRecordingService(
             ExceptionIdGenerator exceptionIdGenerator,
-            ExceptionTraceRateLimiter exceptionTraceRateLimiter
+            ExceptionTraceSampler exceptionTraceSampler
     ) {
         this.exceptionIdGenerator = exceptionIdGenerator;
-        this.exceptionTraceRateLimiter = exceptionTraceRateLimiter;
+        this.exceptionTraceSampler = exceptionTraceSampler;
     }
 
     @Override
@@ -49,21 +49,13 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         Objects.requireNonNull(context);
         SpanEventException spanEventException = null;
 
-
         ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
-        if (state.needsNewExceptionId()){
-
-            spanEventException = state.apply(context, current, startTime, , exceptionIdGenerator);
-        }
-
+        ExceptionTraceSampler.SamplingState samplingState = exceptionTraceSampler.isSampled();
+        spanEventException = state.checkAndApply(context, current, startTime, samplingState);
 
         logException(spanEventException);
 
         return spanEventException;
-    }
-
-    private long tryAcquireExceptionId(ExceptionIdGenerator idGenerator){
-
     }
 
     private void logException(SpanEventException spanEventException) {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.profiler.context.exception.AtomicExceptionIdGenera
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionIdGenerator;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +39,10 @@ public class DefaultExceptionRecordingServiceTest {
     private final static Logger logger = LogManager.getLogger(DefaultExceptionRecordingServiceTest.class);
 
     ExceptionIdGenerator exceptionIdGenerator = new AtomicExceptionIdGenerator();
-    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(exceptionIdGenerator);
+    ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000, exceptionIdGenerator);
+    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
+            exceptionIdGenerator, exceptionTraceSampler
+    );
 
     ExceptionRecordingContext context;
     List<SpanEventException> flushedExceptions;
