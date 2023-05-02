@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.exception.sampler;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
 
 import java.util.Objects;
 
@@ -26,10 +27,10 @@ import java.util.Objects;
 public class ExceptionTraceSampler {
 
     final RateLimiter rateLimiter;
-    
+
     final ExceptionIdGenerator idGenerator;
-    
-    private final static SamplingState DISABLED = new SamplingState() {
+
+    public final static SamplingState DISABLED = new SamplingState() {
         @Override
         public boolean isSampling() {
             return false;
@@ -42,29 +43,36 @@ public class ExceptionTraceSampler {
     };
 
     public ExceptionTraceSampler(
-            final int newMaxNewThroughput,
+            final int maxNewThroughput,
             ExceptionIdGenerator exceptionIdGenerator
     ) {
-        this.rateLimiter = RateLimiter.create(newMaxNewThroughput);
+        this.rateLimiter = RateLimiter.create(maxNewThroughput);
         this.idGenerator = Objects.requireNonNull(exceptionIdGenerator, "exceptionIdGenerator");
     }
 
     public SamplingState isSampled() {
         if (rateLimiter.tryAcquire()) {
-            long currentId = idGenerator.nextExceptionId();
-            return new SamplingState() {
-                @Override
-                public boolean isSampling() {
-                    return true;
-                }
-
-                @Override
-                public long currentId() {
-                    return currentId;
-                }
-            };
+            return newState(idGenerator.nextExceptionId());
         }
         return DISABLED;
+    }
+
+    public SamplingState continuingSampled() {
+        return newState(idGenerator.getCurrentExceptionId());
+    }
+
+    private SamplingState newState(long id) {
+        return new SamplingState() {
+            @Override
+            public boolean isSampling() {
+                return true;
+            }
+
+            @Override
+            public long currentId() {
+                return id;
+            }
+        };
     }
 
     public interface SamplingState {

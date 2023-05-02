@@ -18,6 +18,11 @@ package com.navercorp.pinpoint.profiler.context.exception;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
+import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,15 +38,17 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     private static final boolean IS_DEBUG = logger.isDebugEnabled();
 
     private final ExceptionIdGenerator exceptionIdGenerator;
-
     private final ExceptionTraceSampler exceptionTraceSampler;
+    private final SpanEventExceptionFactory spanEventExceptionFactory;
 
     public DefaultExceptionRecordingService(
             ExceptionIdGenerator exceptionIdGenerator,
-            ExceptionTraceSampler exceptionTraceSampler
+            ExceptionTraceSampler exceptionTraceSampler,
+            SpanEventExceptionFactory spanEventExceptionFactory
     ) {
         this.exceptionIdGenerator = exceptionIdGenerator;
         this.exceptionTraceSampler = exceptionTraceSampler;
+        this.spanEventExceptionFactory = spanEventExceptionFactory;
     }
 
     @Override
@@ -50,12 +57,23 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         SpanEventException spanEventException = null;
 
         ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
-        ExceptionTraceSampler.SamplingState samplingState = exceptionTraceSampler.isSampled();
-        spanEventException = state.checkAndApply(context, current, startTime, samplingState);
+        ExceptionTraceSampler.SamplingState samplingState = getSampligState(state);
+        spanEventException = state.checkAndApply(context, current, startTime, samplingState, spanEventExceptionFactory);
 
         logException(spanEventException);
 
         return spanEventException;
+    }
+
+    private ExceptionTraceSampler.SamplingState getSampligState(ExceptionRecordingState state) {
+        if (state.needsNewExceptionId()) {
+            return exceptionTraceSampler.isSampled();
+        } else if (state.chainContinued()) {
+            return exceptionTraceSampler.continuingSampled();
+        } else if (state.notNeedExceptionId()) {
+            return ExceptionTraceSampler.DISABLED;
+        }
+        return ExceptionTraceSampler.DISABLED;
     }
 
     private void logException(SpanEventException spanEventException) {

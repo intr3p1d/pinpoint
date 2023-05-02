@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,20 +43,6 @@ public class ExceptionWrapper {
         }
         return new ExceptionWrapper(throwable);
     }
-
-    public static ExceptionWrapper[] newExceptions(Throwable throwable) {
-        if (throwable == null) {
-            return new ExceptionWrapper[0];
-        }
-        List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
-        Throwable curr = throwable;
-        while (curr != null) {
-            exceptionWrappers.add(ExceptionWrapper.newException(curr));
-            curr = curr.getCause();
-        }
-        return exceptionWrappers.toArray(new ExceptionWrapper[0]);
-    }
-
 
     public String getExceptionClassName() {
         return exceptionClassName;

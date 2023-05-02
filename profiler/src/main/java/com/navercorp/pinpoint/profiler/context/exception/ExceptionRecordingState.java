@@ -15,6 +15,11 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+
 import java.util.Objects;
 
 /**
@@ -25,10 +30,7 @@ public enum ExceptionRecordingState {
         @Override
         public SpanEventException getException(
                 ExceptionRecordingContext context,
-                Throwable current,
-                long currentStartTime,
-                long exceptionId
-        ) {
+                SpanEventExceptionFactory factory) {
             // do nothing
             return null;
         }
@@ -47,10 +49,7 @@ public enum ExceptionRecordingState {
         @Override
         public SpanEventException getException(
                 ExceptionRecordingContext context,
-                Throwable current,
-                long currentStartTime,
-                long exceptionId
-        ) {
+                SpanEventExceptionFactory factory) {
             Objects.requireNonNull(context);
             return null;
         }
@@ -72,10 +71,7 @@ public enum ExceptionRecordingState {
         @Override
         public SpanEventException getException(
                 ExceptionRecordingContext context,
-                Throwable current,
-                long currentStartTime,
-                long exceptionId
-        ) {
+                SpanEventExceptionFactory factory) {
             Objects.requireNonNull(context);
             return null;
         }
@@ -95,13 +91,11 @@ public enum ExceptionRecordingState {
         @Override
         public SpanEventException getException(
                 ExceptionRecordingContext context,
-                Throwable current,
-                long currentStartTime,
-                long exceptionId
-        ) {
+                SpanEventExceptionFactory factory) {
             Objects.requireNonNull(context);
+            Objects.requireNonNull(factory);
             return newSpanEventException(
-                    context
+                    context, factory
             );
         }
 
@@ -122,13 +116,11 @@ public enum ExceptionRecordingState {
         @Override
         public SpanEventException getException(
                 ExceptionRecordingContext context,
-                Throwable current,
-                long currentStartTime,
-                long exceptionId
-        ) {
+                SpanEventExceptionFactory factory) {
             Objects.requireNonNull(context);
+            Objects.requireNonNull(factory);
             return newSpanEventException(
-                    context
+                    context, factory
             );
         }
 
@@ -139,6 +131,7 @@ public enum ExceptionRecordingState {
                 long currentStartTime,
                 long exceptionId
         ) {
+            Objects.requireNonNull(context);
             context.resetPrevious();
             context.resetStartTime();
             context.resetExceptionId();
@@ -176,12 +169,13 @@ public enum ExceptionRecordingState {
             ExceptionRecordingContext context,
             Throwable current,
             long currentStartTime,
-            ExceptionTraceSampler.SamplingState samplingState
+            ExceptionTraceSampler.SamplingState samplingState,
+            SpanEventExceptionFactory factory
     ) {
         SpanEventException spanEventException = null;
         if (samplingState.isSampling()) {
             spanEventException = this.getException(
-                    context, current, currentStartTime, samplingState.currentId()
+                    context, factory
             );
         }
         this.update(
@@ -192,9 +186,7 @@ public enum ExceptionRecordingState {
 
     public abstract SpanEventException getException(
             ExceptionRecordingContext context,
-            Throwable current,
-            long currentStartTime,
-            long exceptionId
+            SpanEventExceptionFactory factory
     );
 
     public abstract void update(
@@ -208,8 +200,16 @@ public enum ExceptionRecordingState {
         return this == FLUSH_AND_START || this == STARTED;
     }
 
-    private static SpanEventException newSpanEventException(ExceptionRecordingContext context) {
-        return SpanEventException.newSpanEventException(
+    public boolean chainContinued() {
+        return this == STACKING || this == FLUSH;
+    }
+
+    public boolean notNeedExceptionId() {
+        return this == STARTED;
+    }
+
+    private static SpanEventException newSpanEventException(ExceptionRecordingContext context, SpanEventExceptionFactory factory) {
+        return factory.newSpanEventException(
                 context.getPrevious(), context.getStartTime(), context.getExceptionId()
         );
     }

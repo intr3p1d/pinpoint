@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.util.IntStringValue;
-import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import javax.annotation.Nullable;
 
@@ -32,6 +32,8 @@ public class ExceptionRecordingContext {
     public static ExceptionRecordingContext newContext() {
         return new ExceptionRecordingContext();
     }
+
+
 
     public boolean hasValidExceptionId() {
         return this.exceptionId != EMPTY_EXCEPTION_ID;

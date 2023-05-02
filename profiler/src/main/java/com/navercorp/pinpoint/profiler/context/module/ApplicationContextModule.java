@@ -28,11 +28,12 @@ import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.exception.AtomicExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.id.AtomicExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceProvider;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
@@ -171,7 +172,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
 
         bind(ExceptionIdGenerator.class).to(AtomicExceptionIdGenerator.class).in(Scopes.SINGLETON);
-        bind(ExceptionTraceSampler.class).to(ExceptionTraceSampler.class).in(Scopes.SINGLETON);
+        bind(ExceptionTraceSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
         bind(TraceSampler.class).toProvider(TraceSamplerProvider.class).in(Scopes.SINGLETON);

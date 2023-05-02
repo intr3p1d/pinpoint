@@ -16,6 +16,9 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 
 import javax.inject.Provider;
@@ -27,11 +30,20 @@ public class ExceptionRecordingServiceProvider implements Provider<ExceptionReco
 
     private final MonitorConfig monitorConfig;
     private final ExceptionIdGenerator exceptionIdGenerator;
+    private final ExceptionTraceSampler exceptionTraceSampler;
+    private final SpanEventExceptionFactory spanEventExceptionFactory;
 
     @Inject
-    public ExceptionRecordingServiceProvider(MonitorConfig monitorConfig, ExceptionIdGenerator exceptionIdGenerator) {
+    public ExceptionRecordingServiceProvider(
+            MonitorConfig monitorConfig,
+            ExceptionIdGenerator exceptionIdGenerator,
+            ExceptionTraceSampler exceptionTraceSampler,
+            SpanEventExceptionFactory spanEventExceptionFactory
+    ) {
         this.monitorConfig = monitorConfig;
         this.exceptionIdGenerator = exceptionIdGenerator;
+        this.exceptionTraceSampler = exceptionTraceSampler;
+        this.spanEventExceptionFactory = spanEventExceptionFactory;
     }
 
     @Override
@@ -39,10 +51,8 @@ public class ExceptionRecordingServiceProvider implements Provider<ExceptionReco
         if (monitorConfig.isExceptionTraceEnable()) {
             return new DefaultExceptionRecordingService(
                     exceptionIdGenerator,
-                    new ExceptionTraceSampler(
-                            monitorConfig.getExceptionTraceNewThroughput(),
-                            exceptionIdGenerator
-                    )
+                    exceptionTraceSampler,
+                    spanEventExceptionFactory
             );
         } else {
             return DisabledExceptionRecordingService.INSTANCE;

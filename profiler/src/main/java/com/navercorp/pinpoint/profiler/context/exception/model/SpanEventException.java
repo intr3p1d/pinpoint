@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -29,18 +29,10 @@ public class SpanEventException {
 
     private final long exceptionId;
 
-    private SpanEventException(Throwable throwable, long startTime, long exceptionId) {
-        Objects.requireNonNull(throwable);
-        this.exceptionWrappers = ExceptionWrapper.newExceptions(throwable);
+    public SpanEventException(ExceptionWrapper[] exceptionWrappers, long startTime, long exceptionId) {
+        this.exceptionWrappers = exceptionWrappers;
         this.startTime = startTime;
         this.exceptionId = exceptionId;
-    }
-
-    public static SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId) {
-        if (throwable == null) {
-            return null;
-        }
-        return new SpanEventException(throwable, startTime, exceptionId);
     }
 
     public long getStartTime() {

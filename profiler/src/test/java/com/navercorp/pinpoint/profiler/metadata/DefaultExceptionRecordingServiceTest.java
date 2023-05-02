@@ -17,12 +17,13 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.profiler.context.DefaultReference;
 import com.navercorp.pinpoint.profiler.context.Reference;
-import com.navercorp.pinpoint.profiler.context.exception.AtomicExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.id.AtomicExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionTraceSampler;
-import com.navercorp.pinpoint.profiler.context.exception.SpanEventException;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -40,8 +41,9 @@ public class DefaultExceptionRecordingServiceTest {
 
     ExceptionIdGenerator exceptionIdGenerator = new AtomicExceptionIdGenerator();
     ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000, exceptionIdGenerator);
+    SpanEventExceptionFactory spanEventExceptionFactory = new SpanEventExceptionFactory(10);
     DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
-            exceptionIdGenerator, exceptionTraceSampler
+            exceptionIdGenerator, exceptionTraceSampler, spanEventExceptionFactory
     );
 
     ExceptionRecordingContext context;
@@ -91,7 +93,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             level3Error(throwableInterceptor);
         } catch (Throwable e) {
-            expected = SpanEventException.newSpanEventException(e, START_TIME, context.getExceptionId());
+            expected = spanEventExceptionFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             Assertions.assertNull(actual);
         }
@@ -113,14 +115,14 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             notChainedException(throwableInterceptor);
         } catch (Throwable e) {
-            expected1 = SpanEventException.newSpanEventException(reference.get(), START_TIME, context.getExceptionId());
+            expected1 = spanEventExceptionFactory.newSpanEventException(reference.get(), START_TIME, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             throwable = e;
             Assertions.assertNotNull(actual);
             Assertions.assertEquals(expected1, actual);
         }
 
-        expected2 = SpanEventException.newSpanEventException(throwable, START_TIME, context.getExceptionId());
+        expected2 = spanEventExceptionFactory.newSpanEventException(throwable, START_TIME, context.getExceptionId());
         actual = exceptionRecordingService.recordException(context, null, 0);
         Assertions.assertEquals(expected2, actual);
     }
@@ -137,7 +139,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             rethrowGivenException(throwableInterceptor);
         } catch (Throwable e) {
-            expected = SpanEventException.newSpanEventException(e, START_TIME, context.getExceptionId());
+            expected = spanEventExceptionFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             Assertions.assertNull(actual);
         }
