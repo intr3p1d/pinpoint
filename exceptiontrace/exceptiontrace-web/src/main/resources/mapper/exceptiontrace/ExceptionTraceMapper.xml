@@ -38,18 +38,10 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="simpleExceptionTraceSummary" type="ExceptionTraceSummary">
+    <resultMap id="exceptionTraceValueView" type="ExceptionTraceValueView">
         <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="count" javaType="_long"/>
-        </constructor>
-    </resultMap>
-
-    <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="count" javaType="_long"/>
-            <arg column="groupName" javaType="string"/>
+            <arg column="fieldName" javaType="string"/>
+            <arg column="values" javaType="java.util.List" jdbcType="INTEGER"/>
         </constructor>
     </resultMap>
 
@@ -154,10 +146,10 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSummaries" resultMap="simpleExceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
-        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
-        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        count(*) as "count"
+    <select id="selectValueViews" resultMap="exceptionTraceValueView" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        #{TOTAL_FIELD_NAME} as "fieldName",
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, 100) as "values"
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -171,17 +163,16 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSummariesWithGroup" resultMap="exceptionTraceSummary" parameterType="ExceptionTraceQueryParameter">
-        SELECT DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
-        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        count(*) as "count",
+    <select id="selectValueViewsWithGroup" resultMap="exceptionTraceValueView" parameterType="ExceptionTraceQueryParameter">
+        SELECT
         <foreach collection="groupByAttributes" item="attr" open="CONCAT(" close=", ''" separator=", CONCAT(">
             ${attr}
         </foreach>
         <foreach collection="groupByAttributes" item="attr" open="" close="" separator="">
             , ', ')
         </foreach>
-        as "groupName"
+        as "fieldName",
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, 100) as "values"
 
         FROM
         <include refid="exceptionTraceTable"></include>
@@ -195,8 +186,8 @@
         <foreach collection="groupByAttributes" item="attr" open=", " close="" separator=", ">
             ${attr}
         </foreach>
-        ORDER BY "timestamp" asc
-        LIMIT ${limit}
+        ORDER BY count(*) desc, "groupName" asc
+        LIMIT 5
     </select>
 
 </mapper>

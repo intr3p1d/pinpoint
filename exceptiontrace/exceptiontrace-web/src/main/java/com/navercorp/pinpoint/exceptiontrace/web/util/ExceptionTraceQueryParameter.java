@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
  */
 public class ExceptionTraceQueryParameter extends QueryParameter {
 
+    private final static String TOTAL_FIELD_NAME = "total";
+
     private final String applicationName;
     private final String agentId;
 
@@ -43,6 +45,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final int exceptionDepth;
 
     private final List<String> groupByAttributes;
+
+    private final long timeWindowRangeCount;
 
 
     protected ExceptionTraceQueryParameter(Builder builder) {
@@ -54,6 +58,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.exceptionId = builder.exceptionId;
         this.exceptionDepth = builder.exceptionDepth;
         this.groupByAttributes = builder.groupByAttributes;
+        this.timeWindowRangeCount = builder.timeWindowRangeCount;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
@@ -68,6 +73,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private int exceptionDepth = Integer.MIN_VALUE;
 
         private List<String> groupByAttributes = new ArrayList<>();
+
+        private long timeWindowRangeCount = 0;
 
         @Override
         protected Builder self() {
@@ -101,6 +108,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public Builder setExceptionId(long exceptionId) {
             this.exceptionId = exceptionId;
+            return self();
+        }
+
+        public Builder setTimeWindowRangeCount(long timeWindowRangeCount) {
+            this.timeWindowRangeCount = timeWindowRangeCount;
             return self();
         }
 
@@ -141,9 +153,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                 ", exceptionId=" + exceptionId +
                 ", exceptionDepth=" + exceptionDepth +
                 ", groupByAttributes=" + groupByAttributes +
-                ", range=" + range +
-                ", timePrecision=" + timePrecision +
-                ", limit=" + limit +
+                ", timeWindowRangeCount=" + timeWindowRangeCount +
                 '}';
     }
 }

@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import com.navercorp.pinpoint.exceptiontrace.web.mapper.StackTraceTypeHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -33,6 +34,7 @@ public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias("SpanEventException", SpanEventException.class);
         typeAliasRegistry.registerAlias("StackTraceElementWrapper", StackTraceElementWrapper.class);
         typeAliasRegistry.registerAlias("ExceptionTraceSummary", ExceptionTraceSummary.class);
+        typeAliasRegistry.registerAlias("ExceptionTraceValueView", ExceptionTraceValueView.class);
         typeAliasRegistry.registerAlias("StackTraceTypeHandler", StackTraceTypeHandler.class);
         typeAliasRegistry.registerAlias("ExceptionTraceQueryParameter", ExceptionTraceQueryParameter.class);
     }

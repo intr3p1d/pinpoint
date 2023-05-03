@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +40,8 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_QUERY = "selectExceptions";
     private static final String SELECT_SIMPLE_QUERY = "selectSimpleExceptions";
     private static final String SELECT_EXACT_QUERY = "selectExactException";
-    private static final String SELECT_SUMMARIES_QUERY = "selectSummaries";
-
-    private static final String SELECT_GROUPED_SUMMARY_QUERY = "selectSummariesWithGroup";
+    private static final String SELECT_VALUEVIEWS_QUERY = "selectValueViews";
+    private static final String SELECT_GROUPED_VALUEVIEWS_QUERY = "selectValueViewsWithGroup";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -66,12 +65,12 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_QUERY, exceptionTraceQueryParameter);
+    public List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
     }
 
     @Override
-    public List<ExceptionTraceSummary> getGroupedSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_GROUPED_SUMMARY_QUERY, exceptionTraceQueryParameter);
+    public List<ExceptionTraceValueView> getGroupedValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_GROUPED_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
     }
 }

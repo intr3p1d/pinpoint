@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public interface ExceptionTraceService {
 
     List<SpanEventException> getExceptionsInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceSummary> getSummaryInRange(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionTraceValueView> getValueViewsInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceSummary> getSummaryWithGroups(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionTraceValueView> getValueViewsWithGroup(ExceptionTraceQueryParameter queryParameter);
 }

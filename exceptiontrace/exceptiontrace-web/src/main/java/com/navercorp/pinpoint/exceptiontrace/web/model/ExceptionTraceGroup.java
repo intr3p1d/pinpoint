@@ -16,21 +16,11 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -46,14 +36,17 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
         this.values = values;
     }
 
-    public static ExceptionTraceGroup newGroupFromSummaries(
+    public static ExceptionTraceGroup newGroupFromValueViews(
             TimeWindow timeWindow,
             String exceptionClass,
-            List<ExceptionTraceSummary> exceptionTraceSummaries
+            List<ExceptionTraceValueView> exceptionTraceValueViews
     ) {
+        List<TimeSeriesValueView> timeSeriesValueViews = exceptionTraceValueViews.stream().map(
+                (ExceptionTraceValueView e) -> (TimeSeriesValueView) e
+        ).collect(Collectors.toList());
         return new ExceptionTraceGroup(
                 exceptionClass,
-                ExceptionTraceValue.createValueListGroupedBySimilarity(timeWindow, exceptionTraceSummaries)
+                timeSeriesValueViews
         );
     }
 
@@ -65,50 +58,6 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
     @Override
     public List<TimeSeriesValueView> getMetricValues() {
         return values;
-    }
-
-    public static class ExceptionTraceValue implements TimeSeriesValueView {
-
-        private final String fieldName;
-        private final List<Integer> values;
-
-        private static List<TimeSeriesValueView> createValueListGroupedBySimilarity(
-                TimeWindow timeWindow,
-                List<ExceptionTraceSummary> exceptionTraceSummaries
-        ) {
-            int[] timeseriesvalues = new int[(int) timeWindow.getWindowRangeCount()];
-            Arrays.fill(timeseriesvalues, 0);
-
-            for (ExceptionTraceSummary e : exceptionTraceSummaries) {
-                timeseriesvalues[timeWindow.getWindowIndex(e.getTimestamp())] += e.getCount();
-            }
-
-            return List.of(new ExceptionTraceValue(
-                    "",
-                    Arrays.stream(timeseriesvalues).boxed().collect(Collectors.toList())
-            ));
-        }
-
-        public ExceptionTraceValue(String fieldName, List<Integer> values) {
-            this.fieldName = fieldName;
-            this.values = values;
-        }
-
-        @Override
-        public String getFieldName() {
-            return this.fieldName;
-        }
-
-        @Override
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> getTags() {
-            return null;
-        }
-
-        @Override
-        public List<Integer> getValues() {
-            return values;
-        }
     }
 
 }

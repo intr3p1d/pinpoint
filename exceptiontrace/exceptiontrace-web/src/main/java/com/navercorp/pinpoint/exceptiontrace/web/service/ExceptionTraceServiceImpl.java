@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.exceptiontrace.web.service;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -64,20 +64,20 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionTraceSummary> getSummaryInRange(
+    public List<ExceptionTraceValueView> getValueViewsInRange(
             ExceptionTraceQueryParameter queryParameter
     ) {
         return getExceptionsInRange(
                 queryParameter,
-                this::getExceptionTraceSummaries
+                this::getExceptionTraceValueViews
         );
     }
 
     @Override
-    public List<ExceptionTraceSummary> getSummaryWithGroups(ExceptionTraceQueryParameter queryParameter) {
+    public List<ExceptionTraceValueView> getValueViewsWithGroup(ExceptionTraceQueryParameter queryParameter) {
         return getExceptionsInRange(
                 queryParameter,
-                this::getGroupedExceptionTraceSummaries
+                this::getGroupedExceptionTraceValueViews
         );
     }
 
@@ -108,14 +108,14 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return spanEventExceptions;
     }
 
-    private List<ExceptionTraceSummary> getExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
-        List<ExceptionTraceSummary> spanEventExceptions = exceptionTraceDao.getSummaries(queryParameter);
+    private List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter queryParameter) {
+        List<ExceptionTraceValueView> spanEventExceptions = exceptionTraceDao.getExceptionTraceValueViews(queryParameter);
         logger.info(spanEventExceptions.size());
         return spanEventExceptions;
     }
 
-    private List<ExceptionTraceSummary> getGroupedExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
-        List<ExceptionTraceSummary> summaries = exceptionTraceDao.getGroupedSummaries(queryParameter);
+    private List<ExceptionTraceValueView> getGroupedExceptionTraceValueViews(ExceptionTraceQueryParameter queryParameter) {
+        List<ExceptionTraceValueView> summaries = exceptionTraceDao.getGroupedValueViews(queryParameter);
         logger.info(summaries.size());
         return summaries;
     }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
@@ -100,7 +101,7 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/errorList/groupBy")
-    public List<ExceptionTraceSummary> getListOfSpanEventExceptionWithDynamicGroupBy(
+    public List<ExceptionTraceValueView> getListOfSpanEventExceptionWithDynamicGroupBy(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
@@ -122,7 +123,7 @@ public class ExceptionTraceController {
                 .addAllGroupBies(groupByAttributes)
                 .build();
 
-        return exceptionTraceService.getSummaryWithGroups(
+        return exceptionTraceService.getValueViewsWithGroup(
                 queryParameter
         );
     }
@@ -141,11 +142,12 @@ public class ExceptionTraceController {
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .build();
-        List<ExceptionTraceSummary> exceptionTraceSummaries = exceptionTraceService.getSummaryInRange(
+        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViewsInRange(
                 queryParameter
         );
-        return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
+        return ExceptionTraceView.newViewFromValueViews("", timeWindow, exceptionTraceValueViews);
     }
 
     @GetMapping("/chart/groupBy")
@@ -166,12 +168,13 @@ public class ExceptionTraceController {
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .addAllGroupBies(groupByAttributes)
                 .build();
-        List<ExceptionTraceSummary> exceptionTraceSummaries = exceptionTraceService.getSummaryWithGroups(
+        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViewsWithGroup(
                 queryParameter
         );
-        return ExceptionTraceView.newViewFromSummaries("", timeWindow, exceptionTraceSummaries);
+        return ExceptionTraceView.newViewFromValueViews("", timeWindow, exceptionTraceValueViews);
     }
 
 }

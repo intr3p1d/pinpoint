@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
@@ -43,18 +43,18 @@ public class ExceptionTraceView implements TimeSeriesView {
         this.exceptionTrace.addAll(exceptionTraces);
     }
 
-    public static ExceptionTraceView newViewFromSummaries(
+    public static ExceptionTraceView newViewFromValueViews(
             String exceptionClass,
             TimeWindow timeWindow,
-            List<ExceptionTraceSummary> exceptionTraceSummaries
+            List<ExceptionTraceValueView> exceptionTraceValueViews
     ) {
         Objects.requireNonNull(timeWindow, "timeWindow");
-        Objects.requireNonNull(exceptionTraceSummaries, "exceptionTraceSummaries");
+        Objects.requireNonNull(exceptionTraceValueViews, "exceptionTraceValueViews");
 
         List<Long> timestampList = createTimeStampList(timeWindow);
         List<TimeseriesValueGroupView> timeseriesValueGroupViews = new ArrayList<>();
         timeseriesValueGroupViews.add(
-                ExceptionTraceGroup.newGroupFromSummaries(timeWindow, exceptionClass, exceptionTraceSummaries)
+                ExceptionTraceGroup.newGroupFromValueViews(timeWindow, exceptionClass, exceptionTraceValueViews)
         );
 
         return new ExceptionTraceView(
