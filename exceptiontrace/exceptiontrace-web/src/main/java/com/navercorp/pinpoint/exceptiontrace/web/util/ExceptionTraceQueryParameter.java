@@ -21,44 +21,39 @@ import com.navercorp.pinpoint.exceptiontrace.web.model.GroupByAttributes;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionTraceQueryParameter extends QueryParameter {
+
     private final String applicationName;
     private final String agentId;
-    private final SpanEventException spanEventException;
 
     private final String transactionId;
     private final long spanId;
     private final long exceptionId;
     private final int exceptionDepth;
 
-    private final List<GroupByAttributes> groupByList;
-
-    private boolean groupByAgentId;
-    private boolean groupByUriTemplate;
-    private boolean groupByErrorClassName;
-    private boolean groupByErrorMessage;
-    private boolean groupByStackTrace;
+    private final List<String> groupByAttributes;
 
 
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
-        this.spanEventException = builder.spanEventException;
         this.transactionId = builder.transactionId;
         this.spanId = builder.spanId;
         this.exceptionId = builder.exceptionId;
         this.exceptionDepth = builder.exceptionDepth;
-        this.groupByList = builder.groupBIES;
+        this.groupByAttributes = builder.groupByAttributes;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
@@ -66,14 +61,13 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private String applicationName;
         private String agentId = null;
 
-        private SpanEventException spanEventException = null;
 
         private String transactionId = null;
         private long spanId = Long.MIN_VALUE;
         private long exceptionId = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
-        private List<GroupByAttributes> groupBIES = Collections.emptyList();
+        private List<String> groupByAttributes = new ArrayList<>();
 
         @Override
         protected Builder self() {
@@ -95,11 +89,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder setSpanEventException(SpanEventException spanEventException) {
-            this.spanEventException = Objects.requireNonNull(spanEventException, "spanEventException");
-            return self();
-        }
-
         public Builder setTransactionId(String transactionId) {
             this.transactionId = transactionId;
             return self();
@@ -115,13 +104,12 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder addGroupBy(GroupByAttributes groupByAttributes) {
-            this.groupBIES.add(groupByAttributes);
-            return self();
-        }
-
         public Builder addAllGroupBies(Collection<GroupByAttributes> summaryGroupBIES) {
-            this.groupBIES.addAll(summaryGroupBIES);
+            List<String> attributes = summaryGroupBIES.stream().map(GroupByAttributes::getAttributeName).collect(Collectors.toList());
+
+            this.groupByAttributes.addAll(
+                    attributes
+            );
             return self();
         }
 
@@ -148,11 +136,14 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         return "ExceptionTraceQueryParameter{" +
                 "applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
-                ", spanEventException=" + spanEventException +
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +
                 ", exceptionDepth=" + exceptionDepth +
+                ", groupByAttributes=" + groupByAttributes +
+                ", range=" + range +
+                ", timePrecision=" + timePrecision +
+                ", limit=" + limit +
                 '}';
     }
 }
