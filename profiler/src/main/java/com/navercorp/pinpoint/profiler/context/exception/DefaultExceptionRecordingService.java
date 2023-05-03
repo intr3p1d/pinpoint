@@ -57,7 +57,7 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         SpanEventException spanEventException = null;
 
         ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
-        ExceptionTraceSampler.SamplingState samplingState = getSampligState(state);
+        ExceptionTraceSampler.SamplingState samplingState = getSamplingState(state, context);
         spanEventException = state.checkAndApply(context, current, startTime, samplingState, spanEventExceptionFactory);
 
         logException(spanEventException);
@@ -65,11 +65,14 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return spanEventException;
     }
 
-    private ExceptionTraceSampler.SamplingState getSampligState(ExceptionRecordingState state) {
+    private ExceptionTraceSampler.SamplingState getSamplingState(
+            ExceptionRecordingState state,
+            ExceptionRecordingContext context
+    ) {
         if (state.needsNewExceptionId()) {
             return exceptionTraceSampler.isSampled();
         } else if (state.chainContinued()) {
-            return exceptionTraceSampler.continuingSampled();
+            return exceptionTraceSampler.continuingSampled(context.getSamplingState());
         } else if (state.notNeedExceptionId()) {
             return ExceptionTraceSampler.DISABLED;
         }

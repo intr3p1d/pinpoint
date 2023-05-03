@@ -57,8 +57,8 @@ public class ExceptionTraceSampler {
         return DISABLED;
     }
 
-    public SamplingState continuingSampled() {
-        return newState(idGenerator.getCurrentExceptionId());
+    public SamplingState continuingSampled(SamplingState samplingState) {
+        return samplingState;
     }
 
     private SamplingState newState(long id) {

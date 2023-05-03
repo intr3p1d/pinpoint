@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+
 import javax.annotation.Nullable;
 
 /**
@@ -26,7 +28,7 @@ public class ExceptionRecordingContext {
     private static final Throwable INITIAL_EXCEPTION = null;
 
     private Throwable previous = INITIAL_EXCEPTION;
-    private long exceptionId = EMPTY_EXCEPTION_ID;
+    private ExceptionTraceSampler.SamplingState samplingState = null;
     private long startTime = 0;
 
     public static ExceptionRecordingContext newContext() {
@@ -34,9 +36,12 @@ public class ExceptionRecordingContext {
     }
 
 
-
     public boolean hasValidExceptionId() {
-        return this.exceptionId != EMPTY_EXCEPTION_ID;
+        return this.samplingState.isSampling();
+    }
+
+    public long getExceptionId() {
+        return samplingState.currentId();
     }
 
     public void resetPrevious() {
@@ -44,7 +49,7 @@ public class ExceptionRecordingContext {
     }
 
     public void resetExceptionId() {
-        setExceptionId(EMPTY_EXCEPTION_ID);
+        setSamplingState(ExceptionTraceSampler.DISABLED);
     }
 
     public void resetStartTime() {
@@ -59,12 +64,12 @@ public class ExceptionRecordingContext {
         this.previous = previous;
     }
 
-    public long getExceptionId() {
-        return exceptionId;
+    public ExceptionTraceSampler.SamplingState getSamplingState() {
+        return samplingState;
     }
 
-    public void setExceptionId(long exceptionId) {
-        this.exceptionId = exceptionId;
+    public void setSamplingState(ExceptionTraceSampler.SamplingState samplingState) {
+        this.samplingState = samplingState;
     }
 
     public long getStartTime() {

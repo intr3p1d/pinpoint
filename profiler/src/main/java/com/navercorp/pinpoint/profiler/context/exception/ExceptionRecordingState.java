@@ -40,7 +40,7 @@ public enum ExceptionRecordingState {
                 ExceptionRecordingContext context,
                 Throwable current,
                 long currentStartTime,
-                long exceptionId
+                ExceptionTraceSampler.SamplingState samplingState
         ) {
             // do nothing
         }
@@ -59,12 +59,12 @@ public enum ExceptionRecordingState {
                 ExceptionRecordingContext context,
                 Throwable current,
                 long currentStartTime,
-                long exceptionId
+                ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
             context.setPrevious(current);
             context.setStartTime(currentStartTime);
-            context.setExceptionId(exceptionId);
+            context.setSamplingState(samplingState);
         }
     },
     STACKING {
@@ -81,7 +81,7 @@ public enum ExceptionRecordingState {
                 ExceptionRecordingContext context,
                 Throwable current,
                 long currentStartTime,
-                long exceptionId
+                ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
             context.setPrevious(current);
@@ -104,12 +104,12 @@ public enum ExceptionRecordingState {
                 ExceptionRecordingContext context,
                 Throwable current,
                 long currentStartTime,
-                long exceptionId
+                ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
             context.setPrevious(current);
             context.setStartTime(currentStartTime);
-            context.setExceptionId(exceptionId);
+            context.setSamplingState(samplingState);
         }
     },
     FLUSH {
@@ -129,7 +129,7 @@ public enum ExceptionRecordingState {
                 ExceptionRecordingContext context,
                 Throwable current,
                 long currentStartTime,
-                long exceptionId
+                ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
             context.resetPrevious();
@@ -179,7 +179,7 @@ public enum ExceptionRecordingState {
             );
         }
         this.update(
-                context, current, currentStartTime, samplingState.currentId()
+                context, current, currentStartTime, samplingState
         );
         return spanEventException;
     }
@@ -193,7 +193,7 @@ public enum ExceptionRecordingState {
             ExceptionRecordingContext context,
             Throwable current,
             long currentStartTime,
-            long exceptionId
+            ExceptionTraceSampler.SamplingState samplingState
     );
 
     public boolean needsNewExceptionId() {
