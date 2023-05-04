@@ -37,7 +37,7 @@ public class ExceptionRecordingContext {
 
 
     public boolean hasValidExceptionId() {
-        return this.samplingState.isSampling();
+        return this.samplingState != null && this.samplingState.isSampling();
     }
 
     public long getExceptionId() {
