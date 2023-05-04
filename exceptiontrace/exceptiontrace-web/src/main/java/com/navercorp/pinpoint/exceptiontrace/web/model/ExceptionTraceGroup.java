@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
@@ -28,31 +27,30 @@ import java.util.stream.Collectors;
  */
 public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
-    private final String exceptionClass;
+    private final String groupName;
     private final List<TimeSeriesValueView> values;
 
-    private ExceptionTraceGroup(String exceptionClass, List<TimeSeriesValueView> values) {
-        this.exceptionClass = exceptionClass;
+    private ExceptionTraceGroup(String groupName, List<TimeSeriesValueView> values) {
+        this.groupName = groupName;
         this.values = values;
     }
 
     public static ExceptionTraceGroup newGroupFromValueViews(
-            TimeWindow timeWindow,
-            String exceptionClass,
+            String groupName,
             List<ExceptionTraceValueView> exceptionTraceValueViews
     ) {
         List<TimeSeriesValueView> timeSeriesValueViews = exceptionTraceValueViews.stream().map(
                 (ExceptionTraceValueView e) -> (TimeSeriesValueView) e
         ).collect(Collectors.toList());
         return new ExceptionTraceGroup(
-                exceptionClass,
+                groupName,
                 timeSeriesValueViews
         );
     }
 
     @Override
     public String getGroupName() {
-        return exceptionClass;
+        return groupName;
     }
 
     @Override

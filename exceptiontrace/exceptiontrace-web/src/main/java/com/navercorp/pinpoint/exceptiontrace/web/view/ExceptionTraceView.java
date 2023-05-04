@@ -44,7 +44,7 @@ public class ExceptionTraceView implements TimeSeriesView {
     }
 
     public static ExceptionTraceView newViewFromValueViews(
-            String exceptionClass,
+            String groupName,
             TimeWindow timeWindow,
             List<ExceptionTraceValueView> exceptionTraceValueViews
     ) {
@@ -52,13 +52,13 @@ public class ExceptionTraceView implements TimeSeriesView {
         Objects.requireNonNull(exceptionTraceValueViews, "exceptionTraceValueViews");
 
         List<Long> timestampList = createTimeStampList(timeWindow);
-        List<TimeseriesValueGroupView> timeseriesValueGroupViews = new ArrayList<>();
-        timeseriesValueGroupViews.add(
-                ExceptionTraceGroup.newGroupFromValueViews(timeWindow, exceptionClass, exceptionTraceValueViews)
+        List<TimeseriesValueGroupView> timeSeriesValueGroupViews = new ArrayList<>();
+        timeSeriesValueGroupViews.add(
+                ExceptionTraceGroup.newGroupFromValueViews(groupName, exceptionTraceValueViews)
         );
 
         return new ExceptionTraceView(
-                timestampList, timeseriesValueGroupViews
+                timestampList, timeSeriesValueGroupViews
         );
     }
 

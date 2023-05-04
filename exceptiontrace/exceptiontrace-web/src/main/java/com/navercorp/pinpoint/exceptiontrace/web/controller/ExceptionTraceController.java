@@ -147,7 +147,7 @@ public class ExceptionTraceController {
         List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViewsInRange(
                 queryParameter
         );
-        return ExceptionTraceView.newViewFromValueViews("", timeWindow, exceptionTraceValueViews);
+        return ExceptionTraceView.newViewFromValueViews("total error occurs", timeWindow, exceptionTraceValueViews);
     }
 
     @GetMapping("/chart/groupBy")
@@ -174,7 +174,7 @@ public class ExceptionTraceController {
         List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViewsWithGroup(
                 queryParameter
         );
-        return ExceptionTraceView.newViewFromValueViews("", timeWindow, exceptionTraceValueViews);
+        return ExceptionTraceView.newViewFromValueViews("top5 error occurs", timeWindow, exceptionTraceValueViews);
     }
 
 }

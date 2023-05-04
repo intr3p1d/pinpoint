@@ -41,7 +41,9 @@
     <resultMap id="exceptionTraceValueView" type="ExceptionTraceValueView">
         <constructor>
             <arg column="fieldName" javaType="string"/>
-            <arg column="values" javaType="java.util.List" jdbcType="INTEGER"/>
+            <arg column="values"
+                 javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="ValueViewTypeHandler"/>
         </constructor>
     </resultMap>
 
@@ -104,7 +106,8 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSimpleExceptions" resultMap="simpleSpanEventException" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSimpleExceptions" resultMap="simpleSpanEventException"
+            parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="simpleExceptionColumns"></include>
         FROM
@@ -149,7 +152,7 @@
     <select id="selectValueViews" resultMap="exceptionTraceValueView" parameterType="ExceptionTraceQueryParameter">
         SELECT
         #{TOTAL_FIELD_NAME} as "fieldName",
-        HISTOGRAM("timestamp", #{range.from}, #{range.to}, 100) as "values"
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}) as "values"
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
@@ -158,12 +161,13 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        GROUP BY "timestamp"
-        ORDER BY "timestamp" asc
-        LIMIT ${limit}
+        GROUP BY applicationName
+        ORDER BY count(*) desc
+        LIMIT 5
     </select>
 
-    <select id="selectValueViewsWithGroup" resultMap="exceptionTraceValueView" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectValueViewsWithGroup" resultMap="exceptionTraceValueView"
+            parameterType="ExceptionTraceQueryParameter">
         SELECT
         <foreach collection="groupByAttributes" item="attr" open="CONCAT(" close=", ''" separator=", CONCAT(">
             ${attr}
@@ -172,7 +176,7 @@
             , ', ')
         </foreach>
         as "fieldName",
-        HISTOGRAM("timestamp", #{range.from}, #{range.to}, 100) as "values"
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}) as "values"
 
         FROM
         <include refid="exceptionTraceTable"></include>
@@ -182,11 +186,10 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        GROUP BY "timestamp"
-        <foreach collection="groupByAttributes" item="attr" open=", " close="" separator=", ">
+        <foreach collection="groupByAttributes" item="attr" open='GROUP BY "timestamp", ' close="" separator=", ">
             ${attr}
         </foreach>
-        ORDER BY count(*) desc, "groupName" asc
+        ORDER BY count(*) desc, "fieldName" asc
         LIMIT 5
     </select>
 
