@@ -123,7 +123,7 @@ public class ExceptionTraceController {
                 .addAllGroupBies(groupByAttributes)
                 .build();
 
-        return exceptionTraceService.getExceptionSummaries(
+        return exceptionTraceService.getSummaries(
                 queryParameter
         );
     }

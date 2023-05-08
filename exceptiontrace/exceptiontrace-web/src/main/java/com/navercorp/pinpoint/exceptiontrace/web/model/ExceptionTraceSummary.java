@@ -24,15 +24,15 @@ public class ExceptionTraceSummary {
     private final String groupName;
     private final String mostRecentErrorClassAndMessage;
     private final long count;
-    private final long firstOccured;
-    private final long lastOccured;
+    private final long firstOccurred;
+    private final long lastOccurred;
 
-    public ExceptionTraceSummary(String groupName, String mostRecentErrorClassAndMessage, long count, long firstOccured, long lastOccured) {
+    public ExceptionTraceSummary(String groupName, String mostRecentErrorClassAndMessage, long count, long firstOccurred, long lastOccured) {
         this.groupName = groupName;
         this.mostRecentErrorClassAndMessage = mostRecentErrorClassAndMessage;
         this.count = count;
-        this.firstOccured = firstOccured;
-        this.lastOccured = lastOccured;
+        this.firstOccurred = firstOccurred;
+        this.lastOccurred = lastOccured;
     }
 
     public String getGroupName() {
@@ -47,11 +47,11 @@ public class ExceptionTraceSummary {
         return count;
     }
 
-    public long getFirstOccured() {
-        return firstOccured;
+    public long getFirstOccurred() {
+        return firstOccurred;
     }
 
-    public long getLastOccured() {
-        return lastOccured;
+    public long getLastOccurred() {
+        return lastOccurred;
     }
 }

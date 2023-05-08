@@ -47,7 +47,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     public List<SpanEventException> getTransactionExceptions(
             ExceptionTraceQueryParameter queryParameter
     ) {
-        return getTransactionExceptions(
+        return applyQueryFunction(
                 queryParameter,
                 this::getSpanEventExceptions
         );
@@ -57,39 +57,34 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     public List<SpanEventException> getExceptionsInRange(
             ExceptionTraceQueryParameter queryParameter
     ) {
-        return getExceptionsInRange(
+        return applyQueryFunction(
                 queryParameter,
                 this::getSimpleSpanEventExceptions
         );
     }
 
     @Override
-    public List<ExceptionTraceSummary> getExceptionSummaries(ExceptionTraceQueryParameter queryParameter) {
-        return null;
+    public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter queryParameter) {
+        return applyQueryFunction(
+                queryParameter,
+                this::getExceptionTraceSummaries
+        );
     }
 
     @Override
     public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter queryParameter) {
-        return getExceptionsInRange(
+        return applyQueryFunction(
                 queryParameter,
                 this::getExceptionTraceValueViews
         );
     }
 
-    private <T> List<T> getTransactionExceptions(
+    private <T> List<T> applyQueryFunction(
             ExceptionTraceQueryParameter queryParameter,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
         return queryFunction.apply(queryParameter);
     }
-
-    private <T> List<T> getExceptionsInRange(
-            ExceptionTraceQueryParameter queryParameter,
-            Function<ExceptionTraceQueryParameter, List<T>> queryFunction
-    ) {
-        return queryFunction.apply(queryParameter);
-    }
-
 
     private List<SpanEventException> getSpanEventExceptions(ExceptionTraceQueryParameter queryParameter) {
         List<SpanEventException> spanEventExceptions = exceptionTraceDao.getExceptions(queryParameter);
@@ -103,8 +98,14 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return spanEventExceptions;
     }
 
+    private List<ExceptionTraceSummary> getExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
+        List<ExceptionTraceSummary> summaries = exceptionTraceDao.getSummaries(queryParameter);
+        logger.info(summaries.size());
+        return summaries;
+    }
+
     private List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter queryParameter) {
-        List<ExceptionTraceValueView> spanEventExceptions = exceptionTraceDao.getExceptionTraceValueViews(queryParameter);
+        List<ExceptionTraceValueView> spanEventExceptions = exceptionTraceDao.getValueViews(queryParameter);
         logger.info(spanEventExceptions.size());
         return spanEventExceptions;
     }

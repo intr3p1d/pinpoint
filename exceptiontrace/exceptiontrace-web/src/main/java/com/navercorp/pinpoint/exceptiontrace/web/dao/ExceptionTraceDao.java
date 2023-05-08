@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 
@@ -30,5 +31,6 @@ public interface ExceptionTraceDao {
     List<SpanEventException> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     List<SpanEventException> getSimpleExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     SpanEventException getException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }

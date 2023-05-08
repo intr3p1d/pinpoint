@@ -32,7 +32,7 @@ public interface ExceptionTraceService {
 
     List<SpanEventException> getExceptionsInRange(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceSummary> getExceptionSummaries(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter queryParameter);
 
     List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter queryParameter);
 }
