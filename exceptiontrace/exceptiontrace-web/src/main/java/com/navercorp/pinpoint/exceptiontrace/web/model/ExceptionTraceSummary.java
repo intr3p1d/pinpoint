@@ -15,46 +15,43 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @author intr3p1d
  */
 public class ExceptionTraceSummary {
 
     private static final String EMPTY_STRING = null;
-    private final long timestamp;
-    private final long count;
     private final String groupName;
-    private String classAndMessage;
+    private final String mostRecentErrorClassAndMessage;
+    private final long count;
+    private final long firstOccured;
+    private final long lastOccured;
 
-    public ExceptionTraceSummary(long timestamp, long count, String groupName) {
-        this.timestamp = timestamp;
-        this.count = count;
+    public ExceptionTraceSummary(String groupName, String mostRecentErrorClassAndMessage, long count, long firstOccured, long lastOccured) {
         this.groupName = groupName;
-    }
-
-    public ExceptionTraceSummary(long timestamp, long count) {
-        this.timestamp = timestamp;
+        this.mostRecentErrorClassAndMessage = mostRecentErrorClassAndMessage;
         this.count = count;
-        this.groupName = "";
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getCount() {
-        return count;
+        this.firstOccured = firstOccured;
+        this.lastOccured = lastOccured;
     }
 
     public String getGroupName() {
         return groupName;
     }
 
-    public String getClassAndMessage() {
-        return classAndMessage;
+    public String getMostRecentErrorClassAndMessage() {
+        return mostRecentErrorClassAndMessage;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public long getFirstOccured() {
+        return firstOccured;
+    }
+
+    public long getLastOccured() {
+        return lastOccured;
     }
 }

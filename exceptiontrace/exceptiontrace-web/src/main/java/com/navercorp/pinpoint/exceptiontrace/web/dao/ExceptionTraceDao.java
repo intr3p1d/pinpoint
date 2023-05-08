@@ -31,5 +31,4 @@ public interface ExceptionTraceDao {
     List<SpanEventException> getSimpleExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     SpanEventException getException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<ExceptionTraceValueView> getGroupedValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }

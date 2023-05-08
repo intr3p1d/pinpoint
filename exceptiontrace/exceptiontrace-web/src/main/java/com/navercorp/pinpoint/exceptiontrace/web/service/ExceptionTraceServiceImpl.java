@@ -64,20 +64,15 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionTraceValueView> getValueViewsInRange(
-            ExceptionTraceQueryParameter queryParameter
-    ) {
-        return getExceptionsInRange(
-                queryParameter,
-                this::getExceptionTraceValueViews
-        );
+    public List<ExceptionTraceSummary> getExceptionSummaries(ExceptionTraceQueryParameter queryParameter) {
+        return null;
     }
 
     @Override
-    public List<ExceptionTraceValueView> getValueViewsWithGroup(ExceptionTraceQueryParameter queryParameter) {
+    public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter queryParameter) {
         return getExceptionsInRange(
                 queryParameter,
-                this::getGroupedExceptionTraceValueViews
+                this::getExceptionTraceValueViews
         );
     }
 
@@ -112,11 +107,5 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         List<ExceptionTraceValueView> spanEventExceptions = exceptionTraceDao.getExceptionTraceValueViews(queryParameter);
         logger.info(spanEventExceptions.size());
         return spanEventExceptions;
-    }
-
-    private List<ExceptionTraceValueView> getGroupedExceptionTraceValueViews(ExceptionTraceQueryParameter queryParameter) {
-        List<ExceptionTraceValueView> summaries = exceptionTraceDao.getGroupedValueViews(queryParameter);
-        logger.info(summaries.size());
-        return summaries;
     }
 }

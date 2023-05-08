@@ -101,7 +101,7 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/errorList/groupBy")
-    public List<ExceptionTraceValueView> getListOfSpanEventExceptionWithDynamicGroupBy(
+    public List<ExceptionTraceSummary> getListOfSpanEventExceptionWithDynamicGroupBy(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
@@ -123,7 +123,7 @@ public class ExceptionTraceController {
                 .addAllGroupBies(groupByAttributes)
                 .build();
 
-        return exceptionTraceService.getValueViewsWithGroup(
+        return exceptionTraceService.getExceptionSummaries(
                 queryParameter
         );
     }
@@ -144,7 +144,7 @@ public class ExceptionTraceController {
                 .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
                 .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .build();
-        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViewsInRange(
+        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViews(
                 queryParameter
         );
         return ExceptionTraceView.newViewFromValueViews("total error occurs", timeWindow, exceptionTraceValueViews);
@@ -171,7 +171,7 @@ public class ExceptionTraceController {
                 .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .addAllGroupBies(groupByAttributes)
                 .build();
-        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViewsWithGroup(
+        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViews(
                 queryParameter
         );
         return ExceptionTraceView.newViewFromValueViews("top5 error occurs", timeWindow, exceptionTraceValueViews);

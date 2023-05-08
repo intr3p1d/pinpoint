@@ -41,7 +41,6 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_SIMPLE_QUERY = "selectSimpleExceptions";
     private static final String SELECT_EXACT_QUERY = "selectExactException";
     private static final String SELECT_VALUEVIEWS_QUERY = "selectValueViews";
-    private static final String SELECT_GROUPED_VALUEVIEWS_QUERY = "selectValueViewsWithGroup";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -67,10 +66,5 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     @Override
     public List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
-    }
-
-    @Override
-    public List<ExceptionTraceValueView> getGroupedValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_GROUPED_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
     }
 }

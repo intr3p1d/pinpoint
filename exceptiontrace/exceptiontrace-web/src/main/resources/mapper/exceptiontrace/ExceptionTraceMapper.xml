@@ -149,32 +149,22 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectValueViews" resultMap="exceptionTraceValueView" parameterType="ExceptionTraceQueryParameter">
-        SELECT
-        #{TOTAL_FIELD_NAME} as "fieldName",
-        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}) as "values"
-        FROM
-        <include refid="exceptionTraceTable"></include>
-        WHERE
-        applicationName = #{applicationName}
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        <if test="agentId != null">
-            AND agentId = #{agentId}
-        </if>
-        GROUP BY applicationName
-        ORDER BY count(*) desc
-        LIMIT 5
-    </select>
-
-    <select id="selectValueViewsWithGroup" resultMap="exceptionTraceValueView"
+    <select id="selectValueViews" resultMap="exceptionTraceValueView"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <foreach collection="groupByAttributes" item="attr" open="CONCAT(" close=", ''" separator=", CONCAT(">
-            ${attr}
-        </foreach>
-        <foreach collection="groupByAttributes" item="attr" open="" close="" separator="">
-            , ', ')
-        </foreach>
+        <choose>
+            <when test="!groupByAttributes.isEmpty()">
+                <foreach collection="groupByAttributes" item="attr" open="CONCAT(" close=", ''" separator=", CONCAT(">
+                    ${attr}
+                </foreach>
+                <foreach collection="groupByAttributes" item="attr" open="" close="" separator="">
+                    , ', ')
+                </foreach>
+            </when>
+            <otherwise>
+                #{TOTAL_FIELD_NAME}
+            </otherwise>
+        </choose>
         as "fieldName",
         HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}) as "values"
 
@@ -186,7 +176,8 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        <foreach collection="groupByAttributes" item="attr" open='GROUP BY "timestamp", ' close="" separator=", ">
+        GROUP BY applicationName
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
             ${attr}
         </foreach>
         ORDER BY count(*) desc, "fieldName" asc
