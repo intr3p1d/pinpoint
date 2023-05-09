@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  */
 public class ExceptionTraceQueryParameter extends QueryParameter {
 
+    public final static String SEPARATOR = "&&&";
     private final static String TOTAL_FIELD_NAME = "total";
 
     private final String applicationName;
@@ -44,7 +45,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final long exceptionId;
     private final int exceptionDepth;
 
-    private final List<String> groupByAttributes;
+    private final List<GroupByAttributes> groupByAttributes;
 
     private final long timeWindowRangeCount;
 
@@ -72,7 +73,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private long exceptionId = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
-        private List<String> groupByAttributes = new ArrayList<>();
+        private final List<GroupByAttributes> groupByAttributes = new ArrayList<>();
 
         private long timeWindowRangeCount = 0;
 
@@ -120,7 +121,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             List<String> attributes = summaryGroupBIES.stream().map(GroupByAttributes::getAttributeName).collect(Collectors.toList());
 
             this.groupByAttributes.addAll(
-                    attributes
+                    summaryGroupBIES
             );
             return self();
         }

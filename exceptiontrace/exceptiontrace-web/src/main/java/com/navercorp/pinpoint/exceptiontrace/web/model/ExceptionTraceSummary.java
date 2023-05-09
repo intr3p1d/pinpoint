@@ -21,22 +21,22 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
 public class ExceptionTraceSummary {
 
     private static final String EMPTY_STRING = null;
-    private final String groupName;
+    private final GroupedFieldName fieldName;
     private final String mostRecentErrorClassAndMessage;
     private final long count;
     private final long firstOccurred;
     private final long lastOccurred;
 
-    public ExceptionTraceSummary(String groupName, String mostRecentErrorClassAndMessage, long count, long firstOccurred, long lastOccured) {
-        this.groupName = groupName;
+    public ExceptionTraceSummary(String fieldName, String mostRecentErrorClassAndMessage, long count, long firstOccurred, long lastOccured) {
+        this.fieldName = new GroupedFieldName(fieldName);
         this.mostRecentErrorClassAndMessage = mostRecentErrorClassAndMessage;
         this.count = count;
         this.firstOccurred = firstOccurred;
         this.lastOccurred = lastOccured;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public GroupedFieldName getFieldName() {
+        return fieldName;
     }
 
     public String getMostRecentErrorClassAndMessage() {
@@ -53,5 +53,16 @@ public class ExceptionTraceSummary {
 
     public long getLastOccurred() {
         return lastOccurred;
+    }
+
+    @Override
+    public String toString() {
+        return "ExceptionTraceSummary{" +
+                "fieldName=" + fieldName +
+                ", mostRecentErrorClassAndMessage='" + mostRecentErrorClassAndMessage + '\'' +
+                ", count=" + count +
+                ", firstOccurred=" + firstOccurred +
+                ", lastOccurred=" + lastOccurred +
+                '}';
     }
 }

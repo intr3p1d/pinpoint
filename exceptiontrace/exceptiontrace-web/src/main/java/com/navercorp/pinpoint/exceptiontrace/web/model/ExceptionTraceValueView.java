@@ -18,26 +18,24 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionTraceValueView implements TimeSeriesValueView {
 
-    private final String fieldName;
+    private final GroupedFieldName fieldName;
     private final List<Integer> values;
 
     public ExceptionTraceValueView(String fieldName, List<Integer> values) {
-        this.fieldName = fieldName;
+        this.fieldName = new GroupedFieldName(fieldName);
         this.values = values;
     }
 
     @Override
     public String getFieldName() {
-        return fieldName;
+        return fieldName.inAString();
     }
 
     @Override
@@ -49,5 +47,13 @@ public class ExceptionTraceValueView implements TimeSeriesValueView {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public List<String> getTags() {
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "ExceptionTraceValueView{" +
+                "fieldName='" + fieldName + '\'' +
+                ", values=" + values +
+                '}';
     }
 }

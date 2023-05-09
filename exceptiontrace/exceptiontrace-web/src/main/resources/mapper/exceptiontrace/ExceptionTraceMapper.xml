@@ -40,7 +40,7 @@
 
     <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
         <constructor>
-            <arg column="groupName" javaType="string"/>
+            <arg column="fieldName" javaType="string"/>
             <arg column="mostRecentErrorClassAndMessage" javaType="string"/>
             <arg column="count" javaType="_long"/>
             <arg column="firstOccurred" javaType="_long"/>
@@ -62,10 +62,10 @@
         <choose>
             <when test="!groupByAttributes.isEmpty()">
                 <foreach collection="groupByAttributes" item="attr" open="CONCAT(" close=", ''" separator=", CONCAT(">
-                    ${attr}
+                    ${attr.getAttributeName}
                 </foreach>
                 <foreach collection="groupByAttributes" item="attr" open="" close="" separator="">
-                    , ', ')
+                    , #{SEPARATOR})
                 </foreach>
             </when>
             <otherwise>
@@ -178,8 +178,12 @@
             parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="concatMultipleColumns"></include>
-        as "groupName",
-        CONCAT(LASTWITHTIME(errorClassName, "timestamp", 'STRING'), LASTWITHTIME(errorMessage, "timestamp", 'STRING'), ', ')
+        as "fieldName",
+
+        CONCAT(
+        LASTWITHTIME(errorClassName, "timestamp", 'STRING'),
+        LASTWITHTIME(errorMessage, "timestamp", 'STRING'),
+        ', ')
         as "mostRecentErrorClassAndMessage",
         count(*) as "count",
         FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
@@ -196,9 +200,12 @@
         </if>
         GROUP BY applicationName
         <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
-            ${attr}
+            ${attr.getAttributeName}
         </foreach>
-        ORDER BY "count" desc, "groupName" asc
+        ORDER BY "count" desc
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
+            ${attr.getAttributeName}
+        </foreach>
         LIMIT 5
     </select>
 
@@ -219,9 +226,12 @@
         </if>
         GROUP BY applicationName
         <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
-            ${attr}
+            ${attr.getAttributeName}
         </foreach>
-        ORDER BY count(*) desc, "fieldName" asc
+        ORDER BY count(*) desc
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
+            ${attr.getAttributeName}
+        </foreach>
         LIMIT 5
     </select>
 
