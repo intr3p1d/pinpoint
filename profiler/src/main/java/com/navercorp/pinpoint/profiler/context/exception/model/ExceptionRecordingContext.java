@@ -28,7 +28,7 @@ public class ExceptionRecordingContext {
     private static final Throwable INITIAL_EXCEPTION = null;
 
     private Throwable previous = INITIAL_EXCEPTION;
-    private ExceptionTraceSampler.SamplingState samplingState = null;
+    private ExceptionTraceSampler.SamplingState samplingState = ExceptionTraceSampler.DISABLED;
     private long startTime = 0;
 
     public static ExceptionRecordingContext newContext() {

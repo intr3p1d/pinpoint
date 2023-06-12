@@ -28,30 +28,23 @@ import java.util.Objects;
  */
 public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
-    private final ExceptionTraceConfig exceptionTraceConfig;
     private final ExceptionTraceSampler exceptionTraceSampler;
     private final SpanEventExceptionFactory spanEventExceptionFactory;
 
     @Inject
     public ExceptionRecordingServiceProvider(
-            ExceptionTraceConfig exceptionTraceConfig ,
             ExceptionTraceSampler exceptionTraceSampler,
             SpanEventExceptionFactory spanEventExceptionFactory
     ) {
-        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
         this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
         this.spanEventExceptionFactory = Objects.requireNonNull(spanEventExceptionFactory, "spanEventExceptionFactory");
     }
 
     @Override
     public ExceptionRecordingService get() {
-        if (exceptionTraceConfig.isExceptionTraceEnable()) {
-            return new DefaultExceptionRecordingService(
-                    exceptionTraceSampler,
-                    spanEventExceptionFactory
-            );
-        } else {
-            return DisabledExceptionRecordingService.INSTANCE;
-        }
+        return new DefaultExceptionRecordingService(
+                exceptionTraceSampler,
+                spanEventExceptionFactory
+        );
     }
 }
