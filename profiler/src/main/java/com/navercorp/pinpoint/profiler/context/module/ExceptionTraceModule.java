@@ -8,33 +8,24 @@ import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptio
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSamplerProvider;
-import com.navercorp.pinpoint.profiler.context.module.config.ConfigurationLoader;
-import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultExceptionTraceConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.Properties;
 
 public class ExceptionTraceModule extends PrivateModule {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final Properties properties;
+    private final ExceptionTraceConfig exceptionTraceConfig;
 
-    public ExceptionTraceModule(Properties properties) {
-        this.properties = Objects.requireNonNull(properties, "properties");
+    public ExceptionTraceModule(ExceptionTraceConfig exceptionTraceConfig) {
+        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
     }
 
     @Override
     protected void configure() {
         logger.info("configure {}", this.getClass().getSimpleName());
-
-        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
-
-        ExceptionTraceConfig exceptionTraceConfig = new DefaultExceptionTraceConfig();
-        configurationLoader.load(exceptionTraceConfig);
-        logger.info("{}", exceptionTraceConfig);
         bind(ExceptionTraceConfig.class).toInstance(exceptionTraceConfig);
 
         bind(ExceptionTraceSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);

@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PException;
 import com.navercorp.pinpoint.grpc.trace.PSpanEventException;
 import com.navercorp.pinpoint.grpc.trace.PStackTraceElement;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GrpcExceptionTraceConverter {
+
+    private static final String EMPTY_STRING = "";
 
     private final PSpanEventException.Builder pSpanEventExceptionBuilder = PSpanEventException.newBuilder();
     private final PException.Builder pExceptionBuilder = PException.newBuilder();
@@ -54,10 +57,10 @@ public class GrpcExceptionTraceConverter {
 
     private PStackTraceElement buildStackTraceElement(StackTraceElement stackTraceElement) {
         final PStackTraceElement.Builder builder = PStackTraceElement.newBuilder();
-        builder.setClassName(stackTraceElement.getClassName());
-        builder.setFileName(stackTraceElement.getFileName());
+        builder.setClassName(StringUtils.defaultIfEmpty(stackTraceElement.getClassName(), EMPTY_STRING));
+        builder.setFileName(StringUtils.defaultIfEmpty(stackTraceElement.getFileName(), EMPTY_STRING));
         builder.setLineNumber(stackTraceElement.getLineNumber());
-        builder.setMethodName(stackTraceElement.getMethodName());
+        builder.setMethodName(StringUtils.defaultIfEmpty(stackTraceElement.getMethodName(), EMPTY_STRING));
         return builder.build();
     }
 
