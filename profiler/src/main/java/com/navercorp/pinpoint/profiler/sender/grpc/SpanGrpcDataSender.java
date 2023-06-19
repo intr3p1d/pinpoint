@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanEventException;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.SpanType;
@@ -78,6 +79,13 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
             if (message instanceof PSpan) {
                 final PSpan pSpan = (PSpan) message;
                 final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpan(pSpan).build();
+                stream.onNext(spanMessage);
+                attemptRenew();
+                return;
+            }
+            if (message instanceof PSpanEventException) {
+                final PSpanEventException pSpanEventException = (PSpanEventException) message;
+                final PSpanMessage spanMessage = PSpanMessage.newBuilder().setException(pSpanEventException).build();
                 stream.onNext(spanMessage);
                 attemptRenew();
                 return;
