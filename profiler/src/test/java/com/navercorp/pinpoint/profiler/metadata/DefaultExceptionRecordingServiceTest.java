@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.navercorp.pinpoint.profiler.context.DefaultReference;
 import com.navercorp.pinpoint.profiler.context.Reference;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,18 +38,18 @@ public class DefaultExceptionRecordingServiceTest {
     private final static Logger logger = LogManager.getLogger(DefaultExceptionRecordingServiceTest.class);
 
     ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000);
-    SpanEventExceptionFactory spanEventExceptionFactory = new SpanEventExceptionFactory(10);
+    ExceptionWrapperFactory exceptionWrapperFactory = new ExceptionWrapperFactory(10);
     DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
-            exceptionTraceSampler, spanEventExceptionFactory
+            exceptionTraceSampler, exceptionWrapperFactory
     );
 
-    ExceptionRecordingContext context;
+    ExceptionContext context;
     List<SpanEventException> flushedExceptions;
 
     long START_TIME = 1;
 
     public void resetContext() {
-        context = ExceptionRecordingContext.newContext();
+        context = ExceptionContext.newContext();
     }
 
     private Function<Throwable, Throwable> throwableInterceptor(Reference<Throwable> throwableReference) {
@@ -90,7 +90,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             level3Error(throwableInterceptor);
         } catch (Throwable e) {
-            expected = spanEventExceptionFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
+            expected = exceptionWrapperFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             Assertions.assertNull(actual);
         }
@@ -112,14 +112,14 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             notChainedException(throwableInterceptor);
         } catch (Throwable e) {
-            expected1 = spanEventExceptionFactory.newSpanEventException(reference.get(), START_TIME, context.getExceptionId());
+            expected1 = exceptionWrapperFactory.newSpanEventException(reference.get(), START_TIME, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             throwable = e;
             Assertions.assertNotNull(actual);
             Assertions.assertEquals(expected1, actual);
         }
 
-        expected2 = spanEventExceptionFactory.newSpanEventException(throwable, START_TIME, context.getExceptionId());
+        expected2 = exceptionWrapperFactory.newSpanEventException(throwable, START_TIME, context.getExceptionId());
         actual = exceptionRecordingService.recordException(context, null, 0);
         Assertions.assertEquals(expected2, actual);
     }
@@ -136,7 +136,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             rethrowGivenException(throwableInterceptor);
         } catch (Throwable e) {
-            expected = spanEventExceptionFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
+            expected = exceptionWrapperFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
             actual = exceptionRecordingService.recordException(context, e, START_TIME);
             Assertions.assertNull(actual);
         }

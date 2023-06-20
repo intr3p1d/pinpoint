@@ -16,13 +16,15 @@
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorage;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionRecordingContext {
+public class ExceptionContext {
 
     private static final long EMPTY_EXCEPTION_ID = Long.MIN_VALUE;
     private static final Throwable INITIAL_EXCEPTION = null;
@@ -31,8 +33,14 @@ public class ExceptionRecordingContext {
     private ExceptionTraceSampler.SamplingState samplingState = ExceptionTraceSampler.DISABLED;
     private long startTime = 0;
 
-    public static ExceptionRecordingContext newContext() {
-        return new ExceptionRecordingContext();
+    private final ExceptionStorage storage;
+
+    public ExceptionContext(ExceptionStorage storage) {
+        this.storage = storage;
+    }
+
+    public void store(List<ExceptionWrapper> wrappers) {
+        storage.store(wrappers);
     }
 
 

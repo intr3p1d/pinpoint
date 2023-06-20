@@ -17,16 +17,13 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
-import com.navercorp.pinpoint.profiler.context.exception.DisabledExceptionRecordingServiceProvider;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionRecordingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.module.config.ConfigurationLoader;
-import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultExceptionTraceConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author intr3p1d

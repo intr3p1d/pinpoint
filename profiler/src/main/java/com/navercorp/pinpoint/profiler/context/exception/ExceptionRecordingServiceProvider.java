@@ -17,9 +17,8 @@ package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 
 import java.util.Objects;
 
@@ -29,22 +28,22 @@ import java.util.Objects;
 public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
     private final ExceptionTraceSampler exceptionTraceSampler;
-    private final SpanEventExceptionFactory spanEventExceptionFactory;
+    private final ExceptionWrapperFactory exceptionWrapperFactory;
 
     @Inject
     public ExceptionRecordingServiceProvider(
             ExceptionTraceSampler exceptionTraceSampler,
-            SpanEventExceptionFactory spanEventExceptionFactory
+            ExceptionWrapperFactory exceptionWrapperFactory
     ) {
         this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
-        this.spanEventExceptionFactory = Objects.requireNonNull(spanEventExceptionFactory, "spanEventExceptionFactory");
+        this.exceptionWrapperFactory = Objects.requireNonNull(exceptionWrapperFactory, "spanEventExceptionFactory");
     }
 
     @Override
     public ExceptionRecordingService get() {
         return new DefaultExceptionRecordingService(
                 exceptionTraceSampler,
-                spanEventExceptionFactory
+                exceptionWrapperFactory
         );
     }
 }

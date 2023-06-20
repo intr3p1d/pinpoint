@@ -4,8 +4,8 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceProvider;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
@@ -29,7 +29,7 @@ public class ExceptionTraceModule extends PrivateModule {
         bind(ExceptionTraceConfig.class).toInstance(exceptionTraceConfig);
 
         bind(ExceptionTraceSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);
-        bind(SpanEventExceptionFactory.class).toProvider(SpanEventExceptionFactoryProvider.class).in(Scopes.SINGLETON);
+        bind(ExceptionWrapperFactory.class).toProvider(ExceptionWrapperFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(ExceptionRecordingService.class).toProvider(ExceptionRecordingServiceProvider.class).in(Scopes.SINGLETON);
         expose(ExceptionRecordingService.class);

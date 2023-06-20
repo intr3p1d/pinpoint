@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -59,7 +60,8 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
                                     SpanFactory spanFactory,
                                     RecorderFactory recorderFactory,
                                     ActiveTraceRepository activeTraceRepository,
-                                    UriStatStorage uriStatStorage) {
+                                    UriStatStorage uriStatStorage,
+                                    ExceptionStorageFactory exceptionStorageFactory) {
         this.traceRootFactory = Objects.requireNonNull(traceRootFactory, "traceRootFactory");
 
         this.callStackFactory = Objects.requireNonNull(callStackFactory, "callStackFactory");

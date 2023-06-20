@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception.model;
+package com.navercorp.pinpoint.profiler.context.exception.storage;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 
 import java.util.Objects;
@@ -24,16 +26,23 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class SpanEventExceptionFactoryProvider implements Provider<SpanEventExceptionFactory> {
+public class ExceptionStorageFactoryProvider implements Provider<ExceptionStorageFactory> {
+
     private final ExceptionTraceConfig exceptionTraceConfig;
+    private final DataSender<SpanType> spanTypeDataSender;
 
     @Inject
-    public SpanEventExceptionFactoryProvider(ExceptionTraceConfig exceptionTraceConfig) {
+    public ExceptionStorageFactoryProvider(ExceptionTraceConfig exceptionTraceConfig, DataSender<SpanType> spanTypeDataSender) {
         this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
+        this.spanTypeDataSender = spanTypeDataSender;
     }
 
     @Override
-    public SpanEventExceptionFactory get() {
-        return new SpanEventExceptionFactory(exceptionTraceConfig.getExceptionTraceMaxDepth());
+    public ExceptionStorageFactory get() {
+        return newStorageFactory();
+    }
+
+    private ExceptionStorageFactory newStorageFactory() {
+        return new ExceptionStorageFactory(spanTypeDataSender, 100);
     }
 }

@@ -15,40 +15,24 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 import java.util.List;
 
 /**
  * @author intr3p1d
  */
 public class SpanEventExceptionFactory {
-    private final int maxDepth;
 
-    public SpanEventExceptionFactory(int maxDepth) {
-        this.maxDepth = maxDepth;
+    private final TraceRoot traceRoot;
+
+    public SpanEventExceptionFactory(TraceRoot traceRoot) {
+        this.traceRoot = traceRoot;
     }
 
-    public SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId) {
-        List<ExceptionWrapper> wrappers = newExceptionWrappers(throwable);
-        return new SpanEventException(
-                wrappers, startTime, exceptionId
-        );
+    public SpanEventException newSpanEventException(List<ExceptionWrapper> wrappers) {
+        SpanEventException spanEventException = new SpanEventException(wrappers);
+        spanEventException.setUriTemplate(traceRoot.getShared().getUriTemplate());
+        return spanEventException;
     }
-
-    private List<ExceptionWrapper> newExceptionWrappers(Throwable throwable) {
-        if (throwable == null) {
-            return Collections.emptyList();
-        }
-        List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
-        Throwable curr = throwable;
-        int depth = 0;
-        while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
-            exceptionWrappers.add(ExceptionWrapper.newException(curr));
-            curr = curr.getCause();
-            depth++;
-        }
-        return exceptionWrappers;
-    }
-
 }
