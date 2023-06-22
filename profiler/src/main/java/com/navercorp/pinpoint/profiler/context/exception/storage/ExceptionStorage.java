@@ -48,10 +48,6 @@ public class ExceptionStorage {
         this.factory = Objects.requireNonNull(factory, "spanEventExceptionFactory");
     }
 
-    public ExceptionStorage newExceptionTraceStorage() {
-
-    }
-
     private boolean overflow(List<ExceptionWrapper> storage) {
         return storage.size() >= bufferSize;
     }

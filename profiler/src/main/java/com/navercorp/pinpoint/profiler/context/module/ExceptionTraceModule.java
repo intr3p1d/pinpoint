@@ -4,10 +4,15 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceProvider;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSamplerProvider;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactory;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +35,10 @@ public class ExceptionTraceModule extends PrivateModule {
 
         bind(ExceptionTraceSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);
         bind(ExceptionWrapperFactory.class).toProvider(ExceptionWrapperFactoryProvider.class).in(Scopes.SINGLETON);
+        bind(ExceptionStorageFactory.class).toProvider(ExceptionStorageFactoryProvider.class).in(Scopes.SINGLETON);
+
+        bind(ExceptionContextFactory.class).toProvider(ExceptionContextFactoryProvider.class).in(Scopes.SINGLETON);
+        expose(ExceptionContextFactory.class);
 
         bind(ExceptionRecordingService.class).toProvider(ExceptionRecordingServiceProvider.class).in(Scopes.SINGLETON);
         expose(ExceptionRecordingService.class);

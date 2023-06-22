@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception.model;
+package com.navercorp.pinpoint.profiler.context.exception.disabled;
 
-import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-
-import java.util.List;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author intr3p1d
  */
-public interface ExceptionContext {
+public class DisabledExceptionContextFactory implements ExceptionContextFactory {
 
-    void store(List<ExceptionWrapper> wrappers);
+    public static final DisabledExceptionContextFactory INSTANCE = new DisabledExceptionContextFactory();
 
-    void flush();
-
-    void setWrapped(Throwable throwable);
-
-    void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState);
-
-    void reset();
-
-    Annotation<Long> newExceptionLinkId();
+    @Override
+    public ExceptionContext newExceptionContext(TraceRoot traceRoot) {
+        // do nothing
+        return null;
+    }
 }

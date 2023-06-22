@@ -201,6 +201,7 @@ public class DefaultTrace implements Trace {
             logSpan();
         }
 
+        this.exceptionContext.flush();
         this.storage.close();
         this.closeListener.close(afterTime);
     }

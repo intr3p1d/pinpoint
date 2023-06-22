@@ -17,14 +17,27 @@ package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactory;
+import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
+
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionContextFactoryProvider implements Provider<ExceptionContextFactory> {
 
+    private final ExceptionTraceConfig exceptionTraceConfig;
+    private final ExceptionStorageFactory exceptionStorageFactory;
+
+    @Inject
+    public ExceptionContextFactoryProvider(ExceptionTraceConfig exceptionTraceConfig, ExceptionStorageFactory exceptionStorageFactory) {
+        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
+        this.exceptionStorageFactory = Objects.requireNonNull(exceptionStorageFactory, "exceptionStorageFactory");
+    }
+
     @Override
     public ExceptionContextFactory get() {
-        return null;
+        return new DefaultExceptionContextFactory(exceptionStorageFactory);
     }
 }

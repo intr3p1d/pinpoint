@@ -34,7 +34,7 @@ public class DefaultExceptionContextFactory implements ExceptionContextFactory {
     public ExceptionContext newExceptionContext(TraceRoot traceRoot) {
         SpanEventExceptionFactory spanEventExceptionFactory = new SpanEventExceptionFactory(traceRoot);
         ExceptionStorage exceptionStorage = exceptionStorageFactory.createStorage(spanEventExceptionFactory);
-        return new ExceptionContext(
+        return new DefaultExceptionContext(
                 exceptionStorage
         );
     }

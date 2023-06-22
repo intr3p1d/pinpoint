@@ -15,10 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
@@ -68,8 +66,11 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return ExceptionTraceSampler.DISABLED;
     }
 
-    public Annotation<Long> newExceptionLinkId(ExceptionContext context) {
-        return Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), context.getExceptionId());
+    public void recordExceptionIdAnnotation(SpanEvent spanEvent, ExceptionContext context) {
+        Annotation<Long> linkId = context.newExceptionLinkId();
+        if (linkId != null) {
+            spanEvent.addAnnotation(linkId);
+        }
     }
 
     @Override
@@ -83,9 +84,9 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
                 throwable,
                 spanEvent.getStartTime()
         );
-        if (exceptionContext.hasValidExceptionId()) {
-            Annotation<Long> linkId = newExceptionLinkId(exceptionContext);
-            spanEvent.addAnnotation(linkId);
-        }
+        this.recordExceptionIdAnnotation(
+                spanEvent,
+                exceptionContext
+        );
     }
 }

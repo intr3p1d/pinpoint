@@ -25,7 +25,8 @@ import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServi
 public class DisabledExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
     @Inject
-    public DisabledExceptionRecordingServiceProvider() {}
+    public DisabledExceptionRecordingServiceProvider() {
+    }
 
     @Override
     public ExceptionRecordingService get() {

@@ -15,25 +15,28 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-
-import java.util.List;
-
 /**
  * @author intr3p1d
  */
-public interface ExceptionContext {
+public class ExceptionContextValue {
 
-    void store(List<ExceptionWrapper> wrappers);
+    private static final Throwable INITIAL_EXCEPTION = null;
+    private Throwable previous = INITIAL_EXCEPTION;
+    private long startTime = 0;
 
-    void flush();
+    public Throwable getPrevious() {
+        return previous;
+    }
 
-    void setWrapped(Throwable throwable);
+    public void setPrevious(Throwable previous) {
+        this.previous = previous;
+    }
 
-    void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState);
+    public long getStartTime() {
+        return startTime;
+    }
 
-    void reset();
-
-    Annotation<Long> newExceptionLinkId();
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 }

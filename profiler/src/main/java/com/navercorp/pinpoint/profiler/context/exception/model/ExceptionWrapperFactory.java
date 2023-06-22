@@ -29,6 +29,13 @@ public class ExceptionWrapperFactory {
         this.maxDepth = maxDepth;
     }
 
+    public List<ExceptionWrapper> newExceptionWrappers(ExceptionContext context) {
+        if (context == null) {
+            return null;
+        }
+
+    }
+
     public List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {
         if (throwable == null) {
             return Collections.emptyList();

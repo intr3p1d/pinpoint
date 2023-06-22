@@ -63,9 +63,8 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setPrevious(current);
-            context.setStartTime(currentStartTime);
-            context.setSamplingState(samplingState);
+            context.setWrapped(current);
+            context.chainStart(currentStartTime, samplingState);
         }
     },
     STACKING {
@@ -85,7 +84,7 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setPrevious(current);
+            context.setWrapped(current);
         }
     },
     FLUSH_AND_START {
@@ -108,9 +107,8 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setPrevious(current);
-            context.setStartTime(currentStartTime);
-            context.setSamplingState(samplingState);
+            context.setWrapped(current);
+            context.chainStart(currentStartTime, samplingState);
         }
     },
     FLUSH {
@@ -133,9 +131,7 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.resetPrevious();
-            context.resetStartTime();
-            context.resetExceptionId();
+            context.reset();
         }
     };
 
@@ -173,9 +169,8 @@ public enum ExceptionRecordingState {
             ExceptionTraceSampler.SamplingState samplingState,
             ExceptionWrapperFactory factory
     ) {
-        List<ExceptionWrapper> wrappers = null;
         if (samplingState.isSampling()) {
-            wrappers = this.getExceptions(
+            final List<ExceptionWrapper> wrappers = this.getExceptions(
                     context, factory
             );
             if (wrappers != null) {
@@ -216,7 +211,7 @@ public enum ExceptionRecordingState {
             ExceptionWrapperFactory factory
     ) {
         return factory.newExceptionWrappers(
-                context.getPrevious(), context.getStartTime(), context.getExceptionId()
+                context
         );
     }
 
