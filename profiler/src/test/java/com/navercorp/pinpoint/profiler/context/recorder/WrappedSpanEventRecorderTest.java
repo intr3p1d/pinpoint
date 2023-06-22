@@ -71,7 +71,7 @@ public class WrappedSpanEventRecorderTest {
 
         SpanEvent spanEvent = new SpanEvent();
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        ExceptionContext exceptionContext = ExceptionContext.newContext();
+        ExceptionContext exceptionContext = null;
         recorder.setWrapped(spanEvent, exceptionContext);
 
         final String exceptionMessage1 = "exceptionMessage1";
@@ -94,7 +94,7 @@ public class WrappedSpanEventRecorderTest {
     public void testRecordAPIId() throws Exception {
         SpanEvent spanEvent = new SpanEvent();
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        ExceptionContext exceptionContext = ExceptionContext.newContext();
+        ExceptionContext exceptionContext = null;
         recorder.setWrapped(spanEvent, exceptionContext);
 
 

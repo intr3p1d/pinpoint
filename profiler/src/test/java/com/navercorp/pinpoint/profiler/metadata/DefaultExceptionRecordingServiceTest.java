@@ -15,20 +15,20 @@
  */
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.profiler.context.DefaultReference;
-import com.navercorp.pinpoint.profiler.context.Reference;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.model.DefaultExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author intr3p1d
@@ -43,143 +43,157 @@ public class DefaultExceptionRecordingServiceTest {
             exceptionTraceSampler, exceptionWrapperFactory
     );
 
-    ExceptionContext context;
-    List<SpanEventException> flushedExceptions;
+    TestExceptionStorage exceptionStorage = new TestExceptionStorage();
+
+    ExceptionContext context = new DefaultExceptionContext(exceptionStorage);
 
     long START_TIME = 1;
 
-    public void resetContext() {
-        context = ExceptionContext.newContext();
-    }
+    class TestExceptionStorage implements ExceptionStorage {
 
-    private Function<Throwable, Throwable> throwableInterceptor(Reference<Throwable> throwableReference) {
-        return (Throwable throwable) -> {
-            throwableReference.set(throwable);
-            recordAndStore(throwable);
-            logger.info(throwable);
-            return throwable;
-        };
-    }
+        List<ExceptionWrapper> wrappers;
 
-    private void recordAndStore(Throwable throwable) {
-        SpanEventException spanEventException = exceptionRecordingService.recordException(context, throwable, START_TIME);
-        if (spanEventException != null) {
-            flushedExceptions.add(spanEventException);
+        public TestExceptionStorage() {
+            this.wrappers = new ArrayList<>();
+        }
+
+        @Override
+        public void store(List<ExceptionWrapper> wrappers) {
+            this.wrappers.addAll(wrappers);
+        }
+
+        @Override
+        public void flush() {
+            this.wrappers = new ArrayList<>();
+        }
+
+        @Override
+        public void close() {
+        }
+
+        public List<ExceptionWrapper> getWrappers() {
+            return this.wrappers;
         }
     }
 
+    public void resetContext() {
+        exceptionStorage.flush();
+        context = new DefaultExceptionContext(exceptionStorage);
+    }
 
     @Test
     public void testRecordNothing() {
         resetContext();
-        SpanEventException actual = null;
-        SpanEventException expected = null;
-        actual = exceptionRecordingService.recordException(context, null, 0);
+
+        exceptionRecordingService.recordException(context, null, 0);
+
+        List<ExceptionWrapper> expected = new ArrayList<>();
+        List<ExceptionWrapper> actual = exceptionStorage.getWrappers();
+
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     public void testRecordException() {
         resetContext();
-        SpanEventException actual = null;
-        SpanEventException expected = null;
-
-        Reference<Throwable> reference = new DefaultReference<>();
-        Function<Throwable, Throwable> throwableInterceptor = throwableInterceptor(reference);
+        List<ExceptionWrapper> expected = null;
+        List<ExceptionWrapper> actual = null;
 
         try {
-            level3Error(throwableInterceptor);
+            level3Error();
         } catch (Throwable e) {
-            expected = exceptionWrapperFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
-            actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            Assertions.assertNull(actual);
+            expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
+            exceptionRecordingService.recordException(context, e, START_TIME);
+            actual = exceptionStorage.getWrappers();
+            Assertions.assertTrue(actual.isEmpty());
         }
-        actual = exceptionRecordingService.recordException(context, null, 0);
+        exceptionRecordingService.recordException(context, null, START_TIME);
+        actual = exceptionStorage.getWrappers();
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     public void testRecordNotChainedException() {
         resetContext();
-        SpanEventException actual = null;
-        SpanEventException expected1 = null;
-        SpanEventException expected2 = null;
+        List<ExceptionWrapper> expected1 = null;
+        List<ExceptionWrapper> expected2 = null;
+        List<ExceptionWrapper> actual1 = null;
+        List<ExceptionWrapper> actual2 = null;
 
-        Reference<Throwable> reference = new DefaultReference<>();
-        Function<Throwable, Throwable> throwableInterceptor = throwableInterceptor(reference);
         Throwable throwable = null;
 
         try {
-            notChainedException(throwableInterceptor);
+            notChainedException();
         } catch (Throwable e) {
-            expected1 = exceptionWrapperFactory.newSpanEventException(reference.get(), START_TIME, context.getExceptionId());
-            actual = exceptionRecordingService.recordException(context, e, START_TIME);
+            expected1 = exceptionWrapperFactory.newExceptionWrappers(context.getPrevious(), START_TIME, context.getExceptionId());
+            exceptionRecordingService.recordException(context, e, START_TIME);
+            actual1 = exceptionStorage.getWrappers();
             throwable = e;
-            Assertions.assertNotNull(actual);
-            Assertions.assertEquals(expected1, actual);
+            Assertions.assertTrue(actual1.isEmpty());
+            Assertions.assertEquals(expected1, actual1);
         }
 
-        expected2 = exceptionWrapperFactory.newSpanEventException(throwable, START_TIME, context.getExceptionId());
-        actual = exceptionRecordingService.recordException(context, null, 0);
-        Assertions.assertEquals(expected2, actual);
+        expected2 = exceptionWrapperFactory.newExceptionWrappers(throwable, START_TIME, context.getExceptionId());
+        exceptionRecordingService.recordException(context, null, 0);
+        actual2 = exceptionStorage.getWrappers();
+        Assertions.assertEquals(expected2, actual2);
     }
 
     @Test
     public void testRecordRethrowGivenException() {
         resetContext();
-        SpanEventException actual = null;
-        SpanEventException expected = null;
-
-        Reference<Throwable> reference = new DefaultReference<>();
-        Function<Throwable, Throwable> throwableInterceptor = throwableInterceptor(reference);
+        List<ExceptionWrapper> expected = null;
+        List<ExceptionWrapper> actual = null;
 
         try {
-            rethrowGivenException(throwableInterceptor);
+            rethrowGivenException();
         } catch (Throwable e) {
-            expected = exceptionWrapperFactory.newSpanEventException(e, START_TIME, context.getExceptionId());
-            actual = exceptionRecordingService.recordException(context, e, START_TIME);
-            Assertions.assertNull(actual);
+            expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
+            exceptionRecordingService.recordException(context, e, START_TIME);
+            actual = exceptionStorage.getWrappers();
+            Assertions.assertTrue(actual.isEmpty());
         }
 
-        actual = exceptionRecordingService.recordException(context, null, 0);
+        exceptionRecordingService.recordException(context, null, 0);
+        actual = exceptionStorage.getWrappers();
         Assertions.assertEquals(expected, actual);
     }
 
 
-    public void notChainedException(Function<Throwable, Throwable> interceptor) throws Throwable {
+    public void notChainedException() throws Throwable {
         try {
-            level3Error(interceptor);
+            level3Error();
         } catch (Throwable e) {
-            throw interceptor.apply(new RuntimeException("Not Chained, Another New Exception"));
+            throw new RuntimeException("Not Chained, Another New Exception");
         }
     }
 
-    public void rethrowGivenException(Function<Throwable, Throwable> interceptor) throws Throwable {
+    public void rethrowGivenException() throws Throwable {
         try {
-            level3Error(interceptor);
+            level3Error();
         } catch (Exception e) {
-            throw interceptor.apply(e);
+            throw e;
         }
     }
 
-    public void level3Error(Function<Throwable, Throwable> interceptor) throws Throwable {
+    public void level3Error() throws Throwable {
         try {
-            level2Error(interceptor);
+            level2Error();
         } catch (Throwable e) {
-            throw interceptor.apply(new RuntimeException("Level 3 Error", e));
+            throw new RuntimeException("Level 3 Error", e);
         }
     }
 
-    public void level2Error(Function<Throwable, Throwable> interceptor) throws Throwable {
+    public void level2Error() throws Throwable {
         try {
-            level1Error(interceptor);
+            level1Error();
         } catch (Throwable e) {
-            throw interceptor.apply(new RuntimeException("Level 2 Error", e));
+            throw new RuntimeException("Level 2 Error", e);
         }
     }
 
-    public void level1Error(Function<Throwable, Throwable> interceptor) throws Throwable {
-        throw interceptor.apply(new RuntimeException("Level 1 Error"));
+    public void level1Error() throws Throwable {
+        throw new RuntimeException("Level 1 Error");
     }
 
 }

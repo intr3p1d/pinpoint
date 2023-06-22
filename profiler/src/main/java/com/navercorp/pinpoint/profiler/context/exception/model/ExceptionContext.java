@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 
 import java.util.List;
@@ -31,9 +32,19 @@ public interface ExceptionContext {
 
     void setWrapped(Throwable throwable);
 
+    ExceptionRecordingState stateOf(Throwable throwable);
+
     void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState);
 
     void reset();
 
-    Annotation<Long> newExceptionLinkId();
+    boolean hasValidExceptionId();
+
+    ExceptionTraceSampler.SamplingState getSamplingState();
+
+    Throwable getPrevious();
+
+    long getExceptionId();
+
+    long getStartTime();
 }

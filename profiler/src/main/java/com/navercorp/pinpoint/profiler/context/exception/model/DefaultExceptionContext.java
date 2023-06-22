@@ -15,19 +15,16 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorage;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * @author intr3p1d
  */
-class DefaultExceptionContext implements ExceptionContext {
+public class DefaultExceptionContext implements ExceptionContext {
 
     private static final long EMPTY_EXCEPTION_ID = Long.MIN_VALUE;
     private ExceptionTraceSampler.SamplingState samplingState = ExceptionTraceSampler.DISABLED;
@@ -57,6 +54,11 @@ class DefaultExceptionContext implements ExceptionContext {
     }
 
     @Override
+    public ExceptionRecordingState stateOf(Throwable throwable) {
+        return ExceptionRecordingState.stateOf(contextValue.getPrevious(), throwable);
+    }
+
+    @Override
     public void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState) {
         contextValue.setStartTime(startTime);
         setSamplingState(samplingState);
@@ -70,23 +72,32 @@ class DefaultExceptionContext implements ExceptionContext {
     }
 
     @Override
-    public Annotation<Long> newExceptionLinkId() {
-        if (hasValidExceptionId()) {
-            return Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), getExceptionId());
-        }
-        return null;
-    }
-
-    private boolean hasValidExceptionId() {
+    public boolean hasValidExceptionId() {
         return this.samplingState != null && this.samplingState.isSampling();
     }
 
-    private long getExceptionId() {
+    @Override
+    public long getExceptionId() {
         if (samplingState != null) {
             return samplingState.currentId();
         } else {
             return EMPTY_EXCEPTION_ID;
         }
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.contextValue.getStartTime();
+    }
+
+    @Override
+    public Throwable getPrevious() {
+        return this.contextValue.getPrevious();
+    }
+
+    @Override
+    public ExceptionTraceSampler.SamplingState getSamplingState() {
+        return this.samplingState;
     }
 
     public void setSamplingState(ExceptionTraceSampler.SamplingState samplingState) {

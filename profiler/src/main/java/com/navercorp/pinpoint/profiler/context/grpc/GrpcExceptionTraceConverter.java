@@ -24,8 +24,7 @@ public class GrpcExceptionTraceConverter {
         if (exceptionWrappers != null) {
             pSpanEventException.addAllExceptions(buildPExceptions(exceptionWrappers));
         }
-        pSpanEventException.setStartTime(spanEventException.getStartTime());
-        pSpanEventException.setExceptionId(spanEventException.getExceptionId());
+        pSpanEventException.setUriTemplate(spanEventException.getUriTemplate());
         return pSpanEventException.build();
     }
 

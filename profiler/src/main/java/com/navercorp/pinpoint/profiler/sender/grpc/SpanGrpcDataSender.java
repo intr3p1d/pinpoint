@@ -83,13 +83,6 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
                 attemptRenew();
                 return;
             }
-            if (message instanceof PSpanEventException) {
-                final PSpanEventException pSpanEventException = (PSpanEventException) message;
-                final PSpanMessage spanMessage = PSpanMessage.newBuilder().setException(pSpanEventException).build();
-                stream.onNext(spanMessage);
-                attemptRenew();
-                return;
-            }
             throw new IllegalStateException("unsupported message " + data);
         }
     };

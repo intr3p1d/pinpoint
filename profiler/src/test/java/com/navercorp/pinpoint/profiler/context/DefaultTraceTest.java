@@ -163,7 +163,7 @@ public class DefaultTraceTest {
 
         final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        final ExceptionContext exceptionContext = ExceptionContext.newContext();
+        final ExceptionContext exceptionContext = null;
 
         return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, CloseListener.EMPTY);
     }

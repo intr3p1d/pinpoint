@@ -94,8 +94,8 @@ public enum ExceptionRecordingState {
                 ExceptionWrapperFactory factory) {
             Objects.requireNonNull(context);
             Objects.requireNonNull(factory);
-            return newExceptionWrappers(
-                    context, factory
+            return factory.newExceptionWrappers(
+                    context
             );
         }
 
@@ -118,8 +118,8 @@ public enum ExceptionRecordingState {
                 ExceptionWrapperFactory factory) {
             Objects.requireNonNull(context);
             Objects.requireNonNull(factory);
-            return newExceptionWrappers(
-                    context, factory
+            return factory.newExceptionWrappers(
+                    context
             );
         }
 
@@ -205,14 +205,4 @@ public enum ExceptionRecordingState {
     public boolean notNeedExceptionId() {
         return this == STARTED;
     }
-
-    private static List<ExceptionWrapper> newExceptionWrappers(
-            ExceptionContext context,
-            ExceptionWrapperFactory factory
-    ) {
-        return factory.newExceptionWrappers(
-                context
-        );
-    }
-
 }

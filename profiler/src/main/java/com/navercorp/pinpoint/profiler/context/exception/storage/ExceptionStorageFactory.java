@@ -35,6 +35,6 @@ public class ExceptionStorageFactory {
     }
 
     public ExceptionStorage createStorage(SpanEventExceptionFactory factory) {
-        return new ExceptionStorage(bufferSize, dataSender, factory);
+        return new BufferedExceptionStorage(bufferSize, dataSender, factory);
     }
 }

@@ -33,7 +33,7 @@ public class ExceptionWrapperFactory {
         if (context == null) {
             return null;
         }
-
+        return newExceptionWrappers(context.getPrevious(), context.getStartTime(), context.getExceptionId());
     }
 
     public List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {
@@ -50,5 +50,4 @@ public class ExceptionWrapperFactory {
         }
         return exceptionWrappers;
     }
-
 }
