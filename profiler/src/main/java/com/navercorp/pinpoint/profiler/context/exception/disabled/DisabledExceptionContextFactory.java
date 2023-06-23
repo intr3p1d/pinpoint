@@ -28,7 +28,6 @@ public class DisabledExceptionContextFactory implements ExceptionContextFactory 
 
     @Override
     public ExceptionContext newExceptionContext(TraceRoot traceRoot) {
-        // do nothing
-        return null;
+        return DisabledExceptionContext.INSTANCE;
     }
 }

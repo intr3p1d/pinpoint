@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
@@ -77,7 +78,7 @@ public class TraceTest {
 
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        ExceptionContext exceptionContext = null;
+        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         Storage storage = mock(Storage.class);
 
@@ -108,7 +109,7 @@ public class TraceTest {
 
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        ExceptionContext exceptionContext = null;
+        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         Storage storage = mock(Storage.class);
 

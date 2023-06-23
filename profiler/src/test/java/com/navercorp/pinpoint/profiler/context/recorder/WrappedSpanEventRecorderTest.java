@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -71,7 +72,7 @@ public class WrappedSpanEventRecorderTest {
 
         SpanEvent spanEvent = new SpanEvent();
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        ExceptionContext exceptionContext = null;
+        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
         recorder.setWrapped(spanEvent, exceptionContext);
 
         final String exceptionMessage1 = "exceptionMessage1";
@@ -94,7 +95,7 @@ public class WrappedSpanEventRecorderTest {
     public void testRecordAPIId() throws Exception {
         SpanEvent spanEvent = new SpanEvent();
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        ExceptionContext exceptionContext = null;
+        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
         recorder.setWrapped(spanEvent, exceptionContext);
 
 

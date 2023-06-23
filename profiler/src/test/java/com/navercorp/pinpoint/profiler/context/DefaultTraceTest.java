@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -163,7 +164,7 @@ public class DefaultTraceTest {
 
         final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        final ExceptionContext exceptionContext = null;
+        final ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, CloseListener.EMPTY);
     }
