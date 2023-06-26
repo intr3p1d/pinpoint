@@ -16,7 +16,9 @@
 package com.navercorp.pinpoint.profiler.context.exception.storage;
 
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
@@ -38,10 +40,10 @@ public class BufferedExceptionStorage implements ExceptionStorage {
 
     private final int bufferSize;
     private List<ExceptionWrapper> storage;
-    private final DataSender<MetaDataType> dataSender;
+    private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
     private final SpanEventExceptionFactory factory;
 
-    public BufferedExceptionStorage(int bufferSize, DataSender<MetaDataType> dataSender, SpanEventExceptionFactory factory) {
+    public BufferedExceptionStorage(int bufferSize, EnhancedDataSender<MetaDataType, ResponseMessage> dataSender, SpanEventExceptionFactory factory) {
         this.bufferSize = bufferSize;
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.storage = allocateBuffer();
