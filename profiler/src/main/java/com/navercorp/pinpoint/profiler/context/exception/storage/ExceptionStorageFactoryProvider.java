@@ -43,6 +43,6 @@ public class ExceptionStorageFactoryProvider implements Provider<ExceptionStorag
     }
 
     private ExceptionStorageFactory newStorageFactory() {
-        return new ExceptionStorageFactory(spanTypeDataSender, 100);
+        return new ExceptionStorageFactory(spanTypeDataSender, exceptionTraceConfig.getIoBufferingBufferSize());
     }
 }
