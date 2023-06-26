@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.provider.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 

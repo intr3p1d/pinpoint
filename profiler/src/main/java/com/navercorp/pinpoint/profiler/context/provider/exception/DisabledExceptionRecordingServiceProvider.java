@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception.model;
+package com.navercorp.pinpoint.profiler.context.provider.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
-
-import java.util.Objects;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionRecordingService;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionWrapperFactoryProvider implements Provider<ExceptionWrapperFactory> {
-    private final ExceptionTraceConfig exceptionTraceConfig;
+public class DisabledExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
     @Inject
-    public ExceptionWrapperFactoryProvider(ExceptionTraceConfig exceptionTraceConfig) {
-        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
+    public DisabledExceptionRecordingServiceProvider() {
     }
 
     @Override
-    public ExceptionWrapperFactory get() {
-        return new ExceptionWrapperFactory(exceptionTraceConfig.getExceptionTraceMaxDepth());
+    public ExceptionRecordingService get() {
+        return DisabledExceptionRecordingService.INSTANCE;
     }
 }

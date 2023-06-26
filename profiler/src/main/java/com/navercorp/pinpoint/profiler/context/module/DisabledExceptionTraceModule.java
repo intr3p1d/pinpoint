@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
-import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionRecordingServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.exception.DisabledExceptionContextFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.exception.DisabledExceptionRecordingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;

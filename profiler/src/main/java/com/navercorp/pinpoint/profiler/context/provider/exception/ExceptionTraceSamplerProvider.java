@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception.model;
+package com.navercorp.pinpoint.profiler.context.provider.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactory;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 
 import java.util.Objects;
@@ -25,19 +25,16 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class ExceptionContextFactoryProvider implements Provider<ExceptionContextFactory> {
-
+public class ExceptionTraceSamplerProvider implements Provider<ExceptionTraceSampler> {
     private final ExceptionTraceConfig exceptionTraceConfig;
-    private final ExceptionStorageFactory exceptionStorageFactory;
 
     @Inject
-    public ExceptionContextFactoryProvider(ExceptionTraceConfig exceptionTraceConfig, ExceptionStorageFactory exceptionStorageFactory) {
+    public ExceptionTraceSamplerProvider(ExceptionTraceConfig exceptionTraceConfig) {
         this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
-        this.exceptionStorageFactory = Objects.requireNonNull(exceptionStorageFactory, "exceptionStorageFactory");
     }
 
     @Override
-    public ExceptionContextFactory get() {
-        return new DefaultExceptionContextFactory(exceptionStorageFactory);
+    public ExceptionTraceSampler get() {
+        return new ExceptionTraceSampler(exceptionTraceConfig.getExceptionTraceNewThroughput());
     }
 }
