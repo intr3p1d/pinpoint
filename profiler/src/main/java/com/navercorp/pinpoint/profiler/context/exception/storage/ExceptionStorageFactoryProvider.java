@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.exception.storage;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
-import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 
 import java.util.Objects;
 
@@ -29,10 +29,10 @@ import java.util.Objects;
 public class ExceptionStorageFactoryProvider implements Provider<ExceptionStorageFactory> {
 
     private final ExceptionTraceConfig exceptionTraceConfig;
-    private final DataSender<SpanType> spanTypeDataSender;
+    private final DataSender<MetaDataType> spanTypeDataSender;
 
     @Inject
-    public ExceptionStorageFactoryProvider(ExceptionTraceConfig exceptionTraceConfig, DataSender<SpanType> spanTypeDataSender) {
+    public ExceptionStorageFactoryProvider(ExceptionTraceConfig exceptionTraceConfig, DataSender<MetaDataType> spanTypeDataSender) {
         this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
         this.spanTypeDataSender = spanTypeDataSender;
     }

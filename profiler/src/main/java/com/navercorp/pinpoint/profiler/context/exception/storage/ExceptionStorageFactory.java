@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.profiler.context.exception.storage;
 
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
-import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 
 import java.util.Objects;
 
@@ -26,10 +26,10 @@ import java.util.Objects;
  */
 public class ExceptionStorageFactory {
 
-    private final DataSender<SpanType> dataSender;
+    private final DataSender<MetaDataType> dataSender;
     private final int bufferSize;
 
-    public ExceptionStorageFactory(DataSender<SpanType> dataSender, int bufferSize) {
+    public ExceptionStorageFactory(DataSender<MetaDataType> dataSender, int bufferSize) {
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.bufferSize = bufferSize;
     }

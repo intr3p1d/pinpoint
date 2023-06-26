@@ -17,10 +17,10 @@ package com.navercorp.pinpoint.profiler.context.exception.storage;
 
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,10 +38,10 @@ public class BufferedExceptionStorage implements ExceptionStorage {
 
     private final int bufferSize;
     private List<ExceptionWrapper> storage;
-    private final DataSender<SpanType> dataSender;
+    private final DataSender<MetaDataType> dataSender;
     private final SpanEventExceptionFactory factory;
 
-    public BufferedExceptionStorage(int bufferSize, DataSender<SpanType> dataSender, SpanEventExceptionFactory factory) {
+    public BufferedExceptionStorage(int bufferSize, DataSender<MetaDataType> dataSender, SpanEventExceptionFactory factory) {
         this.bufferSize = bufferSize;
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.storage = allocateBuffer();

@@ -15,13 +15,15 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
-public class SpanEventException {
+public class SpanEventException implements MetaDataType {
 
     private final List<ExceptionWrapper> exceptionWrappers;
 
