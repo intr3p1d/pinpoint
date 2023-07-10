@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +54,8 @@ public class SpanEventBo implements Event {
 
     // should get exceptionClass from dao
     private String exceptionClass;
+
+    private ExceptionMetaDataBo flushedException;
 
     private int nextAsyncId = -1;
 
@@ -196,6 +200,14 @@ public class SpanEventBo implements Event {
 
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
+    }
+
+    public ExceptionMetaDataBo getFlushedException() {
+        return flushedException;
+    }
+
+    public void setFlushedException(ExceptionMetaDataBo flushedException) {
+        this.flushedException = flushedException;
     }
 
     public int getNextAsyncId() {
