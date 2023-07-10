@@ -37,7 +37,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private ExceptionTraceDao exceptionTraceDao;
+    private final ExceptionTraceDao exceptionTraceDao;
 
     public ExceptionTraceServiceImpl(ExceptionTraceDao exceptionTraceDao) {
         this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");

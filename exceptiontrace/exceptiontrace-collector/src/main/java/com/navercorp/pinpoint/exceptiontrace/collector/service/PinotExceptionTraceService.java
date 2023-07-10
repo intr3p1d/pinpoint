@@ -16,83 +16,74 @@
 
 package com.navercorp.pinpoint.exceptiontrace.collector.service;
 
-import com.navercorp.pinpoint.collector.service.ExceptionTraceService;
+import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
-import com.navercorp.pinpoint.common.server.bo.exception.SpanEventExceptionBo;
+import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.exceptiontrace.collector.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.common.model.SpanEventException;
-import org.springframework.context.annotation.Profile;
+import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
  */
 @Service
-@Profile("metric")
-public class PinotExceptionTraceService implements ExceptionTraceService {
+public class PinotExceptionTraceService implements ExceptionMetaDataService {
     private final ExceptionTraceDao exceptionTraceDao;
+    private final ServiceTypeRegistryService registry;
 
-    public PinotExceptionTraceService(ExceptionTraceDao exceptionTraceDao) {
+    public PinotExceptionTraceService(ExceptionTraceDao exceptionTraceDao, ServiceTypeRegistryService registry) {
         this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");
+        this.registry = Objects.requireNonNull(registry, "serviceTypeRegistryService");
     }
 
     @Override
-    public void save(List<SpanEventExceptionBo> spanEventExceptionBoList, ServiceType applicationServiceType, String applicationId, String agentId, TransactionId transactionId, long spanId, String uriTemplate) {
-        List<SpanEventException> spanEventExceptions = new ArrayList<>();
-        for (SpanEventExceptionBo spanEventExceptionBo : spanEventExceptionBoList) {
-            spanEventExceptions.addAll(toSpanEventExceptions(spanEventExceptionBo, transactionId, spanId, applicationServiceType, applicationId, agentId, uriTemplate));
-        }
+    public void save(ExceptionMetaDataBo exceptionMetaDataBo) {
+        List<SpanEventException> spanEventExceptions = toSpanEventExceptions(exceptionMetaDataBo);
         exceptionTraceDao.insert(spanEventExceptions);
     }
 
-    private static List<SpanEventException> toSpanEventExceptions(
-            SpanEventExceptionBo spanEventExceptionBo,
-            TransactionId transactionId, long spanId,
-            ServiceType applicationServiceType, String applicationId, String agentId,
-            String uriTemplate
+    private List<SpanEventException> toSpanEventExceptions(
+            ExceptionMetaDataBo exceptionMetaDataBo
     ) {
         List<SpanEventException> spanEventExceptions = new ArrayList<>();
-        List<ExceptionWrapperBo> exceptions = spanEventExceptionBo.getExceptionWrappers();
-        for (int i = 0; i < exceptions.size(); i++) {
+        final ServiceType serviceType = registry.findServiceType(exceptionMetaDataBo.getServiceType());
+        for (ExceptionWrapperBo e : exceptionMetaDataBo.getExceptionWrapperBos()) {
+            final List<StackTraceElementWrapper> wrappers = traceElementWrappers(e.getStackTraceElements());
             spanEventExceptions.add(
-                    toSpanEventException(
-                            exceptions.get(i), i,
-                            spanEventExceptionBo.getStartTime(), transactionId, spanId, spanEventExceptionBo.getExceptionId(), applicationServiceType, agentId, applicationId,
-                            uriTemplate
+                    SpanEventException.valueOf(
+                            e.getStartTime(),
+                            transactionIdToString(exceptionMetaDataBo.getTransactionId()),
+                            exceptionMetaDataBo.getSpanId(),
+                            e.getExceptionId(),
+                            serviceType.getName(),
+                            exceptionMetaDataBo.getApplicationName(),
+                            exceptionMetaDataBo.getAgentId(),
+                            exceptionMetaDataBo.getUriTemplate(),
+                            e.getExceptionClassName(),
+                            e.getExceptionMessage(),
+                            e.getExceptionDepth(),
+                            wrappers
                     )
             );
         }
         return spanEventExceptions;
     }
 
-    private static SpanEventException toSpanEventException(
-            ExceptionWrapperBo exceptionWrapperBo, int exceptionDepth,
-            long startTime,
-            TransactionId transactionId, long spanId, long exceptionId,
-            ServiceType applicationServiceType, String agentId, String applicationId,
-            String uriTemplate
-    ) {
-        return SpanEventException.valueOf(
-                startTime,
-                transactionIdToString(transactionId),
-                spanId,
-                exceptionId,
-                applicationServiceType.getName(),
-                applicationId,
-                agentId,
-                uriTemplate,
-                exceptionWrapperBo.getExceptionClassName(),
-                exceptionWrapperBo.getExceptionMessage(),
-                exceptionDepth,
-                exceptionWrapperBo.getStackTraceElements()
-        );
+    private static List<StackTraceElementWrapper> traceElementWrappers(List<StackTraceElementWrapperBo> wrapperBos) {
+        return wrapperBos.stream().map(
+                (StackTraceElementWrapperBo s) -> new StackTraceElementWrapper(s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName())
+        ).collect(Collectors.toList());
     }
 
     private static String transactionIdToString(TransactionId transactionId) {

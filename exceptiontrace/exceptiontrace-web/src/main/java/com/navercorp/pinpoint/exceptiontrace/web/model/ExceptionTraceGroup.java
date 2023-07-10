@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
+import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
 import java.util.List;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
  */
 public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
+    private static final TimeseriesChartType CHART_TYPE = TimeseriesChartType.bar;
+    private static final String UNIT = "COUNT";
     private final String groupName;
     private final List<TimeSeriesValueView> values;
 
@@ -40,7 +43,7 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             List<ExceptionTraceValueView> exceptionTraceValueViews
     ) {
         List<TimeSeriesValueView> timeSeriesValueViews = exceptionTraceValueViews.stream().map(
-                (ExceptionTraceValueView e) -> (TimeSeriesValueView) e
+                TimeSeriesValueView.class::cast
         ).collect(Collectors.toList());
         return new ExceptionTraceGroup(
                 groupName,
@@ -58,4 +61,13 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
         return values;
     }
 
+    @Override
+    public TimeseriesChartType getChartType() {
+        return CHART_TYPE;
+    }
+
+    @Override
+    public String getUnit() {
+        return UNIT;
+    }
 }

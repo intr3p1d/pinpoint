@@ -29,7 +29,6 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +38,7 @@ import java.util.List;
  */
 public class ValueViewTypeHandler extends BaseTypeHandler<List<Integer>> {
 
-    private static final Logger logger = LogManager.getLogger(StackTraceTypeHandler.class);
+    private static final Logger logger = LogManager.getLogger(ValueViewTypeHandler.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

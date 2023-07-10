@@ -49,10 +49,10 @@ public class StackTraceTypeHandler extends BaseTypeHandler<List<StackTraceElemen
     public void setNonNullParameter(
             PreparedStatement ps,
             int i,
-            List<StackTraceElementWrapper> stackTraceElementWrappers,
+            List<StackTraceElementWrapper> StackTraceElementWrappers,
             JdbcType jdbcType
     ) throws SQLException {
-        ps.setString(i, new Gson().toJson(stackTraceElementWrappers));
+        ps.setString(i, new Gson().toJson(StackTraceElementWrappers));
     }
 
     @Override
@@ -77,11 +77,11 @@ public class StackTraceTypeHandler extends BaseTypeHandler<List<StackTraceElemen
         try {
             List<String> strings = objectMapper.readValue(s, new TypeReference<>() {
             });
-            List<StackTraceElementWrapper> stackTraceElementWrapperList = new ArrayList<>();
+            List<StackTraceElementWrapper> StackTraceElementWrapperList = new ArrayList<>();
             for(String str : strings) {
-                stackTraceElementWrapperList.add(objectMapper.readValue(str, StackTraceElementWrapper.class));
+                StackTraceElementWrapperList.add(objectMapper.readValue(str, StackTraceElementWrapper.class));
             }
-            return stackTraceElementWrapperList;
+            return StackTraceElementWrapperList;
         } catch (IOException e) {
             logger.error(e);
         }

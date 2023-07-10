@@ -77,7 +77,6 @@ public class ExceptionTraceView implements TimeSeriesView {
         return TITLE;
     }
 
-    @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getUnit() {
         return null;

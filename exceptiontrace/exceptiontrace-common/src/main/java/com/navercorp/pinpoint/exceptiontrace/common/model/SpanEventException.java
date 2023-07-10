@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
-import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -112,10 +110,8 @@ public class SpanEventException {
             String applicationServiceType, String applicationName, String agentId,
             String uriTemplate,
             String errorClassName, String errorMessage, int exceptionDepth,
-            List<StackTraceElementWrapperBo> stackTraceElementWrapperBos
+            List<StackTraceElementWrapper> wrappers
     ) {
-        List<StackTraceElementWrapper> wrappers = toStackTrace(stackTraceElementWrapperBos);
-
         return new SpanEventException(
                 timestamp,
                 transactionId,
@@ -131,12 +127,6 @@ public class SpanEventException {
                 wrappers,
                 toStackTraceHash(wrappers)
         );
-    }
-
-    public static List<StackTraceElementWrapper> toStackTrace(List<StackTraceElementWrapperBo> stackTraceElementWrapperBos) {
-        return stackTraceElementWrapperBos.stream().map(
-                (StackTraceElementWrapperBo s) -> new StackTraceElementWrapper(s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName())
-        ).collect(Collectors.toList());
     }
 
     public static String toStackTraceHash(List<StackTraceElementWrapper> stackTraceElementWrappers) {
