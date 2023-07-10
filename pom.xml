@@ -125,6 +125,7 @@
         <module>realtime</module>
         <module>redis</module>
         <module>inspector-module</module>
+        <module>exceptiontrace</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
@@ -487,6 +488,21 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-realtime-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
