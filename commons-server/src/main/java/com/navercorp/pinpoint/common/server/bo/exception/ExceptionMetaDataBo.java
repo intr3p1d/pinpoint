@@ -76,6 +76,10 @@ public class ExceptionMetaDataBo {
         return uriTemplate;
     }
 
+    public List<ExceptionWrapperBo> getExceptionWrapperBos() {
+        return exceptionWrapperBos;
+    }
+
     @Override
     public String toString() {
         return "ExceptionMetaDataBo{" +
