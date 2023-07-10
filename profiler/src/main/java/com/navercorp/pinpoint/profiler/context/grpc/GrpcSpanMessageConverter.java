@@ -78,7 +78,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
     private final GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
 
     private final PSpanEvent.Builder pSpanEventBuilder = PSpanEvent.newBuilder();
-
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
     private final SpanUriGetter spanUriGetter;
@@ -148,6 +147,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
             final List<PAnnotation> tAnnotations = buildPAnnotation(annotations);
             pSpan.addAllAnnotation(tAnnotations);
         }
+
         this.spanProcessor.preProcess(span, pSpan);
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
@@ -398,12 +398,12 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     @VisibleForTesting
     List<PAnnotation> buildPAnnotation(List<Annotation<?>> annotations) {
-            final List<PAnnotation> tAnnotationList = new ArrayList<>(annotations.size());
-            for (Annotation<?> annotation : annotations) {
-                PAnnotation pAnnotation = buildPAnnotation0(annotation);
-                tAnnotationList.add(pAnnotation);
-            }
-            return tAnnotationList;
+        final List<PAnnotation> tAnnotationList = new ArrayList<>(annotations.size());
+        for (Annotation<?> annotation : annotations) {
+            PAnnotation pAnnotation = buildPAnnotation0(annotation);
+            tAnnotationList.add(pAnnotation);
+        }
+        return tAnnotationList;
     }
 
     private PAnnotation buildPAnnotation0(Annotation<?> annotation) {

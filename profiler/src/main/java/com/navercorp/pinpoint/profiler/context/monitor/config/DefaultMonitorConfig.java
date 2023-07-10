@@ -33,6 +33,7 @@ public class DefaultMonitorConfig implements MonitorConfig {
     @Value("${profiler.uri.stat.completed.data.limit.size}")
     private int completedUriStatDataLimitSize = 1000;
 
+
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     @Value("${profiler.jvm.stat.batch.send.count}")
@@ -75,6 +76,7 @@ public class DefaultMonitorConfig implements MonitorConfig {
         return completedUriStatDataLimitSize;
     }
 
+
     @Override
     public String toString() {
         return "DefaultMonitorConfig{" +
@@ -87,5 +89,4 @@ public class DefaultMonitorConfig implements MonitorConfig {
                 ", profilerJvmStatCollectDetailedMetrics=" + profilerJvmStatCollectDetailedMetrics +
                 '}';
     }
-
 }

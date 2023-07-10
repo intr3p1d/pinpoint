@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -58,6 +61,9 @@ public class WrappedSpanEventRecorderTest {
     @Mock
     private SqlMetaDataService sqlMetaDataService;
 
+    @Mock
+    private ExceptionRecordingService exceptionRecordingService;
+
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
 
     @Test
@@ -65,8 +71,9 @@ public class WrappedSpanEventRecorderTest {
         when(traceRoot.getShared()).thenReturn(shared);
 
         SpanEvent spanEvent = new SpanEvent();
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
-        recorder.setWrapped(spanEvent);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
+        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
+        recorder.setWrapped(spanEvent, exceptionContext);
 
         final String exceptionMessage1 = "exceptionMessage1";
         final Exception exception1 = new Exception(exceptionMessage1);
@@ -87,8 +94,9 @@ public class WrappedSpanEventRecorderTest {
     @Test
     public void testRecordAPIId() throws Exception {
         SpanEvent spanEvent = new SpanEvent();
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
-        recorder.setWrapped(spanEvent);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
+        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
+        recorder.setWrapped(spanEvent, exceptionContext);
 
 
         final int API_ID = 1000;
