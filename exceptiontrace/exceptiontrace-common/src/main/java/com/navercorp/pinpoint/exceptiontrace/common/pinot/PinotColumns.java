@@ -29,7 +29,10 @@ public enum PinotColumns {
     ERROR_CLASS_NAME("errorClassName"),
     ERROR_MESSAGE("errorMessage"),
     EXCEPTION_DEPTH("exceptionDepth"),
-    STACK_TRACE("stackTrace"),
+    STACK_TRACE_CLASS_NAME("stackTraceClassName"),
+    STACK_TRACE_FILE_NAME("stackTraceFileName"),
+    STACK_TRACE_LINE_NUMBER("stackTraceLineNumber"),
+    STACK_TRACE_METHOD_NAME("stackTraceMethodName"),
     STACK_TRACE_HASH("stackTraceHash");
 
     private final String name;

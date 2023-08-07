@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.exceptiontrace.common.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hadoop.hbase.shaded.org.apache.commons.codec.binary.Hex;
+import org.apache.hbase.thirdparty.com.google.common.hash.HashFunction;
+import org.apache.hbase.thirdparty.com.google.common.hash.Hasher;
+import org.apache.hbase.thirdparty.com.google.common.hash.Hashing;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -37,6 +40,11 @@ public class HashUtils {
                 toHashBytes(s)
         );
     }
+
+    /* public void hash1() {
+        HashFunction hashFunction = Hashing.murmur3_128();
+        Hasher hasher = hashFunction.newHasher().putString(className, StandardCharsets.UTF_8);
+    }*/
 
     private static <T> String objectsToJsonString(List<T> objects) {
         try {

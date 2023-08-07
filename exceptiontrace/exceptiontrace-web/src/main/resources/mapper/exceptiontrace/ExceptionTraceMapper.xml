@@ -14,11 +14,14 @@
             <arg column="errorClassName" javaType="string"/>
             <arg column="errorMessage" javaType="string"/>
             <arg column="exceptionDepth" javaType="_int"/>
-            <arg column="stackTrace"
-                 javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="StackTraceTypeHandler"/>
             <arg column="stackTraceHash" javaType="string"/>
         </constructor>
+        <collection property="stackTrace" ofType="StackTraceElementWrapper">
+            <result property="className" column="stackTraceClassName" javaType="string"/>
+            <result property="fileName" column="stackTraceFileName" javaType="string"/>
+            <result property="lineNumber" column="stackTraceLineNumber" javaType="_int"/>
+            <result property="methodName" column="stackTraceMethodName" javaType="string"/>
+        </collection>
     </resultMap>
 
     <resultMap id="simpleExceptionMetaData" type="ExceptionMetaData">
@@ -93,7 +96,10 @@
         errorClassName,
         errorMessage,
         exceptionDepth,
-        stackTrace,
+        stackTraceClassName,
+        stackTraceFileName,
+        stackTraceLineNumber,
+        stackTraceMethodName,
         stackTraceHash
     </sql>
 

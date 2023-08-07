@@ -59,7 +59,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     @Override
     public void insert(List<ExceptionMetaData> exceptionMetaData) {
         Objects.requireNonNull(exceptionMetaData);
-        logger.info("Pinot data insert: {}", exceptionMetaData.toString());
+        logger.info("Pinot data insert: {}", exceptionMetaData);
 
         for (ExceptionMetaData e : exceptionMetaData) {
             ListenableFuture<SendResult<String, ExceptionMetaDataVo>> response = this.kafkaExceptionMetaDataTemplate.send(

@@ -42,7 +42,7 @@ public class ExceptionMetaData {
     private final String errorClassName;
     private final String errorMessage;
     private final int exceptionDepth;
-    private final List<StackTraceElementWrapper> stackTrace;
+    private List<StackTraceElementWrapper> stackTrace;
 
     private final String stackTraceHash;
 
@@ -179,6 +179,10 @@ public class ExceptionMetaData {
 
     public List<StackTraceElementWrapper> getStackTrace() {
         return stackTrace;
+    }
+
+    public void setStackTrace(List<StackTraceElementWrapper> stackTrace) {
+        this.stackTrace = stackTrace;
     }
 
     public String getStackTraceHash() {

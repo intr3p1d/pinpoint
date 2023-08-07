@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -28,36 +29,21 @@ import java.util.List;
  */
 public class ExceptionMetaDataVo {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     private final ExceptionMetaData exceptionMetaData;
-    private List<String> stackTrace;
+    private final StackTraceElementWrappersListVo wrappersListVo;
 
 
     public ExceptionMetaDataVo(
             ExceptionMetaData exceptionMetaData
     ) {
         this.exceptionMetaData = exceptionMetaData;
+        this.wrappersListVo = new StackTraceElementWrappersListVo(exceptionMetaData.getStackTrace());
     }
 
     public static ExceptionMetaDataVo valueOf(ExceptionMetaData exceptionMetaData) {
         return new ExceptionMetaDataVo(
                 exceptionMetaData
         );
-    }
-
-    private static List<String> toJsonString(List<StackTraceElementWrapper> stackTrace) {
-        List<String> strings = new ArrayList<>();
-        stackTrace.forEach(
-                (StackTraceElementWrapper s) -> {
-                    try {
-                        strings.add(OBJECT_MAPPER.writeValueAsString(s));
-                    } catch (JsonProcessingException ignored) {
-                        // do nothing
-                    }
-                }
-        );
-        return strings;
     }
 
     public long getTimestamp() {
@@ -104,11 +90,20 @@ public class ExceptionMetaDataVo {
         return this.exceptionMetaData.getExceptionDepth();
     }
 
-    public List<String> getStackTrace() {
-        if (stackTrace == null) {
-            stackTrace = toJsonString(this.exceptionMetaData.getStackTrace());
-        }
-        return stackTrace;
+    public Iterable<String> getStackTraceClassName() {
+        return wrappersListVo.getStackTraceClassName();
+    }
+
+    public Iterable<String> getStackTraceFileName() {
+        return wrappersListVo.getStackTraceFileName();
+    }
+
+    public Iterable<Integer> getStackTraceLineNumber() {
+        return wrappersListVo.getStackTraceLineNumber();
+    }
+
+    public Iterable<String> getStackTraceMethodName() {
+        return wrappersListVo.getStackTraceMethodName();
     }
 
     public String getStackTraceHash() {
@@ -119,7 +114,6 @@ public class ExceptionMetaDataVo {
     public String toString() {
         return "ExceptionMetaDataVo{" +
                 "exceptionMetaData=" + exceptionMetaData +
-                ", stackTrace=" + stackTrace +
                 '}';
     }
 }

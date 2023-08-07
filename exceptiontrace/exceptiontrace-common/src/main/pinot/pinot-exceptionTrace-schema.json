@@ -42,7 +42,22 @@
       "dataType": "INT"
     },
     {
-      "name": "stackTrace",
+      "name": "stackTraceClassName",
+      "dataType": "STRING",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceFileName",
+      "dataType": "STRING",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceLineNumber",
+      "dataType": "INT",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceMethodName",
       "dataType": "STRING",
       "singleValueField": false
     },
