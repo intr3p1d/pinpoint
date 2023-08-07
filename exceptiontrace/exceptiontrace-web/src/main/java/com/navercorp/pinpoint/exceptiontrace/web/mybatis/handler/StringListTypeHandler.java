@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.exceptiontrace.web.mapper;
+package com.navercorp.pinpoint.exceptiontrace.web.mybatis.handler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.hadoop.hbase.shaded.com.google.gson.Gson;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,53 +30,49 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author intr3p1d
  */
-public class ValueViewTypeHandler extends BaseTypeHandler<List<Integer>> {
-
-    private static final Logger logger = LogManager.getLogger(ValueViewTypeHandler.class);
+public class StringListTypeHandler extends BaseTypeHandler<List<String>> {
+    private static final Logger logger = LogManager.getLogger(StringListTypeHandler.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, List<Integer> parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, new Gson().toJson(parameter));
+    public void setNonNullParameter(
+            PreparedStatement ps,
+            int i,
+            List<String> StackTraceElementWrappers,
+            JdbcType jdbcType
+    ) throws SQLException {
+        ps.setString(i, new Gson().toJson(StackTraceElementWrappers));
     }
 
     @Override
-    public List<Integer> getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        String string = rs.getString(columnName);
-        return parseString(string);
+    public List<String> getNullableResult(ResultSet resultSet, String columnName) throws SQLException {
+        return convertToList(resultSet.getString(columnName));
     }
 
     @Override
-    public List<Integer> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        String string = rs.getString(columnIndex);
-        return parseString(string);
+    public List<String> getNullableResult(ResultSet resultSet, int columnIndex) throws SQLException {
+        return convertToList(resultSet.getString(columnIndex));
     }
 
     @Override
-    public List<Integer> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        String string = cs.getString(columnIndex);
-        return parseString(string);
+    public List<String> getNullableResult(CallableStatement callableStatement, int columnIndex) throws SQLException {
+        return convertToList(callableStatement.getString(columnIndex));
     }
 
-    private List<Integer> parseString(String s) {
+    protected List<String> convertToList(String s) {
         if (StringUtils.isEmpty(s)) {
             return Collections.emptyList();
         }
         try {
-            List<String> strings = objectMapper.readValue(s, new TypeReference<>() {
+            return objectMapper.readValue(s, new TypeReference<>() {
             });
-            List<Integer> integers = new ArrayList<>();
-            for (String str : strings) {
-                integers.add(objectMapper.readValue(str, Integer.class));
-            }
-            return integers;
         } catch (IOException e) {
             logger.error(e);
         }

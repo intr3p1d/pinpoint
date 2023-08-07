@@ -37,7 +37,7 @@ public class ExceptionMetaDataVo {
             ExceptionMetaData exceptionMetaData
     ) {
         this.exceptionMetaData = exceptionMetaData;
-        this.wrappersListVo = new StackTraceElementWrappersListVo(exceptionMetaData.getStackTrace());
+        this.wrappersListVo = new StackTraceElementWrappersListVo(exceptionMetaData.getStackTrace().getStackTrace());
     }
 
     public static ExceptionMetaDataVo valueOf(ExceptionMetaData exceptionMetaData) {

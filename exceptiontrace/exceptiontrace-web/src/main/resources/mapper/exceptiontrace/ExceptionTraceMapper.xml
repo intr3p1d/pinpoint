@@ -16,12 +16,16 @@
             <arg column="exceptionDepth" javaType="_int"/>
             <arg column="stackTraceHash" javaType="string"/>
         </constructor>
-        <collection property="stackTrace" ofType="StackTraceElementWrapper">
-            <result property="className" column="stackTraceClassName" javaType="string"/>
-            <result property="fileName" column="stackTraceFileName" javaType="string"/>
-            <result property="lineNumber" column="stackTraceLineNumber" javaType="_int"/>
-            <result property="methodName" column="stackTraceMethodName" javaType="string"/>
-        </collection>
+        <association property="stackTrace" javaType="StackTraceWrapper" resultMap="stackTraceWrapper"/>
+    </resultMap>
+
+    <resultMap id="stackTraceWrapper" type="StackTraceWrapper">
+        <constructor>
+            <arg column="stackTraceClassName" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="StringListTypeHandler"/>
+            <arg column="stackTraceFileName" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="StringListTypeHandler"/>
+            <arg column="stackTraceLineNumber" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="IntegerListTypeHandler"/>
+            <arg column="stackTraceMethodName" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="StringListTypeHandler"/>
+        </constructor>
     </resultMap>
 
     <resultMap id="simpleExceptionMetaData" type="ExceptionMetaData">
@@ -56,7 +60,7 @@
         <constructor>
             <arg column="values"
                  javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="ValueViewTypeHandler"/>
+                 typeHandler="IntegerListTypeHandler"/>
         </constructor>
         <association property="fieldName" javaType="GroupedFieldName" resultMap="groupedFieldName"/>
     </resultMap>

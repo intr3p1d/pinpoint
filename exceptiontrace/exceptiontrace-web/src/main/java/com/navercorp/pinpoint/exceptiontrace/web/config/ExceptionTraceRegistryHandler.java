@@ -17,10 +17,11 @@ package com.navercorp.pinpoint.exceptiontrace.web.config;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
-import com.navercorp.pinpoint.exceptiontrace.web.mapper.ValueViewTypeHandler;
+import com.navercorp.pinpoint.exceptiontrace.web.mybatis.handler.IntegerListTypeHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
+import com.navercorp.pinpoint.exceptiontrace.web.mybatis.handler.StringListTypeHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -37,7 +38,8 @@ public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias("ExceptionTraceSummary", ExceptionTraceSummary.class);
         typeAliasRegistry.registerAlias("GroupedFieldName", GroupedFieldName.class);
         typeAliasRegistry.registerAlias("ExceptionTraceValueView", ExceptionTraceValueView.class);
-        typeAliasRegistry.registerAlias("ValueViewTypeHandler", ValueViewTypeHandler.class);
+        typeAliasRegistry.registerAlias("IntegerListTypeHandler", IntegerListTypeHandler.class);
+        typeAliasRegistry.registerAlias("StringListTypeHandler", StringListTypeHandler.class);
         typeAliasRegistry.registerAlias("ExceptionTraceQueryParameter", ExceptionTraceQueryParameter.class);
     }
 

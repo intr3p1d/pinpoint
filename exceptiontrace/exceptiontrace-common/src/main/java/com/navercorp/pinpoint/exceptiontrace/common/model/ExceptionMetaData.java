@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
@@ -42,7 +43,9 @@ public class ExceptionMetaData {
     private final String errorClassName;
     private final String errorMessage;
     private final int exceptionDepth;
-    private List<StackTraceElementWrapper> stackTrace;
+
+    @JsonUnwrapped
+    private StackTraceWrapper stackTrace;
 
     private final String stackTraceHash;
 
@@ -58,7 +61,7 @@ public class ExceptionMetaData {
             String errorClassName,
             String errorMessage,
             int exceptionDepth,
-            List<StackTraceElementWrapper> stackTrace,
+            StackTraceWrapper stackTrace,
             String stackTraceHash
     ) {
         this.timestamp = timestamp;
@@ -101,7 +104,7 @@ public class ExceptionMetaData {
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
         this.errorMessage = StringPrecondition.requireHasLength(errorMessage, "errorMessage");
         this.exceptionDepth = exceptionDepth;
-        this.stackTrace = Collections.emptyList();
+        this.stackTrace = new StackTraceWrapper(Collections.emptyList());
         this.stackTraceHash = stackTraceHash;
     }
 
@@ -124,7 +127,7 @@ public class ExceptionMetaData {
                 errorClassName,
                 errorMessage,
                 exceptionDepth,
-                wrappers,
+                new StackTraceWrapper(wrappers),
                 toStackTraceHash(wrappers)
         );
     }
@@ -177,11 +180,11 @@ public class ExceptionMetaData {
         return exceptionDepth;
     }
 
-    public List<StackTraceElementWrapper> getStackTrace() {
+    public StackTraceWrapper getStackTrace() {
         return stackTrace;
     }
 
-    public void setStackTrace(List<StackTraceElementWrapper> stackTrace) {
+    public void setStackTrace(StackTraceWrapper stackTrace) {
         this.stackTrace = stackTrace;
     }
 
