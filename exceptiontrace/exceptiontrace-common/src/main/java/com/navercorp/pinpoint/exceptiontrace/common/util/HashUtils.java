@@ -21,24 +21,32 @@ import org.apache.hbase.thirdparty.com.google.common.hash.HashFunction;
 import org.apache.hbase.thirdparty.com.google.common.hash.Hasher;
 import org.apache.hbase.thirdparty.com.google.common.hash.Hashing;
 
-import java.util.List;
-
 /**
  * @author intr3p1d
  */
-public class HashUtils {
+public final class HashUtils {
 
-    public static <T> String objectsToHashString(List<T> objects, Funnel<T> funnel) {
+    private HashUtils() {
+    }
+
+    private static final HashFunction HASH = Hashing.murmur3_128();
+
+    public static Hasher newHasher() {
+        return HASH.newHasher();
+    }
+
+    public static <T> String objectsToHashString(Iterable<T> objects, Funnel<T> funnel) {
         return objectsToHashCode(objects, funnel).toString();
     }
 
-    public static <T> HashCode objectsToHashCode(List<T> objects, Funnel<T> funnel) {
-        HashFunction hf = Hashing.murmur3_128();
-        Hasher hc = hf.newHasher();
+    public static <T> HashCode objectsToHashCode(Iterable<T> objects, Funnel<T> funnel) {
+        Hasher hc = newHasher();
         for (T element: objects) {
             funnel.funnel(element, hc);
         }
         return hc.hash();
     }
+
+
 
 }

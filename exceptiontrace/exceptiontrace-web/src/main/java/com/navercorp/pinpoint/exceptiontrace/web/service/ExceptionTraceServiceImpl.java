@@ -81,9 +81,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
             ExceptionTraceQueryParameter queryParameter,
             Function<ExceptionTraceQueryParameter, List<T>> queryFunction
     ) {
-        List<T> data = queryFunction.apply(queryParameter);
-        logger.info(data.size());
-        return data;
+        return queryFunction.apply(queryParameter);
     }
 
     private List<ExceptionMetaData> getExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {

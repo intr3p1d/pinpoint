@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.hadoop.hbase.shaded.com.google.gson.Gson;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,7 +39,7 @@ import java.util.List;
 public class StringListTypeHandler extends BaseTypeHandler<List<String>> {
 
     private static final Logger logger = LogManager.getLogger(StringListTypeHandler.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = Jackson.newMapper();
 
 
     @Override

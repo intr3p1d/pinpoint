@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
 
 import java.util.List;
@@ -84,6 +83,7 @@ public class ExceptionMetaData {
             String errorClassName, String errorMessage, int exceptionDepth,
             List<StackTraceElementWrapper> wrappers
     ) {
+        StackTraceWrapper stackTraceWrapper = new StackTraceWrapper(wrappers);
         return new ExceptionMetaData(
                 timestamp,
                 transactionId,
@@ -96,13 +96,9 @@ public class ExceptionMetaData {
                 errorClassName,
                 errorMessage,
                 exceptionDepth,
-                new StackTraceWrapper(wrappers),
-                toStackTraceHash(wrappers)
+                stackTraceWrapper,
+                stackTraceWrapper.toStackTraceHash()
         );
-    }
-
-    public static String toStackTraceHash(List<StackTraceElementWrapper> stackTraceElementWrappers) {
-        return HashUtils.objectsToHashString(stackTraceElementWrappers, StackTraceElementWrapper.funnel());
     }
 
     public long getTimestamp() {

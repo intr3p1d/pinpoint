@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
  */
 public class ExceptionTraceSummary {
 
-    private static final String EMPTY_STRING = null;
     private GroupedFieldName fieldName;
     private final String mostRecentErrorClass;
     private final String mostRecentErrorMessage;

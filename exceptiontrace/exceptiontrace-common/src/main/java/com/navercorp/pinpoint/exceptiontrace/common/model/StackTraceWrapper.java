@@ -15,17 +15,20 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
+import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class StackTraceWrapper {
-    private List<StackTraceElementWrapper> stackTrace;
+    private final List<StackTraceElementWrapper> stackTrace;
 
     public StackTraceWrapper(List<StackTraceElementWrapper> stackTrace) {
-        this.stackTrace = stackTrace;
+        this.stackTrace = Objects.requireNonNull(stackTrace, "stackTrace");
     }
 
     public StackTraceWrapper(
@@ -34,7 +37,7 @@ public class StackTraceWrapper {
             List<Integer> stackTraceLineNumber,
             List<String> stackTraceMethodName
     ) {
-        List<StackTraceElementWrapper> wrappers = new ArrayList<>();
+        List<StackTraceElementWrapper> wrappers = new ArrayList<>(stackTraceClassName.size());
         for (int i = 0; i < stackTraceClassName.size(); i++) {
             wrappers.add(
                     new StackTraceElementWrapper(
@@ -46,6 +49,10 @@ public class StackTraceWrapper {
             );
         }
         this.stackTrace = wrappers;
+    }
+
+    public String toStackTraceHash() {
+        return HashUtils.objectsToHashString(stackTrace, StackTraceElementWrapper.funnel());
     }
 
     public List<StackTraceElementWrapper> getStackTrace() {

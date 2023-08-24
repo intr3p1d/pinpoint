@@ -30,7 +30,6 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +39,7 @@ import java.util.List;
 public class IntegerListTypeHandler extends BaseTypeHandler<List<Integer>> {
 
     private static final Logger logger = LogManager.getLogger(IntegerListTypeHandler.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = Jackson.newMapper();
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, List<Integer> parameter, JdbcType jdbcType) throws SQLException {

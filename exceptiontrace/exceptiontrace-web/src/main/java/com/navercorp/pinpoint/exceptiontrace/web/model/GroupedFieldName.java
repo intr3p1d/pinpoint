@@ -16,9 +16,10 @@
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author intr3p1d
@@ -35,9 +36,8 @@ public class GroupedFieldName {
     }
 
     public String inAString() {
-        String[] strings = new String[]{uriTemplate, errorClassName, errorMessage, stackTraceHash};
-        return Arrays.stream(strings)
-                .filter(s -> s != null && !s.isEmpty())
+        return Stream.of(uriTemplate, errorClassName, errorMessage, stackTraceHash)
+                .filter(StringUtils::hasLength)
                 .collect(Collectors.joining(", "));
     }
 

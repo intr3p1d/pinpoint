@@ -36,7 +36,8 @@ public class ExceptionTraceValueView extends GroupedFieldName implements TimeSer
 
     @Override
     public String getFieldName() {
-        return (!StringUtils.isEmpty(this.inAString())) ? this.inAString() : "total";
+        String fieldName = this.inAString();
+        return StringUtils.defaultString(fieldName, "total");
     }
 
     @Override

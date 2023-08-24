@@ -17,9 +17,7 @@ package com.navercorp.pinpoint.exceptiontrace.collector.model;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author intr3p1d
@@ -33,56 +31,23 @@ public class StackTraceElementWrappersListVo {
     }
 
     public Iterable<String> getStackTraceClassName() {
-        return () -> new MemberVariableIterator<>(
-                stackTrace.iterator(),
-                StackTraceElementWrapper::getClassName
-        );
+        return stackTrace.stream()
+                .map(StackTraceElementWrapper::getClassName)::iterator;
     }
 
     public Iterable<String> getStackTraceFileName() {
-        return () -> new MemberVariableIterator<>(
-                stackTrace.iterator(),
-                StackTraceElementWrapper::getFileName
-        );
+        return stackTrace.stream()
+                .map(StackTraceElementWrapper::getFileName)::iterator;
     }
 
     public Iterable<Integer> getStackTraceLineNumber() {
-        return () -> new MemberVariableIterator<>(
-                stackTrace.iterator(),
-                StackTraceElementWrapper::getLineNumber
-        );
+        return stackTrace.stream()
+                .map(StackTraceElementWrapper::getLineNumber)::iterator;
     }
 
     public Iterable<String> getStackTraceMethodName() {
-        return () -> new MemberVariableIterator<>(
-                stackTrace.iterator(),
-                StackTraceElementWrapper::getMethodName
-        );
-    }
-
-
-    private static class MemberVariableIterator<T, M> implements Iterator<M> {
-
-        private final Iterator<T> tIterator;
-        private final Function<T, M> tmFunction;
-
-        public MemberVariableIterator(
-                Iterator<T> tIterator,
-                Function<T, M> tmFunction
-        ) {
-            this.tIterator = tIterator;
-            this.tmFunction = tmFunction;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return tIterator.hasNext();
-        }
-
-        @Override
-        public M next() {
-            return tmFunction.apply(tIterator.next());
-        }
+        return stackTrace.stream()
+                .map(StackTraceElementWrapper::getMethodName)::iterator;
     }
 
 }

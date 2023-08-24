@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -42,13 +41,8 @@ public class ExceptionTraceGroup implements TimeseriesValueGroupView {
             String groupName,
             List<ExceptionTraceValueView> exceptionTraceValueViews
     ) {
-        List<TimeSeriesValueView> timeSeriesValueViews = exceptionTraceValueViews.stream().map(
-                TimeSeriesValueView.class::cast
-        ).collect(Collectors.toList());
-        return new ExceptionTraceGroup(
-                groupName,
-                timeSeriesValueViews
-        );
+        List<TimeSeriesValueView> list = (List<TimeSeriesValueView>) (List<? extends TimeSeriesValueView>) exceptionTraceValueViews;
+        return new ExceptionTraceGroup(groupName, list);
     }
 
     @Override
