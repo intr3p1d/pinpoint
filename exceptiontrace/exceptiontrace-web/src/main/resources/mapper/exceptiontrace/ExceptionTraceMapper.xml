@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.exceptiontrace.web.dao.PinotExceptionTraceDao">
+    <resultMap id="exceptionMetaData" type="ExceptionMetaData">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="transactionId" javaType="string"/>
+            <arg column="spanId" javaType="_long"/>
+            <arg column="exceptionId" javaType="_long"/>
+            <arg column="applicationServiceType" javaType="string"/>
+            <arg column="applicationName" javaType="string"/>
+            <arg column="agentId" javaType="string"/>
+            <arg column="uriTemplate" javaType="string"/>
+            <arg column="errorClassName" javaType="string"/>
+            <arg column="errorMessage" javaType="string"/>
+            <arg column="exceptionDepth" javaType="_int"/>
+            <arg column="stackTraceHash" javaType="string"/>
+        </constructor>
+        <association property="stackTrace" javaType="StackTraceWrapper" resultMap="stackTraceWrapper"/>
+    </resultMap>
+
+    <resultMap id="stackTraceWrapper" type="StackTraceWrapper">
+        <constructor>
+            <arg column="stackTraceClassName" javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="StringListTypeHandler"/>
+            <arg column="stackTraceFileName" javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="StringListTypeHandler"/>
+            <arg column="stackTraceLineNumber" javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="IntegerListTypeHandler"/>
+            <arg column="stackTraceMethodName" javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="StringListTypeHandler"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
+        <constructor>
+            <arg column="mostRecentErrorClass" javaType="string"/>
+            <arg column="mostRecentErrorMessage" javaType="string"/>
+            <arg column="count" javaType="_long"/>
+            <arg column="firstOccurred" javaType="_long"/>
+            <arg column="lastOccurred" javaType="_long"/>
+        </constructor>
+        <association property="fieldName" javaType="GroupedFieldName" resultMap="groupedFieldName"/>
+    </resultMap>
+
+    <resultMap id="groupedFieldName" type="GroupedFieldName">
+    <result property="uriTemplate" column="uriTemplate" javaType="string"/>
+        <result property="errorClassName" column="errorClassName" javaType="string"/>
+        <result property="errorMessage" column="errorMessage" javaType="string"/>
+        <result property="stackTraceHash" column="stackTraceHash" javaType="string"/>
+    </resultMap>
+
+    <resultMap id="exceptionTraceValueView" type="ExceptionTraceValueView">
+        <constructor>
+            <arg column="values"
+                 javaType="java.util.List" jdbcType="VARCHAR"
+                 typeHandler="IntegerListTypeHandler"/>
+        </constructor>
+        <result property="uriTemplate" column="uriTemplate" javaType="string"/>
+        <result property="errorClassName" column="errorClassName" javaType="string"/>
+        <result property="errorMessage" column="errorMessage" javaType="string"/>
+        <result property="stackTraceHash" column="stackTraceHash" javaType="string"/>
+    </resultMap>
+
+    <sql id="exceptionTraceTable">exceptionTrace</sql>
+
+    <sql id="getGroupedFieldName">
+        <choose>
+            <when test="!groupByAttributes.isEmpty()">
+                <foreach collection="groupByAttributes" item="attr" open="" close=", " separator=", ">
+                    ${attr.getAttributeName}
+                </foreach>
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="fullExceptionColumns">
+        DATETIME_CONVERT
+        ("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        exceptionId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        uriTemplate,
+        errorClassName,
+        errorMessage,
+        exceptionDepth,
+        stackTraceClassName,
+        stackTraceFileName,
+        stackTraceLineNumber,
+        stackTraceMethodName,
+        stackTraceHash
+    </sql>
+
+    <sql id="summarizedExceptionColumns">
+        DATETIME_CONVERT
+        ("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        exceptionId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        uriTemplate,
+        errorClassName,
+        errorMessage,
+        exceptionDepth,
+        arraySliceString(stackTraceClassName, 0, ${STACKTRACE_COUNT}) as "stackTraceClassName",
+        arraySliceString(stackTraceFileName, 0, ${STACKTRACE_COUNT}) as "stackTraceFileName",
+        arraySliceInt(stackTraceLineNumber, 0, ${STACKTRACE_COUNT}) as "stackTraceLineNumber",
+        arraySliceString(stackTraceMethodName, 0, ${STACKTRACE_COUNT}) as "stackTraceMethodName",
+        stackTraceHash
+    </sql>
+
+    <select id="selectExceptions" resultMap="exceptionMetaData" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="fullExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        <if test="range != null">
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        </if>
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+        </if>
+        ORDER BY "timestamp" asc, exceptionDepth asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectSummarizedExceptions" resultMap="exceptionMetaData" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="summarizedExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        <if test="range != null">
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        </if>
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+        </if>
+        ORDER BY "timestamp" asc, exceptionDepth asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectExactException" resultMap="exceptionMetaData" parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="summarizedExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+            AND exceptionDepth = #{exceptionDepth}
+        </if>
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectSummaries" resultMap="exceptionTraceSummary"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="getGroupedFieldName"></include>
+        LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
+        LASTWITHTIME(errorMessage, "timestamp", 'STRING') as "mostRecentErrorMessage",
+        count(*) as "count",
+        FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
+        LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"
+
+        FROM
+        <include refid="exceptionTraceTable"></include>
+
+        WHERE
+        applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        GROUP BY applicationName
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
+            ${attr.getAttributeName}
+        </foreach>
+        ORDER BY "count" desc
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
+            ${attr.getAttributeName}
+        </foreach>
+        LIMIT 5
+    </select>
+
+    <select id="selectValueViews" resultMap="exceptionTraceValueView"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="getGroupedFieldName"></include>
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}) as "values"
+
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        GROUP BY applicationName
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
+            ${attr.getAttributeName}
+        </foreach>
+        ORDER BY count(*) desc
+        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
+            ${attr.getAttributeName}
+        </foreach>
+        LIMIT 5
+    </select>
+
+</mapper>
