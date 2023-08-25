@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.exceptiontrace.web.config;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
-import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceWrapper;
 import com.navercorp.pinpoint.exceptiontrace.web.mybatis.handler.IntegerListTypeHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
@@ -35,7 +35,7 @@ public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
     @Override
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
         typeAliasRegistry.registerAlias("ExceptionMetaData", ExceptionMetaData.class);
-        typeAliasRegistry.registerAlias("StackTraceWrapper", StackTraceWrapper.class);
+        typeAliasRegistry.registerAlias("ExceptionMetaDataEntity", ExceptionMetaDataEntity.class);
         typeAliasRegistry.registerAlias("StackTraceElementWrapper", StackTraceElementWrapper.class);
         typeAliasRegistry.registerAlias("ExceptionTraceSummary", ExceptionTraceSummary.class);
         typeAliasRegistry.registerAlias("GroupedFieldName", GroupedFieldName.class);

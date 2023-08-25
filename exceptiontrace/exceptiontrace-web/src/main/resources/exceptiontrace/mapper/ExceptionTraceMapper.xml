@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.navercorp.pinpoint.exceptiontrace.web.dao.PinotExceptionTraceDao">
-    <resultMap id="exceptionMetaData" type="ExceptionMetaData">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="transactionId" javaType="string"/>
-            <arg column="spanId" javaType="_long"/>
-            <arg column="exceptionId" javaType="_long"/>
-            <arg column="applicationServiceType" javaType="string"/>
-            <arg column="applicationName" javaType="string"/>
-            <arg column="agentId" javaType="string"/>
-            <arg column="uriTemplate" javaType="string"/>
-            <arg column="errorClassName" javaType="string"/>
-            <arg column="errorMessage" javaType="string"/>
-            <arg column="exceptionDepth" javaType="_int"/>
-            <arg column="stackTraceHash" javaType="string"/>
-        </constructor>
-        <association property="stackTrace" javaType="StackTraceWrapper" resultMap="stackTraceWrapper"/>
-    </resultMap>
+    <resultMap id="exceptionMetaDataEntity" type="ExceptionMetaDataEntity">
+        <result property="timestamp" column="timestamp" javaType="_long" jdbcType="VARCHAR"/>
 
-    <resultMap id="stackTraceWrapper" type="StackTraceWrapper">
-        <constructor>
-            <arg column="stackTraceClassName" javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="StringListTypeHandler"/>
-            <arg column="stackTraceFileName" javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="StringListTypeHandler"/>
-            <arg column="stackTraceLineNumber" javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="IntegerListTypeHandler"/>
-            <arg column="stackTraceMethodName" javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="StringListTypeHandler"/>
-        </constructor>
+        <result property="transactionId" column="transactionId" javaType="string"/>
+        <result property="spanId" column="spanId" javaType="_long"/>
+        <result property="exceptionId" column="exceptionId" javaType="_long"/>
+
+        <result property="applicationServiceType" column="applicationServiceType" javaType="string"/>
+        <result property="applicationName" column="applicationName" javaType="string"/>
+        <result property="agentId" column="agentId" javaType="string"/>
+        <result property="uriTemplate" column="uriTemplate" javaType="string"/>
+
+        <result property="errorClassName" column="errorClassName" javaType="string"/>
+        <result property="errorMessage" column="errorMessage" javaType="string"/>
+        <result property="exceptionDepth" column="exceptionDepth" javaType="_int"/>
+
+        <result property="stackTraceClassName" column="stackTraceClassName" javaType="java.util.List" jdbcType="VARCHAR"
+                typeHandler="StringListTypeHandler"/>
+        <result property="stackTraceFileName" column="stackTraceFileName" javaType="java.util.List" jdbcType="VARCHAR"
+                typeHandler="StringListTypeHandler"/>
+        <result property="stackTraceLineNumber" column="stackTraceLineNumber" javaType="java.util.List"
+                jdbcType="VARCHAR"
+                typeHandler="IntegerListTypeHandler"/>
+        <result property="stackTraceMethodName" column="stackTraceMethodName" javaType="java.util.List"
+                jdbcType="VARCHAR"
+                typeHandler="StringListTypeHandler"/>
     </resultMap>
 
     <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
@@ -44,7 +41,7 @@
     </resultMap>
 
     <resultMap id="groupedFieldName" type="GroupedFieldName">
-    <result property="uriTemplate" column="uriTemplate" javaType="string"/>
+        <result property="uriTemplate" column="uriTemplate" javaType="string"/>
         <result property="errorClassName" column="errorClassName" javaType="string"/>
         <result property="errorMessage" column="errorMessage" javaType="string"/>
         <result property="stackTraceHash" column="stackTraceHash" javaType="string"/>
@@ -111,14 +108,39 @@
         errorClassName,
         errorMessage,
         exceptionDepth,
-        arraySliceString(stackTraceClassName, 0, ${STACKTRACE_COUNT}) as "stackTraceClassName",
-        arraySliceString(stackTraceFileName, 0, ${STACKTRACE_COUNT}) as "stackTraceFileName",
-        arraySliceInt(stackTraceLineNumber, 0, ${STACKTRACE_COUNT}) as "stackTraceLineNumber",
-        arraySliceString(stackTraceMethodName, 0, ${STACKTRACE_COUNT}) as "stackTraceMethodName",
+        arraySliceString(stackTraceClassName, 0,
+        ${STACKTRACE_COUNT}
+        )
+        as
+        "stackTraceClassName",
+        arraySliceString
+        (
+        stackTraceFileName,
+        0,
+        ${STACKTRACE_COUNT}
+        )
+        as
+        "stackTraceFileName",
+        arraySliceInt
+        (
+        stackTraceLineNumber,
+        0,
+        ${STACKTRACE_COUNT}
+        )
+        as
+        "stackTraceLineNumber",
+        arraySliceString
+        (
+        stackTraceMethodName,
+        0,
+        ${STACKTRACE_COUNT}
+        )
+        as
+        "stackTraceMethodName",
         stackTraceHash
     </sql>
 
-    <select id="selectExceptions" resultMap="exceptionMetaData" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExceptions" resultMap="exceptionMetaDataEntity" parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="fullExceptionColumns"></include>
         FROM
@@ -140,7 +162,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSummarizedExceptions" resultMap="exceptionMetaData" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSummarizedExceptions" resultMap="exceptionMetaDataEntity" parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="summarizedExceptionColumns"></include>
         FROM
@@ -162,7 +184,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectExactException" resultMap="exceptionMetaData" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExactException" resultMap="exceptionMetaDataEntity" parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="summarizedExceptionColumns"></include>
         FROM

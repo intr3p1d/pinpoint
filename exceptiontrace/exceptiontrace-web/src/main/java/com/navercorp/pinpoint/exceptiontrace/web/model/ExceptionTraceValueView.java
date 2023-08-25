@@ -26,9 +26,12 @@ import java.util.List;
  * @author intr3p1d
  */
 @JsonIgnoreProperties({"uriTemplate", "errorCLassName", "errorMessage", "stackTraceHash"})
-public class ExceptionTraceValueView extends GroupedFieldName implements TimeSeriesValueView  {
+public class ExceptionTraceValueView extends GroupedFieldName implements TimeSeriesValueView {
 
-    private final List<Integer> values;
+    private List<Integer> values;
+
+    public ExceptionTraceValueView() {
+    }
 
     public ExceptionTraceValueView(List<Integer> values) {
         this.values = values;
@@ -45,6 +48,9 @@ public class ExceptionTraceValueView extends GroupedFieldName implements TimeSer
         return values;
     }
 
+    public void setValues(List<Integer> values) {
+        this.values = values;
+    }
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -37,7 +37,7 @@ public class ExceptionTracePinotDaoConfiguration {
     @Bean
     public SqlSessionFactory exceptionTracePinotSessionFactory(
             @Qualifier("pinotDataSource") DataSource dataSource,
-            @Value("classpath:mapper/exceptiontrace/*Mapper.xml") Resource[] mappers
+            @Value("classpath:exceptiontrace/mapper/*Mapper.xml") Resource[] mappers
     ) throws Exception {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
 

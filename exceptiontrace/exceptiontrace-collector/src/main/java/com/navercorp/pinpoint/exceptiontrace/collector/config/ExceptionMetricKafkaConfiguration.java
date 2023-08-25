@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.collector.config;
 
-import com.navercorp.pinpoint.exceptiontrace.collector.model.ExceptionMetaDataVo;
+import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.pinot.kafka.KafkaConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -32,9 +32,9 @@ import org.springframework.kafka.core.ProducerFactory;
 public class ExceptionMetricKafkaConfiguration {
 
     @Bean
-    public KafkaTemplate<String, ExceptionMetaDataVo> kafkaExceptionMetaDataTemplate(
+    public KafkaTemplate<String, ExceptionMetaDataEntity> kafkaExceptionMetaDataTemplate(
             @Qualifier("kafkaProducerFactory") ProducerFactory producerFactory
     ) {
-        return new KafkaTemplate<String, ExceptionMetaDataVo>(producerFactory);
+        return new KafkaTemplate<String, ExceptionMetaDataEntity>(producerFactory);
     }
 }

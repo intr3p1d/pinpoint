@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.navercorp.pinpoint.exceptiontrace.common.util.StringPrecondition;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
+
 
 import java.util.List;
 
@@ -26,25 +27,27 @@ import java.util.List;
  */
 public class ExceptionMetaData {
 
-    private final long timestamp;
+    private long timestamp;
 
-    private final String transactionId;
-    private final long spanId;
-    private final long exceptionId;
+    private String transactionId;
+    private long spanId;
+    private long exceptionId;
 
-    private final String applicationServiceType;
-    private final String applicationName;
-    private final String agentId;
-    private final String uriTemplate;
+    private String applicationServiceType;
+    private String applicationName;
+    private String agentId;
+    private String uriTemplate;
 
-    private final String errorClassName;
-    private final String errorMessage;
-    private final int exceptionDepth;
+    private String errorClassName;
+    private String errorMessage;
+    private int exceptionDepth;
 
-    @JsonUnwrapped
-    private StackTraceWrapper stackTrace;
+    private List<StackTraceElementWrapper> stackTrace;
 
-    private final String stackTraceHash;
+    private String stackTraceHash;
+
+    public ExceptionMetaData() {
+    }
 
     public ExceptionMetaData(
             long timestamp,
@@ -58,7 +61,7 @@ public class ExceptionMetaData {
             String errorClassName,
             String errorMessage,
             int exceptionDepth,
-            StackTraceWrapper stackTrace,
+            List<StackTraceElementWrapper> stackTrace,
             String stackTraceHash
     ) {
         this.timestamp = timestamp;
@@ -83,7 +86,6 @@ public class ExceptionMetaData {
             String errorClassName, String errorMessage, int exceptionDepth,
             List<StackTraceElementWrapper> wrappers
     ) {
-        StackTraceWrapper stackTraceWrapper = new StackTraceWrapper(wrappers);
         return new ExceptionMetaData(
                 timestamp,
                 transactionId,
@@ -96,8 +98,8 @@ public class ExceptionMetaData {
                 errorClassName,
                 errorMessage,
                 exceptionDepth,
-                stackTraceWrapper,
-                stackTraceWrapper.toStackTraceHash()
+                wrappers,
+                HashUtils.objectsToHashString(wrappers, StackTraceElementWrapper.funnel())
         );
     }
 
@@ -105,56 +107,104 @@ public class ExceptionMetaData {
         return timestamp;
     }
 
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public String getTransactionId() {
         return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public long getSpanId() {
         return spanId;
     }
 
+    public void setSpanId(long spanId) {
+        this.spanId = spanId;
+    }
+
     public long getExceptionId() {
         return exceptionId;
+    }
+
+    public void setExceptionId(long exceptionId) {
+        this.exceptionId = exceptionId;
     }
 
     public String getApplicationServiceType() {
         return applicationServiceType;
     }
 
+    public void setApplicationServiceType(String applicationServiceType) {
+        this.applicationServiceType = applicationServiceType;
+    }
+
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public String getAgentId() {
         return agentId;
     }
 
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
     public String getUriTemplate() {
         return uriTemplate;
+    }
+
+    public void setUriTemplate(String uriTemplate) {
+        this.uriTemplate = uriTemplate;
     }
 
     public String getErrorClassName() {
         return errorClassName;
     }
 
+    public void setErrorClassName(String errorClassName) {
+        this.errorClassName = errorClassName;
+    }
+
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public int getExceptionDepth() {
         return exceptionDepth;
     }
 
-    public StackTraceWrapper getStackTrace() {
+    public void setExceptionDepth(int exceptionDepth) {
+        this.exceptionDepth = exceptionDepth;
+    }
+
+    public List<StackTraceElementWrapper> getStackTrace() {
         return stackTrace;
     }
 
-    public void setStackTrace(StackTraceWrapper stackTrace) {
+    public void setStackTrace(List<StackTraceElementWrapper> stackTrace) {
         this.stackTrace = stackTrace;
     }
 
     public String getStackTraceHash() {
         return stackTraceHash;
+    }
+
+    public void setStackTraceHash(String stackTraceHash) {
+        this.stackTraceHash = stackTraceHash;
     }
 
     @Override
