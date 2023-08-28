@@ -231,7 +231,9 @@
             parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="getGroupedFieldName"></include>
-        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}) as "values"
+        arraySliceInt(
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}), 0, #{timeWindowRangeCount}
+        ) as "values"
 
         FROM
         <include refid="exceptionTraceTable"></include>

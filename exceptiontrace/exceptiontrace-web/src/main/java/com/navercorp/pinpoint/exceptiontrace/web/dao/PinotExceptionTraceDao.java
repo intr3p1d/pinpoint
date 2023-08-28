@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.util.MapperUtils;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.util.ValueViewMapperUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -52,6 +53,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
     private final ModelMapper modelMapper = MapperUtils.newEntityToModelMapper();
+    private final ModelMapper valueViewMapper = ValueViewMapperUtils.newValueViewModelMapper();
 
     public PinotExceptionTraceDao(@Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
@@ -88,7 +90,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionTraceValueViewEntity> valueViewEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
         return valueViewEntities.stream().map(
-                entity -> modelMapper.map(entity, ExceptionTraceValueView.class)
+                entity -> valueViewMapper.map(entity, ExceptionTraceValueView.class)
         ).collect(Collectors.toList());
     }
 }

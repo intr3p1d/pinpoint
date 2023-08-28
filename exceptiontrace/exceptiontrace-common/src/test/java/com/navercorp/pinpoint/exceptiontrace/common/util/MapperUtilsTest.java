@@ -52,6 +52,8 @@ class MapperUtilsTest {
         Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
         Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
 
+        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+
         StackTraceElement[] expectedStackTrace = throwable.getStackTrace();
         int size = throwable.getStackTrace().length;
 
@@ -100,7 +102,10 @@ class MapperUtilsTest {
         Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
         Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
 
-        for (int i = 0; i < actual.getStackTrace().size();i++) {
+        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+
+
+        for (int i = 0; i < actual.getStackTrace().size(); i++) {
             Assertions.assertEquals(expected.getStackTrace().get(i).getClassName(), actual.getStackTrace().get(i).getClassName());
             Assertions.assertEquals(expected.getStackTrace().get(i).getFileName(), actual.getStackTrace().get(i).getFileName());
             Assertions.assertEquals(expected.getStackTrace().get(i).getLineNumber(), actual.getStackTrace().get(i).getLineNumber());
@@ -160,6 +165,9 @@ class MapperUtilsTest {
         Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
         Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
 
+        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+
+
         int size = throwable.getStackTrace().length;
 
         String classNames = expected.getStackTraceClassName();
@@ -206,6 +214,8 @@ class MapperUtilsTest {
         Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
         Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
 
+        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+
         Assertions.assertEquals(expected.getStackTraceClassName(), actual.getStackTraceClassName());
         Assertions.assertEquals(expected.getStackTraceFileName(), actual.getStackTraceFileName());
         Assertions.assertEquals(expected.getStackTraceLineNumber(), actual.getStackTraceLineNumber());
@@ -242,44 +252,6 @@ class MapperUtilsTest {
             return objectMapper.writeValueAsString(elements.stream().map(getter).collect(Collectors.toList()));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    public void testSmoothCast(){
-        String floatList = "[0.0,83.0,0.0,12.0,32.0]";
-        ModelMapper entityToModelMapper = MapperUtils.newEntityToModelMapper();
-
-        TempEntity tempEntity = new TempEntity();
-        tempEntity.setValues(floatList);
-
-        TempModel tempModel = entityToModelMapper.map(tempEntity, TempModel.class);
-
-        Assertions.assertNotNull(tempModel.values);
-        Assertions.assertFalse(tempModel.values.isEmpty());
-    }
-
-    public static class TempEntity {
-        String values;
-
-        public String getValues() {
-            return values;
-        }
-
-        public void setValues(String values) {
-            this.values = values;
-        }
-    }
-
-    public static class TempModel {
-        List<Integer> values;
-
-        public List<Integer> getValues() {
-            return values;
-        }
-
-        public void setValues(List<Integer> values) {
-            this.values = values;
         }
     }
 }

@@ -47,9 +47,7 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_FLOAT
 public class MapperUtils {
 
     private static final Logger logger = LogManager.getLogger(MapperUtils.class);
-    private static final ObjectMapper objectMapper = Jackson.newMapper().enable(
-            ACCEPT_FLOAT_AS_INT
-    );
+    private static final ObjectMapper objectMapper = Jackson.newMapper();
 
     public static ModelMapper newModelToEntityMapper() {
         ModelMapper modelMapper = new ModelMapper();
@@ -149,7 +147,7 @@ public class MapperUtils {
         return Collections.emptyList();
     }
 
-    protected static <T> List<T> convertToList(String s) {
+    public static <T> List<T> convertToList(String s) {
         if (StringUtils.isEmpty(s)) {
             return Collections.emptyList();
         }
