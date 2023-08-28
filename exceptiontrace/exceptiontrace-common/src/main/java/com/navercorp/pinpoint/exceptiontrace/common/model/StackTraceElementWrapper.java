@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.hbase.thirdparty.com.google.common.base.Charsets;
 import org.apache.hbase.thirdparty.com.google.common.hash.Funnel;
-import org.apache.hbase.thirdparty.com.google.common.hash.PrimitiveSink;
 
 import java.util.Objects;
 

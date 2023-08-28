@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaDataEntity;
+import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.common.util.MapperUtils;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
@@ -85,6 +86,9 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     @Override
     public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        return this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
+        List<ExceptionTraceValueViewEntity> valueViewEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
+        return valueViewEntities.stream().map(
+                entity -> modelMapper.map(entity, ExceptionTraceValueView.class)
+        ).collect(Collectors.toList());
     }
 }

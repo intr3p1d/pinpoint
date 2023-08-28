@@ -15,14 +15,11 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.config;
 
-import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaDataEntity;
+import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
-import com.navercorp.pinpoint.exceptiontrace.web.mybatis.handler.IntegerListTypeHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
-import com.navercorp.pinpoint.exceptiontrace.web.mybatis.handler.StringListTypeHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -34,14 +31,11 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
     @Override
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
-        typeAliasRegistry.registerAlias("ExceptionMetaData", ExceptionMetaData.class);
         typeAliasRegistry.registerAlias("ExceptionMetaDataEntity", ExceptionMetaDataEntity.class);
         typeAliasRegistry.registerAlias("StackTraceElementWrapper", StackTraceElementWrapper.class);
         typeAliasRegistry.registerAlias("ExceptionTraceSummary", ExceptionTraceSummary.class);
         typeAliasRegistry.registerAlias("GroupedFieldName", GroupedFieldName.class);
-        typeAliasRegistry.registerAlias("ExceptionTraceValueView", ExceptionTraceValueView.class);
-        typeAliasRegistry.registerAlias("IntegerListTypeHandler", IntegerListTypeHandler.class);
-        typeAliasRegistry.registerAlias("StringListTypeHandler", StringListTypeHandler.class);
+        typeAliasRegistry.registerAlias("ExceptionTraceValueViewEntity", ExceptionTraceValueViewEntity.class);
         typeAliasRegistry.registerAlias("ExceptionTraceQueryParameter", ExceptionTraceQueryParameter.class);
     }
 

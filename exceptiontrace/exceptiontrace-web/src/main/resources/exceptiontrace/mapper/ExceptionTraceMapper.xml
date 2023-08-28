@@ -17,16 +17,12 @@
         <result property="errorMessage" column="errorMessage" javaType="string"/>
         <result property="exceptionDepth" column="exceptionDepth" javaType="_int"/>
 
-        <result property="stackTraceClassName" column="stackTraceClassName" javaType="java.util.List" jdbcType="VARCHAR"
-                typeHandler="StringListTypeHandler"/>
-        <result property="stackTraceFileName" column="stackTraceFileName" javaType="java.util.List" jdbcType="VARCHAR"
-                typeHandler="StringListTypeHandler"/>
-        <result property="stackTraceLineNumber" column="stackTraceLineNumber" javaType="java.util.List"
-                jdbcType="VARCHAR"
-                typeHandler="IntegerListTypeHandler"/>
-        <result property="stackTraceMethodName" column="stackTraceMethodName" javaType="java.util.List"
-                jdbcType="VARCHAR"
-                typeHandler="StringListTypeHandler"/>
+        <result property="stackTraceClassName" column="stackTraceClassName" javaType="string"/>
+        <result property="stackTraceFileName" column="stackTraceFileName" javaType="string"/>
+        <result property="stackTraceLineNumber" column="stackTraceLineNumber" javaType="string"/>
+        <result property="stackTraceMethodName" column="stackTraceMethodName" javaType="string"/>
+
+        <result property="stackTraceHash" column="stackTraceHash" javaType="string"/>
     </resultMap>
 
     <resultMap id="exceptionTraceSummary" type="ExceptionTraceSummary">
@@ -40,19 +36,15 @@
         <association property="fieldName" javaType="GroupedFieldName" resultMap="groupedFieldName"/>
     </resultMap>
 
-    <resultMap id="groupedFieldName" type="GroupedFieldName">
+    <resultMap id="exceptionTraceValueViewEntity" type="ExceptionTraceValueViewEntity">
+        <result property="values" column="values" javaType="string"/>
         <result property="uriTemplate" column="uriTemplate" javaType="string"/>
         <result property="errorClassName" column="errorClassName" javaType="string"/>
         <result property="errorMessage" column="errorMessage" javaType="string"/>
         <result property="stackTraceHash" column="stackTraceHash" javaType="string"/>
     </resultMap>
 
-    <resultMap id="exceptionTraceValueView" type="ExceptionTraceValueView">
-        <constructor>
-            <arg column="values"
-                 javaType="java.util.List" jdbcType="VARCHAR"
-                 typeHandler="IntegerListTypeHandler"/>
-        </constructor>
+    <resultMap id="groupedFieldName" type="GroupedFieldName">
         <result property="uriTemplate" column="uriTemplate" javaType="string"/>
         <result property="errorClassName" column="errorClassName" javaType="string"/>
         <result property="errorMessage" column="errorMessage" javaType="string"/>
@@ -162,7 +154,8 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectSummarizedExceptions" resultMap="exceptionMetaDataEntity" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectSummarizedExceptions" resultMap="exceptionMetaDataEntity"
+            parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="summarizedExceptionColumns"></include>
         FROM
@@ -234,7 +227,7 @@
         LIMIT 5
     </select>
 
-    <select id="selectValueViews" resultMap="exceptionTraceValueView"
+    <select id="selectValueViews" resultMap="exceptionTraceValueViewEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="getGroupedFieldName"></include>

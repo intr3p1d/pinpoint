@@ -16,8 +16,6 @@
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
 
-import java.util.List;
-
 /**
  * @author intr3p1d
  */
@@ -37,10 +35,10 @@ public class ExceptionMetaDataEntity {
     private String errorMessage;
     private int exceptionDepth;
 
-    private List<String> stackTraceClassName;
-    private List<String> stackTraceFileName;
-    private List<Integer> stackTraceLineNumber;
-    private List<String> stackTraceMethodName;
+    private String stackTraceClassName;
+    private String stackTraceFileName;
+    private String stackTraceLineNumber;
+    private String stackTraceMethodName;
     private String stackTraceHash;
 
     public ExceptionMetaDataEntity() {
@@ -134,35 +132,35 @@ public class ExceptionMetaDataEntity {
         this.exceptionDepth = exceptionDepth;
     }
 
-    public List<String> getStackTraceClassName() {
+    public String getStackTraceClassName() {
         return stackTraceClassName;
     }
 
-    public void setStackTraceClassName(List<String> stackTraceClassName) {
+    public void setStackTraceClassName(String stackTraceClassName) {
         this.stackTraceClassName = stackTraceClassName;
     }
 
-    public List<String> getStackTraceFileName() {
+    public String getStackTraceFileName() {
         return stackTraceFileName;
     }
 
-    public void setStackTraceFileName(List<String> stackTraceFileName) {
+    public void setStackTraceFileName(String stackTraceFileName) {
         this.stackTraceFileName = stackTraceFileName;
     }
 
-    public List<Integer> getStackTraceLineNumber() {
+    public String getStackTraceLineNumber() {
         return stackTraceLineNumber;
     }
 
-    public void setStackTraceLineNumber(List<Integer> stackTraceLineNumber) {
+    public void setStackTraceLineNumber(String stackTraceLineNumber) {
         this.stackTraceLineNumber = stackTraceLineNumber;
     }
 
-    public List<String> getStackTraceMethodName() {
+    public String getStackTraceMethodName() {
         return stackTraceMethodName;
     }
 
-    public void setStackTraceMethodName(List<String> stackTraceMethodName) {
+    public void setStackTraceMethodName(String stackTraceMethodName) {
         this.stackTraceMethodName = stackTraceMethodName;
     }
 

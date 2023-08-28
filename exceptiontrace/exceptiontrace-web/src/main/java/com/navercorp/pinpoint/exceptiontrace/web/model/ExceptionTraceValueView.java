@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
@@ -25,9 +24,9 @@ import java.util.List;
 /**
  * @author intr3p1d
  */
-@JsonIgnoreProperties({"uriTemplate", "errorCLassName", "errorMessage", "stackTraceHash"})
-public class ExceptionTraceValueView extends GroupedFieldName implements TimeSeriesValueView {
+public class ExceptionTraceValueView implements TimeSeriesValueView {
 
+    private GroupedFieldName groupedFieldName;
     private List<Integer> values;
 
     public ExceptionTraceValueView() {
@@ -39,8 +38,15 @@ public class ExceptionTraceValueView extends GroupedFieldName implements TimeSer
 
     @Override
     public String getFieldName() {
-        String fieldName = this.inAString();
-        return StringUtils.defaultString(fieldName, "total");
+        return StringUtils.defaultString(groupedFieldName.inAString(), "total");
+    }
+
+    public GroupedFieldName getGroupedFieldName() {
+        return groupedFieldName;
+    }
+
+    public void setGroupedFieldName(GroupedFieldName groupedFieldName) {
+        this.groupedFieldName = groupedFieldName;
     }
 
     @Override
