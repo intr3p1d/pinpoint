@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.exceptiontrace.common.model;
+package com.navercorp.pinpoint.exceptiontrace.web.entity;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceValueViewEntity extends ExceptionMetaDataEntity {
+public class ExceptionTraceValueViewEntity extends GroupedFieldNameEntity {
     private String values;
 
     public ExceptionTraceValueViewEntity() {

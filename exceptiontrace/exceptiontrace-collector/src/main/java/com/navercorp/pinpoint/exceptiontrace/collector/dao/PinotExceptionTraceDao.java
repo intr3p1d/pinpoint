@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.exceptiontrace.collector.dao;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.exceptiontrace.collector.mapper.ModelToEntityMapper;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
-import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaDataEntity;
-import com.navercorp.pinpoint.exceptiontrace.common.util.MapperUtils;
+import com.navercorp.pinpoint.exceptiontrace.common.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +30,6 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +43,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private final KafkaTemplate<String, ExceptionMetaDataEntity> kafkaExceptionMetaDataTemplate;
 
-    private final ModelMapper modelMapper = MapperUtils.newModelToEntityMapper();
+    private final ModelToEntityMapper modelToEntityMapper;
 
     private final String topic;
 
@@ -54,10 +53,12 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     public PinotExceptionTraceDao(
             @Qualifier("kafkaExceptionMetaDataTemplate") KafkaTemplate<String, ExceptionMetaDataEntity> kafkaExceptionMetaDataTemplate,
-            @Value("${kafka.exception.topic}") String topic
+            @Value("${kafka.exception.topic}") String topic,
+            ModelToEntityMapper modelToEntityMapper
     ) {
         this.kafkaExceptionMetaDataTemplate = Objects.requireNonNull(kafkaExceptionMetaDataTemplate, "kafkaExceptionMetaDataTemplate");
         this.topic = StringPrecondition.requireHasLength(topic, "topic");
+        this.modelToEntityMapper = Objects.requireNonNull(modelToEntityMapper, "modelToEntityMapper");
     }
 
     @Override
@@ -66,7 +67,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         logger.info("Pinot data insert: {}", exceptionMetaData);
 
         for (ExceptionMetaData e : exceptionMetaData) {
-            ExceptionMetaDataEntity dataEntity = modelMapper.map(e, ExceptionMetaDataEntity.class);
+            ExceptionMetaDataEntity dataEntity = modelToEntityMapper.toEntity(e);
             ListenableFuture<SendResult<String, ExceptionMetaDataEntity>> response = this.kafkaExceptionMetaDataTemplate.send(
                     topic, dataEntity
             );

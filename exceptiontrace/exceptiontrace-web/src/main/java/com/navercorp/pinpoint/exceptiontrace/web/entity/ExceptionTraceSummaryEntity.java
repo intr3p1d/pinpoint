@@ -13,60 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.exceptiontrace.web.model;
+package com.navercorp.pinpoint.exceptiontrace.web.entity;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceSummary {
-
-    private GroupedFieldName groupedFieldName;
+public class ExceptionTraceSummaryEntity extends GroupedFieldNameEntity {
     private String mostRecentErrorClass;
     private String mostRecentErrorMessage;
     private long count;
     private long firstOccurred;
     private long lastOccurred;
 
-    public ExceptionTraceSummary() {
+    public ExceptionTraceSummaryEntity() {
     }
 
     public String getMostRecentErrorClass() {
         return mostRecentErrorClass;
     }
 
+    public void setMostRecentErrorClass(String mostRecentErrorClass) {
+        this.mostRecentErrorClass = mostRecentErrorClass;
+    }
+
     public String getMostRecentErrorMessage() {
         return mostRecentErrorMessage;
+    }
+
+    public void setMostRecentErrorMessage(String mostRecentErrorMessage) {
+        this.mostRecentErrorMessage = mostRecentErrorMessage;
     }
 
     public long getCount() {
         return count;
     }
 
+    public void setCount(long count) {
+        this.count = count;
+    }
+
     public long getFirstOccurred() {
         return firstOccurred;
+    }
+
+    public void setFirstOccurred(long firstOccurred) {
+        this.firstOccurred = firstOccurred;
     }
 
     public long getLastOccurred() {
         return lastOccurred;
     }
 
-    public GroupedFieldName getGroupedFieldName() {
-        return groupedFieldName;
-    }
-
-    public void setGroupedFieldName(GroupedFieldName groupedFieldName) {
-        this.groupedFieldName = groupedFieldName;
-    }
-
-    @Override
-    public String toString() {
-        return "ExceptionTraceSummary{" +
-                "groupedFieldName=" + groupedFieldName +
-                ", mostRecentErrorClass='" + mostRecentErrorClass + '\'' +
-                ", mostRecentErrorMessage='" + mostRecentErrorMessage + '\'' +
-                ", count=" + count +
-                ", firstOccurred=" + firstOccurred +
-                ", lastOccurred=" + lastOccurred +
-                '}';
+    public void setLastOccurred(long lastOccurred) {
+        this.lastOccurred = lastOccurred;
     }
 }

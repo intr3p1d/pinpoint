@@ -17,16 +17,14 @@
 package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
-import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaDataEntity;
-import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionTraceValueViewEntity;
-import com.navercorp.pinpoint.exceptiontrace.common.util.MapperUtils;
+import com.navercorp.pinpoint.exceptiontrace.common.entity.ExceptionMetaDataEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.mapper.EntityToModelMapper;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ValueViewMapperUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.modelmapper.ModelMapper;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -52,18 +50,21 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
-    private final ModelMapper modelMapper = MapperUtils.newEntityToModelMapper();
-    private final ModelMapper valueViewMapper = ValueViewMapperUtils.newValueViewModelMapper();
+    private final EntityToModelMapper entityToModelMapper;
 
-    public PinotExceptionTraceDao(@Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
+    public PinotExceptionTraceDao(
+            @Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate,
+            EntityToModelMapper entityToModelMapper
+    ) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+        this.entityToModelMapper = Objects.requireNonNull(entityToModelMapper, "entityToModelMapper");
     }
 
     @Override
     public List<ExceptionMetaData> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionMetaDataEntity> dataEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
         return dataEntities.stream().map(
-                entity -> modelMapper.map(entity, ExceptionMetaData.class)
+                entityToModelMapper::toModel
         ).collect(Collectors.toList());
     }
 
@@ -71,14 +72,14 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     public List<ExceptionMetaData> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionMetaDataEntity> dataEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIZED_QUERY, exceptionTraceQueryParameter);
         return dataEntities.stream().map(
-                entity -> modelMapper.map(entity, ExceptionMetaData.class)
+                entityToModelMapper::toModel
         ).collect(Collectors.toList());
     }
 
     @Override
     public ExceptionMetaData getException(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         ExceptionMetaDataEntity entity = this.sqlPinotSessionTemplate.selectOne(NAMESPACE + SELECT_EXACT_QUERY, exceptionTraceQueryParameter);
-        return modelMapper.map(entity, ExceptionMetaData.class);
+        return entityToModelMapper.toModel(entity);
     }
 
     @Override
@@ -90,7 +91,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionTraceValueViewEntity> valueViewEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
         return valueViewEntities.stream().map(
-                entity -> valueViewMapper.map(entity, ExceptionTraceValueView.class)
+                entityToModelMapper::toModel
         ).collect(Collectors.toList());
     }
 }
