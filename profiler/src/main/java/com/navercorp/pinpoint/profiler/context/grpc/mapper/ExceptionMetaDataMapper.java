@@ -15,12 +15,10 @@
  */
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.grpc.trace.PException;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStackTraceElement;
-import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaData;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import org.mapstruct.CollectionMappingStrategy;
@@ -47,7 +45,7 @@ public interface ExceptionMetaDataMapper {
 
     @Mappings({
             @Mapping(source = "exceptionWrappers", target = "exceptionsList"),
-            @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedByName = "toTransactionId"),
+            @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
             @Mapping(source = "traceRoot.traceId.spanId", target = "spanId"),
             @Mapping(source = "traceRoot.shared.uriTemplate", target = "uriTemplate")
     })
@@ -95,13 +93,4 @@ public interface ExceptionMetaDataMapper {
             @Mapping(source = "methodName", target = "methodName", defaultValue = EMPTY_STRING),
     })
     PStackTraceElement toProto(StackTraceElement model);
-
-    @Named("toTransactionId")
-    default PTransactionId newTransactionId(TraceId traceId) {
-        final PTransactionId.Builder builder = PTransactionId.newBuilder();
-        builder.setAgentId(traceId.getAgentId());
-        builder.setAgentStartTime(traceId.getAgentStartTime());
-        builder.setSequence(traceId.getTransactionSequence());
-        return builder.build();
-    }
 }
