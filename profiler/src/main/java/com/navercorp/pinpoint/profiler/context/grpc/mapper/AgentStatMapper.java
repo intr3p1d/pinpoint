@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.grpc.trace.PJvmGc;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
-import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
@@ -47,7 +46,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
-import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
@@ -62,6 +60,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
@@ -78,6 +77,8 @@ import java.util.List;
         }
 )
 public interface AgentStatMapper {
+
+    AgentStatMapper INSTANCE = Mappers.getMapper(AgentStatMapper.class);
 
     @Mappings({
             @Mapping(source = "agentStats", target = "agentStatList"),
@@ -145,8 +146,10 @@ public interface AgentStatMapper {
     PLoadedClass map(LoadedClassMetricSnapshot snapshot);
 
 
+    // Need to separate new GrpcCustomMetricMessageConverter();
     PCustomMetricMessage map(AgentCustomMetricSnapshotBatch batch);
 
+    // Need to separate new GrpcUriStatMessageConverter();
     PAgentUriStat map(AgentUriStatData agentUriStatData);
 
     @Condition
