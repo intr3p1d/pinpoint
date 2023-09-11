@@ -32,6 +32,12 @@ import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import org.mapstruct.Qualifier;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * WARNING Not thread safe
@@ -138,7 +144,13 @@ public class GrpcAnnotationValueMapper {
         builder.clear();
         return value;
     }
+    @Qualifier
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.CLASS)
+    public @interface ToIntStringValue {
+    }
 
+    @ToIntStringValue
     public PIntStringValue newIntStringValue(IntStringValue v) {
         final PIntStringValue.Builder builder = this.intStringBuilder;
 

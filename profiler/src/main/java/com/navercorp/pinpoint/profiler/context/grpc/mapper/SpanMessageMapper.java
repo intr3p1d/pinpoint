@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
+import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -25,7 +26,9 @@ import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
@@ -34,12 +37,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Condition;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Objects;
@@ -48,53 +53,53 @@ import java.util.Objects;
  * @author intr3p1d
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.JSR330,
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
-        nullValueCheckStrategy = NullValueCheckStrategy.ON_IMPLICIT_CONVERSION,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {
-
+                TraceIdMapStructUtils.class,
+                SpanUriGetter.class,
         }
 )
 public interface SpanMessageMapper {
 
-    public static final String DEFAULT_END_POINT = "UNKNOWN";
-    public static final String DEFAULT_RPC_NAME = "UNKNOWN";
-    public static final String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
-
-
     @Mappings({
-            @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
+            @Mapping(source = ".", target = "version", qualifiedByName = "currentVersion"),
+
             @Mapping(source = "traceRoot.traceId.spanId", target = "spanId"),
             @Mapping(source = "traceRoot.traceId.parentSpanId", target = "parentSpanId"),
 
-            // PAcceptEvent
-            @Mapping(source = "remoteAddr", target = "pAcceptEvent.remoteAddr", defaultValue = DEFAULT_REMOTE_ADDRESS),
-            @Mapping(source = "traceRoot.shared", target = "pAcceptEvent.rpc", qualifiedByName = "toRPCName", defaultValue = DEFAULT_RPC_NAME),
-            @Mapping(source = "traceRoot.shared.endPoint", target = "pAcceptEvent.endPoint", defaultValue = DEFAULT_END_POINT),
-
-            // PAcceptEvent PParentInfo
-            @Mapping(source = "parentApplicationName", target = "pAcceptEvent.pParentInfo.parentApplicationName"),
-            @Mapping(source = "parentApplicationType", target = "pAcceptEvent.pParentInfo.parentApplicationType"),
-            @Mapping(source = "accecptorHost", target = "pAcceptEvent.pParentInfo.acceptorHost"),
-
-            @Mapping(source = "traceRoot.flags", target = "flag"),
+            @Mapping(source = "traceRoot.traceId.flags", target = "flag"),
             @Mapping(source = "traceRoot.shared.errorCode", target = "err"),
 
             @Mapping(source = "traceRoot.shared.loggingInfo", target = "loggingTransactionInfo"),
-
+            @Mapping(target="exceptionInfo", ignore = true)
 
     })
     PSpan toProto(Span span);
 
-    PIntStringValue toProto(IntStringValue intStringValue);
+    @Mappings({
+            @Mapping(source = "traceRoot.shared", target = "rpc", qualifiedBy = SpanUriGetter.ToCollectedUri.class),
+    })
+    PAcceptEvent spanToAcceptEvent(Span span);
+
+    @Mappings({
+    })
+    PSpanEvent spanEventToPSpanEvent(SpanEvent spanEvent);
+
+    default StringValue map(String value) {
+        return StringValue.of(value);
+    }
+
+    @Named("currentVersion")
+    default int currentVersion(Span span) {
+        return SpanVersion.TRACE_V2;
+    }
 
     @Condition
     default boolean isNotEmpty(String value) {
         return !StringUtils.isEmpty(value);
-    }
-
-    @Named("toRPCName")
-    default String toRPCName(Shared shared) {
-        return "";
     }
 
 }

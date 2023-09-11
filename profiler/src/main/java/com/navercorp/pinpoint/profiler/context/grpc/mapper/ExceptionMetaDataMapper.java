@@ -37,7 +37,11 @@ import java.util.List;
  * @author intr3p1d
  */
 @Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
-        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        uses = {
+                TraceIdMapStructUtils.class,
+        }
+)
 public interface ExceptionMetaDataMapper {
 
     String EMPTY_STRING = "";

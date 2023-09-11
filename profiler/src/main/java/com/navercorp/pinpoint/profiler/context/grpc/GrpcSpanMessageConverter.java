@@ -48,6 +48,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
@@ -82,13 +83,17 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final SpanUriGetter spanUriGetter;
 
+    private final SpanMessageMapper mapper;
+
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
-                                    SpanUriGetter spanUriGetter) {
+                                    SpanUriGetter spanUriGetter,
+                                    SpanMessageMapper spanMessageMapper) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
         this.spanUriGetter = Objects.requireNonNull(spanUriGetter);
+        this.mapper = Objects.requireNonNull(spanMessageMapper, "spanMessageMapper");
     }
 
     @Override
@@ -99,7 +104,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         }
         if (message instanceof Span) {
             final Span span = (Span) message;
-            return buildPSpan(span);
+            return mapper.toProto(span);
         }
         return null;
     }

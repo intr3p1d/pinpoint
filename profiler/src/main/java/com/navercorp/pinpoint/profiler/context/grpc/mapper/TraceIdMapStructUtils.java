@@ -35,7 +35,7 @@ public class TraceIdMapStructUtils {
     }
 
     @ToTransactionId
-    static PTransactionId newTransactionId(TraceId traceId) {
+    public static PTransactionId newTransactionId(TraceId traceId) {
         final PTransactionId.Builder builder = PTransactionId.newBuilder();
         builder.setAgentId(traceId.getAgentId());
         builder.setAgentStartTime(traceId.getAgentStartTime());
