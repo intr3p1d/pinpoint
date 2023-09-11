@@ -78,13 +78,13 @@ public class GrpcStatMessageConverter implements MessageConverter<MetricType, Ge
             final PAgentStatBatch.Builder agentStatBatchBuilder = PAgentStatBatch.newBuilder();
             // Skip agentId, startTimestamp
             for (AgentStatMetricSnapshot agentStatMetricSnapshot : agentStatMetricSnapshotBatch.getAgentStats()) {
-                final PAgentStat agentStat = converAgentStat(agentStatMetricSnapshot);
+                final PAgentStat agentStat = convertAgentStat(agentStatMetricSnapshot);
                 agentStatBatchBuilder.addAgentStat(agentStat);
             }
             return agentStatBatchBuilder.build();
         } else if (message instanceof AgentStatMetricSnapshot) {
             final AgentStatMetricSnapshot agentStatMetricSnapshot = (AgentStatMetricSnapshot) message;
-            final PAgentStat agentStat = converAgentStat(agentStatMetricSnapshot);
+            final PAgentStat agentStat = convertAgentStat(agentStatMetricSnapshot);
             return agentStat;
         } else if (message instanceof AgentCustomMetricSnapshotBatch) {
             final AgentCustomMetricSnapshotBatch agentCustomMetricSnapshotBatch = (AgentCustomMetricSnapshotBatch) message;
@@ -98,7 +98,7 @@ public class GrpcStatMessageConverter implements MessageConverter<MetricType, Ge
         return null;
     }
 
-    private PAgentStat converAgentStat(final AgentStatMetricSnapshot agentStatMetricSnapshot) {
+    private PAgentStat convertAgentStat(final AgentStatMetricSnapshot agentStatMetricSnapshot) {
         final PAgentStat.Builder agentStatBuilder = PAgentStat.newBuilder();
         agentStatBuilder.setTimestamp(agentStatMetricSnapshot.getTimestamp());
         agentStatBuilder.setCollectInterval(agentStatMetricSnapshot.getCollectInterval());
