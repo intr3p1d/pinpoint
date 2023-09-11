@@ -36,6 +36,7 @@ import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
@@ -46,37 +47,19 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-@Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
-        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
-public abstract class SpanMessageMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.JSR330,
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        nullValueCheckStrategy = NullValueCheckStrategy.ON_IMPLICIT_CONVERSION,
+        uses = {
+
+        }
+)
+public interface SpanMessageMapper {
 
     public static final String DEFAULT_END_POINT = "UNKNOWN";
     public static final String DEFAULT_RPC_NAME = "UNKNOWN";
     public static final String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(this.logger, 100);
-
-    private final String agentId;
-    private final short applicationServiceType;
-
-    private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor;
-    // WARNING not thread safe
-    private final GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
-
-    private final PSpanEvent.Builder pSpanEventBuilder = PSpanEvent.newBuilder();
-    private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
-
-    private final SpanUriGetter spanUriGetter;
-
-    public SpanMessageMapper(String agentId, short applicationServiceType,
-                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
-                             SpanUriGetter spanUriGetter) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.applicationServiceType = applicationServiceType;
-        this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
-        this.spanUriGetter = Objects.requireNonNull(spanUriGetter);
-    }
 
     @Mappings({
             @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
@@ -85,7 +68,7 @@ public abstract class SpanMessageMapper {
 
             // PAcceptEvent
             @Mapping(source = "remoteAddr", target = "pAcceptEvent.remoteAddr", defaultValue = DEFAULT_REMOTE_ADDRESS),
-            @Mapping(source = "traceRoot.shared", target = "pAcceptEvent.rpc", qualifiedByName= "toRPCName", defaultValue = DEFAULT_RPC_NAME),
+            @Mapping(source = "traceRoot.shared", target = "pAcceptEvent.rpc", qualifiedByName = "toRPCName", defaultValue = DEFAULT_RPC_NAME),
             @Mapping(source = "traceRoot.shared.endPoint", target = "pAcceptEvent.endPoint", defaultValue = DEFAULT_END_POINT),
 
             // PAcceptEvent PParentInfo
@@ -100,18 +83,18 @@ public abstract class SpanMessageMapper {
 
 
     })
-    abstract PSpan toProto(Span span);
+    PSpan toProto(Span span);
 
-    abstract PIntStringValue toProto(IntStringValue intStringValue);
+    PIntStringValue toProto(IntStringValue intStringValue);
 
     @Condition
-    boolean isNotEmpty(String value) {
+    default boolean isNotEmpty(String value) {
         return !StringUtils.isEmpty(value);
     }
 
     @Named("toRPCName")
-    private String toRPCName(Shared shared) {
-        return spanUriGetter.getCollectedUri(shared);
+    default String toRPCName(Shared shared) {
+        return "";
     }
 
 }
