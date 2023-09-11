@@ -116,6 +116,7 @@ public interface AgentStatMapper {
             pActiveTraceHistogram.setHistogramSchemaType(typeCode);
         }
         final List<Integer> activeTraceCounts = toList(histogram);
+        // To use addAll()
         pActiveTraceHistogram.addAllActiveTraceCount(activeTraceCounts);
 
         return pActiveTraceHistogram.build();
