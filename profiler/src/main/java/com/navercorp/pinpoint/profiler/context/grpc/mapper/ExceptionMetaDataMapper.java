@@ -55,25 +55,25 @@ public interface ExceptionMetaDataMapper {
     })
     PExceptionMetaData toProto(ExceptionMetaData model);
 
-    default PException toProto(ExceptionWrapper model){
-        if ( model == null ) {
+    default PException toProto(ExceptionWrapper model) {
+        if (model == null) {
             return null;
         }
 
         PException.Builder pException = PException.newBuilder();
 
-        if ( model.getStackTraceElements() != null ) {
-            pException.addAllStackTraceElement( toStackTraceElements( model.getStackTraceElements() ) );
+        if (model.getStackTraceElements() != null) {
+            pException.addAllStackTraceElement(toStackTraceElements(model.getStackTraceElements()));
         }
-        if ( model.getExceptionClassName() != null ) {
-            pException.setExceptionClassName( model.getExceptionClassName() );
+        if (model.getExceptionClassName() != null) {
+            pException.setExceptionClassName(model.getExceptionClassName());
         }
-        if ( model.getExceptionMessage() != null ) {
-            pException.setExceptionMessage( model.getExceptionMessage() );
+        if (model.getExceptionMessage() != null) {
+            pException.setExceptionMessage(model.getExceptionMessage());
         }
-        pException.setStartTime( model.getStartTime() );
-        pException.setExceptionId( model.getExceptionId() );
-        pException.setExceptionDepth( model.getExceptionDepth() );
+        pException.setStartTime(model.getStartTime());
+        pException.setExceptionId(model.getExceptionId());
+        pException.setExceptionDepth(model.getExceptionDepth());
 
         return pException.build();
     }

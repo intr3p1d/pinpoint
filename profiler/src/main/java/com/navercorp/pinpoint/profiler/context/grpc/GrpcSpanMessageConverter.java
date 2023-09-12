@@ -53,6 +53,7 @@ import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,18 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     @VisibleForTesting
     PSpan buildPSpan(Span span) {
+        final PSpan.Builder pSpan = PSpan.newBuilder();
+
+        this.spanProcessor.preProcess(span, pSpan);
+        mapper.toProto(span, pSpan);
+        this.spanProcessor.postProcess(span, pSpan);
+        return pSpan.build();
+
+    }
+
+
+    @VisibleForTesting
+    PSpan buildPSpan2(Span span) {
         final PSpan.Builder pSpan = PSpan.newBuilder();
 
         pSpan.setVersion(SpanVersion.TRACE_V2);

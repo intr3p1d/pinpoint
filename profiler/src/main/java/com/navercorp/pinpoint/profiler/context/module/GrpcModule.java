@@ -165,7 +165,7 @@ public class GrpcModule extends PrivateModule {
         bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
         // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
-
+        bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
         TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {};
         bind(spanPostProcessorType).toProvider(GrpcSpanProcessorProvider.class).in(Scopes.SINGLETON);
 
