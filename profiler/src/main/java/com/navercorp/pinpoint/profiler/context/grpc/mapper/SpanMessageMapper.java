@@ -16,7 +16,9 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.google.protobuf.StringValue;
+import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.util.ClassUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
@@ -28,8 +30,11 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.io.SpanVersion;
+import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.profiler.context.compress.SpanEventSequenceComparator;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
@@ -46,6 +51,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
@@ -66,6 +72,7 @@ import java.util.Objects;
         uses = {
                 TraceIdMapStructUtils.class,
                 SpanUriGetter.class,
+                SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>,
         }
 )
 public interface SpanMessageMapper {
