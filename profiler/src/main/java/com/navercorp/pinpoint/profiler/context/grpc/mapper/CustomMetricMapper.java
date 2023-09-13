@@ -17,8 +17,11 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.navercorp.pinpoint.grpc.trace.PCustomMetric;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
+import com.navercorp.pinpoint.grpc.trace.PIntCountMetric;
+import com.navercorp.pinpoint.grpc.trace.PIntValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
+import com.navercorp.pinpoint.profiler.monitor.metric.custom.CustomMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.DoubleGaugeMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntCountMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntGaugeMetricVo;
@@ -26,6 +29,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongCountMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongGaugeMetricVo;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -35,7 +40,7 @@ import java.util.List;
  * @author intr3p1d
  */
 @Mapper(
-        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        collectionMappingStrategy = CollectionMappingStrategy.SETTER_PREFERRED,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {
@@ -49,12 +54,30 @@ public interface CustomMetricMapper {
 
     PCustomMetric map(String metricName, List<AgentCustomMetricSnapshot> snapshotList);
 
-    PCustomMetric createFromIntCountMetric(String metricName, List<IntCountMetricVo> snapshotList);
 
-    PCustomMetric createFromLongCountMetric(String metricName, List<LongCountMetricVo> snapshotList);
-    PCustomMetric createFromIntGaugeMetric(String string, List<IntGaugeMetricVo> snapshotList);
+    @Mappings({
+            @Mapping(source = "customMetricVos", target = "intCountMetric"),
+            @Mapping(source = "customMetricVos", target = "longCountMetric"),
+            @Mapping(source = "customMetricVos", target = "intGaugeMetric"),
+            @Mapping(source = "customMetricVos", target = "longGaugeMetric"),
+            @Mapping(source = "customMetricVos", target = "doubleGaugeMetric"),
+    })
+    PCustomMetric map(String metricName, CustomMetricVo representativeCustomMetricVo, CustomMetricVo[] customMetricVos);
 
-    PCustomMetric createFromLongGuageMetric(String string, List<LongGaugeMetricVo> snapshotList);
+    @Mappings(
+            @Mapping(source = "metricName", target = "name"),
+            @Mapping(source = "snapshotList.value", target = "valuesList")
+    })
+    PIntCountMetric createFromIntCountMetric(String metricName, IntCountMetricVo[] snapshotList);
 
-    PCustomMetric createCromDoubleGuageMetric(String string, List<DoubleGaugeMetricVo> snapshotList);
+    PIntValue map
+
+
+    PCustomMetric createFromLongCountMetric(String metricName, LongCountMetricVo[] snapshotList);
+
+    PCustomMetric createFromIntGaugeMetric(String string, IntGaugeMetricVo[] snapshotList);
+
+    PCustomMetric createFromLongGaugeMetric(String string, LongGaugeMetricVo[] snapshotList);
+
+    PCustomMetric createFromDoubleGaugeMetric(String string, DoubleGaugeMetricVo[] snapshotList);
 }

@@ -105,7 +105,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         }
         if (message instanceof Span) {
             final Span span = (Span) message;
-            return mapper.toProto(span);
+            return buildPSpan(span);
         }
         return null;
     }

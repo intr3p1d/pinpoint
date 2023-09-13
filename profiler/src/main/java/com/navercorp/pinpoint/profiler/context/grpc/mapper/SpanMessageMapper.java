@@ -71,8 +71,8 @@ import java.util.Objects;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {
                 TraceIdMapStructUtils.class,
+                GrpcAnnotationValueMapper.class,
                 SpanUriGetter.class,
-                SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>,
         }
 )
 public interface SpanMessageMapper {
