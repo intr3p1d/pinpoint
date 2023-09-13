@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongGaugeMetricVo;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -40,7 +41,7 @@ import java.util.List;
  * @author intr3p1d
  */
 @Mapper(
-        collectionMappingStrategy = CollectionMappingStrategy.SETTER_PREFERRED,
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {
@@ -62,16 +63,42 @@ public interface CustomMetricMapper {
             @Mapping(source = "customMetricVos", target = "longGaugeMetric"),
             @Mapping(source = "customMetricVos", target = "doubleGaugeMetric"),
     })
-    PCustomMetric map(String metricName, CustomMetricVo representativeCustomMetricVo, CustomMetricVo[] customMetricVos);
+    PCustomMetric map(
+            String metricName,
+            CustomMetricVo representativeCustomMetricVo,
+            CustomMetricVo[] customMetricVos
+    );
 
-    @Mappings(
+    @Mappings({
             @Mapping(source = "metricName", target = "name"),
-            @Mapping(source = "snapshotList.value", target = "valuesList")
+            @Mapping(source = "snapshotList", target = "valuesList"),
     })
-    PIntCountMetric createFromIntCountMetric(String metricName, IntCountMetricVo[] snapshotList);
+    PIntCountMetric createFromIntCountMetric(
+            String metricName,
+            IntCountMetricVo[] snapshotList
+    );
 
-    PIntValue map
+    default List<PIntValue> map(CustomMetricVo[] customMetricVos) {
+        if (!(customMetricVos[0] instanceof IntCountMetricVo)) {
+            return null;
+        }
 
+        IntCountMetricVo[] intCountMetricVos = (IntCountMetricVo[]) customMetricVos;
+        int prevValue = 0;
+
+        for (IntCountMetricVo intCountMetricVo : intCountMetricVos) {
+            int value = intCountMetricVo.getValue();
+            intCountMetricBuilder.addValues(createIntValue(value - prevValue));
+            prevValue = value;
+        }
+        return null;
+    }
+
+    default PIntValue createIntValue(int value) {
+        PIntValue.Builder builder = PIntValue.newBuilder();
+        builder.setValue(value);
+        return builder.build();
+    }
 
     PCustomMetric createFromLongCountMetric(String metricName, LongCountMetricVo[] snapshotList);
 
