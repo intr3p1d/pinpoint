@@ -53,7 +53,7 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (args == null ) {
+        if (args == null) {
             return;
         }
 
@@ -61,15 +61,15 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         DatabaseInfo databaseInfo = null;
 
 
-        if(args[1] instanceof ClickHouseProperties){
-            ClickHouseProperties clickHouseProperties=(ClickHouseProperties)args[1];
-            String databaseId=clickHouseProperties.getDatabase();
+        if (args[1] instanceof ClickHouseProperties) {
+            ClickHouseProperties clickHouseProperties = (ClickHouseProperties) args[1];
+            String databaseId = clickHouseProperties.getDatabase();
 
             if (url != null && databaseId != null) {
 
-                String tmpURL=url.substring(url.lastIndexOf("/")+1);
+                String tmpURL = url.substring(url.lastIndexOf("/") + 1);
                 // It's dangerous to use this url directly
-                databaseInfo = new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, tmpURL, tmpURL, Arrays.asList(tmpURL), databaseId);
+                databaseInfo = createDatabaseInfo(tmpURL, databaseId);
                 if (InterceptorUtils.isSuccess(throwable)) {
                     // Set only if connection is success.
                     if (target instanceof DatabaseInfoAccessor) {
@@ -77,10 +77,9 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
                     }
                 }
             }
-        }else {
+        } else {
             return;
         }
-
 
 
         final Trace trace = traceContext.currentTraceObject();
@@ -97,15 +96,9 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         }
 
     }
-    
-    private DatabaseInfo createDatabaseInfo(String url, Integer port, String databaseId) {
-        if (url.indexOf(':') == -1) {
-            url += ":" + port;
-        }
 
-        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
-        return databaseInfo;
-
+    private DatabaseInfo createDatabaseInfo(String url, String databaseId) {
+        return new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
     }
 
     private String getString(Object value) {
@@ -115,15 +108,8 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         return null;
     }
 
-    private Integer getInteger(Object value) {
-        if (value instanceof Integer) {
-            return (Integer) value;
-        }
-        return null;
-    }
-
     @Override
     public void before(Object target, Object[] args) {
-
+        // ignore
     }
 }
