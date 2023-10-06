@@ -17,15 +17,25 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.testcontainers.containers.ClickHouseContainer;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 
 /**
  * @author intr3p1d
@@ -35,13 +45,53 @@ import org.testcontainers.containers.ClickHouseContainer;
 @Dependency({"com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION})
-@PinpointConfig("pinpoint-mssql.config")
-@SharedDependency({"com.microsoft.sqlserver:mssql-jdbc:7.0.0.jre8", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
+@PinpointConfig("pinpoint-clickhouse.config")
+@SharedDependency({
+        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
+        PluginITConstants.VERSION, JDBCTestConstants.VERSION,
+        "org.testcontainers:testcontainers:1.19.0",
+        "org.testcontainers:clickhouse:1.19.0"
+})
+@SharedTestLifeCycleClass(ClickHouseServer.class)
 public class ClickHouseIT {
-    private static final String CLICKHOUSE_IMAGE = "yandex/clickhouse-server:20.8";
-    private final ClickHouseContainer dockerContainer;
+    protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
+    static final String TABLE_NAME = "jdbc_example_basic";
+    private static URI uri;
 
-    public ClickHouseIT() {
-        this.dockerContainer = new ClickHouseContainer(CLICKHOUSE_IMAGE);
+    public static DriverProperties getDriverProperties() {
+        return driverProperties;
     }
+
+    @BeforeAll
+    public static void setUpBeforeClass() throws Exception {
+        DriverProperties driverProperties = getDriverProperties();
+        uri = new URI(driverProperties.getUrl());
+    }
+
+    @Test
+    public void test0() throws SQLException {
+        Connection conn = getConnection("jdbc:ch://localhost", new Properties());
+        dropAndCreateTable(conn);
+        Assertions.assertEquals(1, 1);
+    }
+
+    private static Connection getConnection(String url, Properties properties) throws SQLException {
+        final Connection conn;
+
+        conn = DriverManager.getConnection(url, properties);
+        System.out.println("Connected to: " + conn.getMetaData().getURL());
+        return conn;
+    }
+
+    static int dropAndCreateTable(Connection conn) throws SQLException {
+        try (Statement stmt = conn.createStatement()) {
+            // multi-statement query is supported by default
+            // session will be created automatically during execution
+            stmt.execute(String.format(
+                    "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
+                    TABLE_NAME));
+            return stmt.getUpdateCount();
+        }
+    }
+
 }
