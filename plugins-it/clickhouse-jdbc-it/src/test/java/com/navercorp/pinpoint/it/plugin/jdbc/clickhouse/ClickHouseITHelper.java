@@ -17,10 +17,10 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.clickhouse.jdbc.ClickHouseConnection;
 import com.clickhouse.jdbc.ClickHouseDriver;
+import com.clickhouse.config.ClickHouseOption;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
@@ -44,7 +44,7 @@ public class ClickHouseITHelper {
 
     }
 
-    public Connection getConnection() throws SQLException {
+    public ClickHouseConnection getConnection() throws SQLException {
         ClickHouseDriver driver = new ClickHouseDriver();
         Properties properties = new Properties();
         properties.put("user", userName);

@@ -15,108 +15,28 @@
  */
 package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
-import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.clickhouse.jdbc.ClickHouseConnection;
+import com.clickhouse.jdbc.ClickHouseStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collections;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 
 /**
  * @author intr3p1d
  */
-@PluginTest
-@PinpointAgent(AgentPath.PATH)
-@Dependency({
-        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
-        JDBCTestConstants.VERSION})
-@PinpointConfig("pinpoint-clickhouse.config")
-@SharedDependency({
-        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
-        PluginITConstants.VERSION, JDBCTestConstants.VERSION,
-        "org.testcontainers:testcontainers:1.19.0",
-        "org.testcontainers:clickhouse:1.19.0"
-})
-@SharedTestLifeCycleClass(ClickHouseServer.class)
-public class ClickHouseIT {
+public class ClickHouseITBase {
     private final Logger logger = LogManager.getLogger(getClass());
-    protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
     static final String TABLE_NAME = "jdbc_example_basic";
-    private static URI uri;
 
-    private final ClickHouseITHelper clickHouseITHelper = new ClickHouseITHelper(driverProperties);
-
-    public static DriverProperties getDriverProperties() {
-        return driverProperties;
+    public ClickHouseITBase() {
     }
 
-    @BeforeAll
-    public static void setUpBeforeClass() throws Exception {
-        DriverProperties driverProperties = getDriverProperties();
-        uri = new URI(driverProperties.getUrl());
-    }
-
-    private Connection getConnection() throws SQLException {
-        return clickHouseITHelper.getConnection();
-    }
-
-    @Test
-    public void test0() throws SQLException {
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        Connection conn = getConnection();
-        dropAndCreateTable(conn);
-        logger.info(verifier.getExecutedMethod());
-    }
-
-    private ExpectedTrace clientConnectionEvent() {
-        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder("CLICK_HOUSE");
-        eventBuilder.setMethodSignature("ru.yandex.clickhouse");
-
-        String remoteAddress = "127.0.0.1";
-        eventBuilder.setEndPoint(remoteAddress);
-        eventBuilder.setDestinationId(remoteAddress);
-        eventBuilder.setAnnotations(annotation("http.url", "http://" + remoteAddress + "/" ));
-
-        return eventBuilder.build();
-    }
-
-    @Test
-    public void test1() throws SQLException {
-        Connection conn = getConnection();
-        query(conn);
-    }
-
-    @Test
-    public void test2() throws SQLException {
-        Connection conn = getConnection();
-        insertByteArray(conn);
-    }
-
-    private int dropAndCreateTable(Connection conn) throws SQLException {
-        try (Statement stmt = conn.createStatement()) {
+    public int dropAndCreateTable(ClickHouseConnection conn) throws SQLException {
+        try (ClickHouseStatement stmt = conn.createStatement()) {
             // multi-statement query is supported by default
             // session will be created automatically during execution
             stmt.execute(String.format(
@@ -126,10 +46,9 @@ public class ClickHouseIT {
         }
     }
 
-
-    private int query(Connection conn) throws SQLException {
+    public int query(ClickHouseConnection conn) throws SQLException {
         String sql = "select * from " + TABLE_NAME;
-        try (Statement stmt = conn.createStatement()) {
+        try (ClickHouseStatement stmt = conn.createStatement()) {
             // set max_result_rows = 3, result_overflow_mode = 'break'
             // or simply discard rows after the first 3 in read-only mode
             stmt.setMaxRows(3);
@@ -143,8 +62,8 @@ public class ClickHouseIT {
         }
     }
 
-    private void insertByteArray(Connection conn) throws SQLException {
-        try (Statement s = conn.createStatement()) {
+    public void insertByteArray(ClickHouseConnection conn) throws SQLException {
+        try (ClickHouseStatement s = conn.createStatement()) {
             s.execute("drop table if exists t_map;"
                     + "CREATE TABLE t_map"
                     + "("
