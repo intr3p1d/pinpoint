@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -29,7 +30,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.jdbc.clickhouse.ClickHouseConstants;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 /**
  * @author emeroad
@@ -61,9 +61,9 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         DatabaseInfo databaseInfo = null;
 
 
-        if (args[1] instanceof ClickHouseProperties) {
-            ClickHouseProperties clickHouseProperties = (ClickHouseProperties) args[1];
-            String databaseId = clickHouseProperties.getDatabase();
+        if (args[1] instanceof Properties) {
+            Properties clickHouseProperties = (Properties) args[1];
+            String databaseId = clickHouseProperties.getProperty("database");
 
             if (url != null && databaseId != null) {
 

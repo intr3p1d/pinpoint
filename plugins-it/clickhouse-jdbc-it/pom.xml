@@ -29,8 +29,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
-        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <jdk.version>11</jdk.version>
+        <jdk.home>${env.JAVA_11_HOME}</jdk.home>
     </properties>
 
     <dependencies>
@@ -65,6 +65,11 @@
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <version>0.3.2-patch11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

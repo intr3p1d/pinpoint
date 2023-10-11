@@ -35,6 +35,9 @@ public class ClickHouseServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
         container = new ClickHouseContainer(DockerImageName.parse(CLICKHOUSE_IMAGE));
+        container.withDatabaseName("default");
+        container.withUsername("default");
+        container.withPassword("");
         container.start();
 
         return DatabaseContainers.toProperties(container);

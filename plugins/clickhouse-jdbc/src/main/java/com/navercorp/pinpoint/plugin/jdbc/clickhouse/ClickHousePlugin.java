@@ -32,9 +32,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementBindVariableInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementExecuteQueryInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor;
@@ -48,7 +45,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollb
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor.ClickHouseConnectionCreateInterceptor;
-import com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor.ClickHouseSkipInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -88,8 +84,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
     private void addConnectionTransformer(final ClickHouseConfig config) {
 
 
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseConnection", ConnectionTransform.class);
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseConnectionImpl", ConnectionTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseConnection", ConnectionTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseConnectionImpl", ConnectionTransform.class);
 
     }
 
@@ -105,16 +101,18 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
             target.addField(DatabaseInfoAccessor.class);
 
-            InstrumentMethod constructor = target.getConstructor("java.lang.String", "ru.yandex.clickhouse.settings.ClickHouseProperties");
-            if (constructor != null) {
-                constructor.addInterceptor(ClickHouseConnectionCreateInterceptor.class);
+            InstrumentMethod constructor1 = target.getConstructor("java.lang.String");
+            if (constructor1 != null) {
+                constructor1.addInterceptor(ClickHouseConnectionCreateInterceptor.class);
             }
-
-            // initTimeZone
-            InstrumentUtils.findMethod(target, "initTimeZone","ru.yandex.clickhouse.settings.ClickHouseProperties")
-                    .addScopedInterceptor(ClickHouseSkipInterceptor.class, CLICK_HOUSE_SCOPE);
-
-
+            InstrumentMethod constructor2 = target.getConstructor("java.lang.String", "java.util.Properties");
+            if (constructor2 != null) {
+                constructor2.addInterceptor(ClickHouseConnectionCreateInterceptor.class);
+            }
+            InstrumentMethod constructor3 = target.getConstructor("com.clickhouse.jdbc.internal.ClickHouseJdbcUrlParser.ConnectionInfo");
+            if (constructor3 != null) {
+                constructor3.addInterceptor(ClickHouseConnectionCreateInterceptor.class);
+            }
 
             // close
             InstrumentUtils.findMethod(target, "close")
@@ -131,30 +129,30 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
             // preparedStatement
             final Class<? extends Interceptor> preparedStatementCreate = PreparedStatementCreateInterceptor.class;
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
+            InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+            InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String", "int")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+            InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String", "int[]")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+            InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String", "java.lang.String[]")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+            InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String", "int", "int")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
+            InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String", "int", "int", "int")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
 
             // preparecall
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+            InstrumentUtils.findMethod(target, "prepareCall", "java.lang.String")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+            InstrumentUtils.findMethod(target, "prepareCall", "java.lang.String", "int", "int")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+            InstrumentUtils.findMethod(target, "prepareCall", "java.lang.String", "int", "int", "int")
                     .addScopedInterceptor(preparedStatementCreate, CLICK_HOUSE_SCOPE);
 
             ClickHouseConfig config = new ClickHouseConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
-                InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                InstrumentUtils.findMethod(target, "setAutoCommit", "boolean")
                         .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, CLICK_HOUSE_SCOPE);
             }
 
@@ -174,7 +172,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addDriverTransformer() {
 
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseDriver", DriverTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseDriver", DriverTransform.class);
 
     }
 
@@ -184,7 +182,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+            InstrumentUtils.findMethod(target, "connect", "java.lang.String", "java.util.Properties")
                     .addScopedInterceptor(DriverConnectInterceptorV2.class, va(ClickHouseConstants.CLICK_HOUSE, false), CLICK_HOUSE_SCOPE, ExecutionPolicy.ALWAYS);
 
             return target.toBytecode();
@@ -193,7 +191,9 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addPreparedStatementTransformer(final ClickHouseConfig config) {
 
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHousePreparedStatementImpl", PreparedStatementTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class);
 
     }
 
@@ -240,8 +240,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
     private void addStatementTransformer() {
 
 
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseStatement", StatementTransformer.class);
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseStatementImpl", StatementTransformer.class);
+        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseStatement", StatementTransformer.class);
+        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseStatementImpl", StatementTransformer.class);
 
 
     }
@@ -265,11 +265,11 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
             final Class<? extends Interceptor> executeUpdateInterceptor = StatementExecuteUpdateInterceptor.class;
             InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
                     .addScopedInterceptor(executeUpdateInterceptor, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+            InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String", "int")
                     .addScopedInterceptor(executeUpdateInterceptor, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+            InstrumentUtils.findMethod(target, "execute", "java.lang.String")
                     .addScopedInterceptor(executeUpdateInterceptor, CLICK_HOUSE_SCOPE);
-            InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+            InstrumentUtils.findMethod(target, "execute", "java.lang.String", "int")
                     .addScopedInterceptor(executeUpdateInterceptor, CLICK_HOUSE_SCOPE);
 
             return target.toBytecode();
