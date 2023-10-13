@@ -63,7 +63,10 @@ import java.util.Properties;
         "org.testcontainers:clickhouse:1.19.0"
 })
 @SharedTestLifeCycleClass(ClickHouseServer.class)
-public class ClickHouse_0_3_2_IT {
+public class ClickHouse_0_3_2_IT extends DataBaseTestCase {
+
+    private final static String CLICK_HOUSE = "CLICK_HOUSE";
+    private final static String CLICK_HOUSE_EXECUTE_QUERY = "CLICK_HOUSE_EXECUTE_QUERY";
 
     private final Logger logger = LogManager.getLogger(getClass());
     protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
@@ -72,6 +75,11 @@ public class ClickHouse_0_3_2_IT {
     private final ClickHouseITHelper clickHouseITHelper = new ClickHouseITHelper(driverProperties);
     private final ClickHouseITBase clickHouseITBase = new ClickHouseITBase();
 
+
+    private static JDBCDriverClass driverClass;
+    private static JDBCApi jdbcApi;
+
+    private static JdbcUrlParserV2 jdbcUrlParser;
 
     public static DriverProperties getDriverProperties() {
         return driverProperties;
@@ -84,10 +92,40 @@ public class ClickHouse_0_3_2_IT {
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         DriverProperties driverProperties = getDriverProperties();
+        driverClass = new ClickHouseJDBCDriverClass();
+        jdbcApi = new DefaultJDBCApi(driverClass);
+
+        jdbcUrlParser = new ClickHouseJdbcUrlParser();
+    }
+
+    @Override
+    protected JDBCDriverClass getJDBCDriverClass() {
+        return driverClass;
+    }
+
+    @BeforeEach
+    public void before() {
+        logger.info("before");
+        setup(CLICK_HOUSE, CLICK_HOUSE_EXECUTE_QUERY, driverProperties, jdbcUrlParser, jdbcApi);
     }
 
     private ClickHouseConnection getConnection() throws SQLException {
         return clickHouseITHelper.getConnection();
+    }
+
+    @Override
+    public void testStatement() throws Exception {
+        super.testStatement();
+    }
+
+    @Override
+    public void testStoredProcedure_with_IN_OUT_parameters() throws Exception {
+        super.testStoredProcedure_with_IN_OUT_parameters();
+    }
+
+    @Override
+    public void testStoredProcedure_with_INOUT_parameters() throws Exception {
+        super.testStoredProcedure_with_INOUT_parameters();
     }
 
     @Test

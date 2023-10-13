@@ -81,6 +81,7 @@ public class ClickHouseITBase {
         JDBCApi jdbcApi = new DefaultJDBCApi(new ClickHouseJDBCDriverClass());
 
         Method connect = jdbcApi.getDriver().getConnect();
+        logger.info(verifier.getExecutedMethod());
         verifier.verifyTrace(Expectations.event("CLICK_HOUSE", connect, null, "test", "test", Expectations.cachedArgs("test")));
 
         // Method execute = jdbcApi.getPreparedStatement().getExecute();
