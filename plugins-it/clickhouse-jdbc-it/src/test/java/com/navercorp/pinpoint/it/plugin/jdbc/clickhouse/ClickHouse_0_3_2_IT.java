@@ -16,27 +16,35 @@
 package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.clickhouse.jdbc.ClickHouseConnection;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DataBaseTestCase;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DefaultJDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
+import com.navercorp.pinpoint.plugin.jdbc.clickhouse.ClickHouseJdbcUrlParser;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * @author intr3p1d
@@ -44,7 +52,7 @@ import java.sql.SQLException;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({
-        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11,0.4.0)",
+        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION})
 @PinpointConfig("pinpoint-clickhouse.config")
@@ -56,6 +64,7 @@ import java.sql.SQLException;
 })
 @SharedTestLifeCycleClass(ClickHouseServer.class)
 public class ClickHouse_0_3_2_IT {
+
     private final Logger logger = LogManager.getLogger(getClass());
     protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
     private static URI uri;
@@ -63,14 +72,18 @@ public class ClickHouse_0_3_2_IT {
     private final ClickHouseITHelper clickHouseITHelper = new ClickHouseITHelper(driverProperties);
     private final ClickHouseITBase clickHouseITBase = new ClickHouseITBase();
 
+
     public static DriverProperties getDriverProperties() {
         return driverProperties;
+    }
+
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
     }
 
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         DriverProperties driverProperties = getDriverProperties();
-        uri = new URI(driverProperties.getUrl());
     }
 
     private ClickHouseConnection getConnection() throws SQLException {
@@ -78,11 +91,8 @@ public class ClickHouse_0_3_2_IT {
     }
 
     @Test
-    public void test0() throws SQLException {
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        ClickHouseConnection conn = getConnection();
-        clickHouseITBase.dropAndCreateTable(conn);
-        logger.info(verifier.getExecutedMethod());
+    public void testDropAndCreateTable() throws SQLException {
+        clickHouseITBase.dropAndCreateTable();
     }
 
     @Test

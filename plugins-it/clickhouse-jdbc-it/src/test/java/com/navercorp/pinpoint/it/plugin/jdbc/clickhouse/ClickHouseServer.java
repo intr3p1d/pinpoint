@@ -38,6 +38,7 @@ public class ClickHouseServer implements SharedTestLifeCycle {
         container.withDatabaseName("default");
         container.withUsername("default");
         container.withPassword("");
+        container.withInitScript("sql/init_clickhouse.sql");
         container.start();
 
         return DatabaseContainers.toProperties(container);
