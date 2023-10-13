@@ -17,9 +17,25 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.clickhouse.jdbc.ClickHouseConnection;
 import com.clickhouse.jdbc.ClickHouseStatement;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DataBaseTestCase;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DefaultJDBCApi;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
+import com.navercorp.pinpoint.plugin.jdbc.clickhouse.ClickHouseJdbcUrlParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
+import javax.sql.DataSource;
+import java.lang.reflect.Method;
+import java.net.URI;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,18 +48,43 @@ public class ClickHouseITBase {
     private final Logger logger = LogManager.getLogger(getClass());
     static final String TABLE_NAME = "jdbc_example_basic";
 
-    public ClickHouseITBase() {
+    protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
+    private final ClickHouseITHelper clickHouseITHelper = new ClickHouseITHelper(driverProperties);
+
+
+    public static DriverProperties getDriverProperties() {
+        return driverProperties;
     }
 
-    public int dropAndCreateTable(ClickHouseConnection conn) throws SQLException {
+    private ClickHouseConnection getConnection() throws SQLException {
+        return clickHouseITHelper.getConnection();
+    }
+
+    public void dropAndCreateTable() throws SQLException {
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        ClickHouseConnection conn = getConnection();
+        String dropAndCreateQuery = String.format(
+                "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
+                TABLE_NAME);
+
+        int count;
         try (ClickHouseStatement stmt = conn.createStatement()) {
             // multi-statement query is supported by default
             // session will be created automatically during execution
-            stmt.execute(String.format(
-                    "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
-                    TABLE_NAME));
-            return stmt.getUpdateCount();
+            stmt.execute(dropAndCreateQuery);
+            count = stmt.getUpdateCount();
         }
+
+        JDBCApi jdbcApi = new DefaultJDBCApi(new ClickHouseJDBCDriverClass());
+
+        Method connect = jdbcApi.getDriver().getConnect();
+        verifier.verifyTrace(Expectations.event("CLICK_HOUSE", connect, null, "test", "test", Expectations.cachedArgs("test")));
+
+        // Method execute = jdbcApi.getPreparedStatement().getExecute();
+        // verifier.verifyTrace(Expectations.event("CLICK_HOUSE_EXECUTE_QUERY", execute, null, "test", "test", Expectations.sql(dropAndCreateQuery, null)));
     }
 
     public int query(ClickHouseConnection conn) throws SQLException {

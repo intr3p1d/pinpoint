@@ -17,10 +17,8 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.clickhouse.jdbc.ClickHouseConnection;
 import com.clickhouse.jdbc.ClickHouseDriver;
-import com.clickhouse.config.ClickHouseOption;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
