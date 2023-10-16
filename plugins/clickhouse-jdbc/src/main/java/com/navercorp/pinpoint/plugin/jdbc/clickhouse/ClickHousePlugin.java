@@ -83,7 +83,6 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addConnectionTransformer(final ClickHouseConfig config) {
 
-        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseConnection", ConnectionTransform.class);
         transformTemplate.transform("com.clickhouse.jdbc.ClickHouseConnectionImpl", ConnectionTransform.class);
 
     }
@@ -190,8 +189,6 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addPreparedStatementTransformer(final ClickHouseConfig config) {
 
-        transformTemplate.transform("com.clickhouse.jdbc.ClickHousePreparedStatement", PreparedStatementTransform.class);
-
         transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class);
@@ -240,7 +237,6 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addStatementTransformer() {
 
-        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseStatement", StatementTransformer.class);
         transformTemplate.transform("com.clickhouse.jdbc.ClickHouseStatementImpl", StatementTransformer.class);
 
     }
