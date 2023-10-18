@@ -181,7 +181,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             InstrumentUtils.findMethod(target, "connect", "java.lang.String", "java.util.Properties")
-                    .addScopedInterceptor(DriverConnectInterceptorV2.class, va(ClickHouseConstants.CLICK_HOUSE), CLICK_HOUSE_SCOPE, ExecutionPolicy.ALWAYS);
+                    .addScopedInterceptor(DriverConnectInterceptorV2.class, va(ClickHouseConstants.CLICK_HOUSE, true), CLICK_HOUSE_SCOPE, ExecutionPolicy.ALWAYS);
 
             return target.toBytecode();
         }

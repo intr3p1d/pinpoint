@@ -58,4 +58,17 @@ public class ClickHouseJdbcUrlParserTest {
         Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
+
+    @Test
+    public void parse() {
+        final String jdbcUrl = "jdbc:clickhouse:http://localhost:32773/default";
+
+        DatabaseInfo dbInfo = clickHouseJdbcUrlParser.parse(jdbcUrl);
+        Assertions.assertTrue(dbInfo.isParsingComplete());
+
+        Assertions.assertEquals(SERVICE_TYPE, dbInfo.getType());
+        Assertions.assertEquals("localhost:32773", dbInfo.getHost().get(0));
+        Assertions.assertEquals("default", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:clickhouse:http://localhost:32773/default", dbInfo.getUrl());
+    }
 }

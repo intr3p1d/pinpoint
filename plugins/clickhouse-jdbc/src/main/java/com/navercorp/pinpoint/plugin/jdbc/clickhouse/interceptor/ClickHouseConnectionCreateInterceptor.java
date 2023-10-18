@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor;
 import java.util.Arrays;
 import java.util.Properties;
 
+import com.clickhouse.client.ClickHouseNode;
+import com.clickhouse.client.ClickHouseNodes;
+import com.clickhouse.jdbc.internal.ClickHouseJdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -29,7 +32,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.jdbc.clickhouse.ClickHouseConstants;
+import com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor.getter.DatabaseGetter;
 
 /**
  * @author emeroad
@@ -57,30 +62,44 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
             return;
         }
 
-        final String url = getString(args[0]);
-        DatabaseInfo databaseInfo = null;
+        String databaseId = getDatabase(target);
+        String uri = ArrayArgumentUtils.getArgument(args, 0, String.class);
 
+        DatabaseInfo dbInfo = null;
 
-        if (args[1] instanceof Properties) {
-            Properties clickHouseProperties = (Properties) args[1];
-            String databaseId = clickHouseProperties.getProperty("database");
+        if (args[0] instanceof String && args[1] instanceof Properties) {
+            String uri = (String) args[0];
+            Properties properties = (Properties) args[1];
 
-            if (url != null && databaseId != null) {
-
-                String tmpURL = url.substring(url.lastIndexOf("/") + 1);
-                // It's dangerous to use this url directly
-                databaseInfo = createDatabaseInfo(tmpURL, databaseId);
-                if (InterceptorUtils.isSuccess(throwable)) {
-                    // Set only if connection is success.
-                    if (target instanceof DatabaseInfoAccessor) {
-                        ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
-                    }
-                }
+            String tmpURL = uri.substring(uri.lastIndexOf("/") + 1);
+            if (properties.getProperty("database") != null) {
+                databaseId = properties.getProperty("database");
             }
-        } else {
-            return;
+            dbInfo = createDatabaseInfo(tmpURL, databaseId);
         }
 
+        if (args[0] instanceof ClickHouseJdbcUrlParser.ConnectionInfo) {
+            ClickHouseJdbcUrlParser.ConnectionInfo connectionInfo = (ClickHouseJdbcUrlParser.ConnectionInfo) args[0];
+            Properties properties = connectionInfo.getProperties();
+            ClickHouseNodes nodes = connectionInfo.getNodes();
+            ClickHouseNode node = nodes.getNodes().get(0);
+
+            String uri = node.getBaseUri();
+            if (properties.getProperty("database") != null) {
+                databaseId = properties.getProperty("database");
+            }
+
+            String tmpURL = uri.substring(uri.lastIndexOf("/") + 1);
+            // It's dangerous to use this url directly
+            dbInfo = createDatabaseInfo(tmpURL, databaseId);
+        }
+
+        if (InterceptorUtils.isSuccess(throwable)) {
+            // Set only if connection is success.
+            if (target instanceof DatabaseInfoAccessor) {
+                ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(dbInfo);
+            }
+        }
 
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -89,21 +108,20 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
 
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         // We must do this if current transaction is being recorded.
-        if (databaseInfo != null) {
-            recorder.recordServiceType(databaseInfo.getType());
-            recorder.recordEndPoint(databaseInfo.getMultipleHost());
-            recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        if (dbInfo != null) {
+            recorder.recordServiceType(dbInfo.getType());
+            recorder.recordEndPoint(dbInfo.getMultipleHost());
+            recorder.recordDestinationId(dbInfo.getDatabaseId());
         }
-
     }
 
     private DatabaseInfo createDatabaseInfo(String url, String databaseId) {
         return new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
     }
 
-    private String getString(Object value) {
-        if (value instanceof String) {
-            return (String) value;
+    private String getDatabase(Object target) {
+        if (target instanceof DatabaseGetter) {
+            return ((DatabaseGetter) target)._$PINPOINT$_getDatabase();
         }
         return null;
     }
