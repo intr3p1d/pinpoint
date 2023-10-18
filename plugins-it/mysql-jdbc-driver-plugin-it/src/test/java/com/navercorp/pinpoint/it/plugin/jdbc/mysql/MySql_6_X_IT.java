@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"mysql:mysql-connector-java:[6.min,6.max]",
+@Dependency({"mysql:mysql-connector-java:[6.0.2]",
         "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION})
 @SharedDependency({"mysql:mysql-connector-java:8.0.28", JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MYSQLDB})

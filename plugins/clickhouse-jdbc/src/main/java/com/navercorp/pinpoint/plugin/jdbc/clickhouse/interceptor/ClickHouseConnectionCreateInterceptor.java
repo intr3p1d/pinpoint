@@ -55,28 +55,23 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        System.out.printf("\n\n\nSYSTEM OUT\n\n\n");
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (args == null) {
-            return;
-        }
-
-        String databaseId = getDatabase(target);
         String uri = ArrayArgumentUtils.getArgument(args, 0, String.class);
+        String databaseId = getDatabase(target);
 
-        DatabaseInfo dbInfo = null;
+        String tmpUrl = uri.substring(uri.lastIndexOf("/") + 1);
+        DatabaseInfo dbInfo = new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, "tmpUrl", "tmpUrl", Arrays.asList("tmpUrl"), databaseId);
 
-        if (args[0] instanceof String && args[1] instanceof Properties) {
-            String uri = (String) args[0];
-            Properties properties = (Properties) args[1];
+        logger.warn("\n\n\nSYSTEM OUT\n\n\n");
+        logger.warn(uri);
+        logger.warn(databaseId);
+        logger.warn(tmpUrl);
+        logger.warn(dbInfo.toString());
+        logger.warn("\n\n\nSYSTEM OUT\n\n\n");
 
-            String tmpURL = uri.substring(uri.lastIndexOf("/") + 1);
-            if (properties.getProperty("database") != null) {
-                databaseId = properties.getProperty("database");
-            }
-            dbInfo = createDatabaseInfo(tmpURL, databaseId);
-        }
 
         if (args[0] instanceof ClickHouseJdbcUrlParser.ConnectionInfo) {
             ClickHouseJdbcUrlParser.ConnectionInfo connectionInfo = (ClickHouseJdbcUrlParser.ConnectionInfo) args[0];
@@ -84,7 +79,7 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
             ClickHouseNodes nodes = connectionInfo.getNodes();
             ClickHouseNode node = nodes.getNodes().get(0);
 
-            String uri = node.getBaseUri();
+            uri = node.getBaseUri();
             if (properties.getProperty("database") != null) {
                 databaseId = properties.getProperty("database");
             }

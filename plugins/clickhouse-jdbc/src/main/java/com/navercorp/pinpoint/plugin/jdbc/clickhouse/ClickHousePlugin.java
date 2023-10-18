@@ -74,6 +74,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
         context.addJdbcUrlParser(jdbcUrlParser);
 
+        logger.warn("\n\n\nPLUGIN LOADING\n\n\n");
+
         addConnectionTransformer(config);
         addDriverTransformer();
         addStatementTransformer();
@@ -83,7 +85,11 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addConnectionTransformer(final ClickHouseConfig config) {
 
-        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseConnectionImpl", ConnectionTransform.class);
+        // 0.3.2-patch11
+        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseConnectionImpl", ConnectionTransform.class);
+
+        // after 0.3.2
+        transformTemplate.transform("com.clickhouse.jdbc.internal.ClickHouseConnectionImpl", ConnectionTransform.class);
 
     }
 
@@ -118,12 +124,15 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
             // createStatement
             final Class<? extends Interceptor> statementCreate = StatementCreateInterceptor.class;
+            /*
             InstrumentUtils.findMethod(target, "createStatement")
                     .addScopedInterceptor(statementCreate, CLICK_HOUSE_SCOPE);
             InstrumentUtils.findMethod(target, "createStatement", "int", "int")
                     .addScopedInterceptor(statementCreate, CLICK_HOUSE_SCOPE);
             InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
                     .addScopedInterceptor(statementCreate, CLICK_HOUSE_SCOPE);
+
+
 
             // preparedStatement
             final Class<? extends Interceptor> preparedStatementCreate = PreparedStatementCreateInterceptor.class;
@@ -163,6 +172,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
                 InstrumentUtils.findMethod(target, "rollback")
                         .addScopedInterceptor(TransactionRollbackInterceptor.class, CLICK_HOUSE_SCOPE);
             }
+             */
 
             return target.toBytecode();
         }
@@ -170,6 +180,9 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addDriverTransformer() {
 
+        // 0.3.2-patch11
+        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseDriver", DriverTransform.class);
+        // after 0.3.2
         transformTemplate.transform("com.clickhouse.jdbc.ClickHouseDriver", DriverTransform.class);
 
     }
@@ -189,6 +202,10 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addPreparedStatementTransformer(final ClickHouseConfig config) {
 
+        // 0.3.2-patch11
+        transformTemplate.transform("ru.yandex.clickhouse.ClickHousePreparedStatementImpl", PreparedStatementTransform.class);
+
+        // after 0.3.2
         transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class);
@@ -237,7 +254,11 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addStatementTransformer() {
 
-        transformTemplate.transform("com.clickhouse.jdbc.ClickHouseStatementImpl", StatementTransformer.class);
+        // 0.3.2-patch11
+        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseStatementImpl", StatementTransformer.class);
+
+        // after 0.3.2
+        transformTemplate.transform("com.clickhouse.jdbc.internal.ClickHouseStatementImpl", StatementTransformer.class);
 
     }
 
