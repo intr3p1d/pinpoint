@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.plugin.jdbc.clickhouse.ClickHouseJdbcUrlParser;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
@@ -46,13 +47,14 @@ import java.util.Properties;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-clickhouse-jdbc-driver-plugin"})
 @Dependency({
         "com.clickhouse:clickhouse-jdbc:[0.4.1,]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION})
 @PinpointConfig("pinpoint-clickhouse.config")
 @SharedDependency({
-        "com.clickhouse:clickhouse-jdbc:[0.4.1]",
+        "com.clickhouse:clickhouse-jdbc:0.4.1",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION,
         "org.testcontainers:testcontainers:1.19.0",
         "org.testcontainers:clickhouse:1.19.0"
