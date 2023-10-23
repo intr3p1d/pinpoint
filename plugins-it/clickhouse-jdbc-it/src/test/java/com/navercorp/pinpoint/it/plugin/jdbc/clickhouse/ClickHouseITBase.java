@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
-import com.clickhouse.jdbc.ClickHouseConnection;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
@@ -96,7 +95,7 @@ public class ClickHouseITBase {
         }
     }
 
-    private ClickHouseConnection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         return clickHouseITHelper.getConnection();
     }
 
@@ -104,7 +103,7 @@ public class ClickHouseITBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        ClickHouseConnection conn = getConnection();
+        Connection conn = getConnection();
 
         String sql1 = String.format(
                 "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
@@ -151,7 +150,7 @@ public class ClickHouseITBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        ClickHouseConnection conn = getConnection();
+        Connection conn = getConnection();
 
         String sql1 = "drop table if exists t_map;"
                 + "CREATE TABLE t_map"

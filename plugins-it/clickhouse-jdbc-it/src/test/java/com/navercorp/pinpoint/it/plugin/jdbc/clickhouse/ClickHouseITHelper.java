@@ -15,10 +15,11 @@
  */
 package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
-import com.clickhouse.jdbc.ClickHouseConnection;
 import com.clickhouse.jdbc.ClickHouseDriver;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 
+import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
@@ -42,14 +43,14 @@ public class ClickHouseITHelper {
 
     }
 
-    public ClickHouseConnection getConnection() throws SQLException {
-        ClickHouseDriver driver = new ClickHouseDriver();
+    public Connection getConnection() throws SQLException {
+        Driver driver = new ClickHouseDriver();
         Properties properties = new Properties();
         properties.put("user", userName);
         properties.put("password", password);
 
         // final Connection conn = DriverManager.getConnection(jdbcUrl, userName, password);
-        final ClickHouseConnection conn = driver.connect(jdbcUrl, properties);
+        final Connection conn = driver.connect(jdbcUrl, properties);
 
         System.out.println("Connected to: " + conn.getMetaData().getURL());
         return conn;

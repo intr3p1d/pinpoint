@@ -18,10 +18,6 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DefaultJDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 
-import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.util.Objects;
 
 /**
  * @author intr3p1d
