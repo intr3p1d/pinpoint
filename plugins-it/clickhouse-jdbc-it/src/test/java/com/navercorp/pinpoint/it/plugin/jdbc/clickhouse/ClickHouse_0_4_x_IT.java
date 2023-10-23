@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,8 +92,8 @@ public class ClickHouse_0_4_x_IT extends ClickHouseITBase{
         setup(driverProperties, jdbcUrlParser, driverClass, jdbcApi);
     }
 
-    // @Test
+    @Test
     public void testStatement() throws SQLException {
-        super.executeQueries();
+        super.testStatements();
     }
 }

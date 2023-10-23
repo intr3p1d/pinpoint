@@ -34,17 +34,17 @@ public class ClickHouseJDBCDriverClass extends AbstractJDBCDriverClass {
 
     @Override
     public Class<Connection> getConnection() {
-        return forName("com.clickhouse.jdbc.ClickHouseConnection");
+        return forName("com.clickhouse.jdbc.internal.ClickHouseConnectionImpl");
     }
 
     @Override
     public Class<Statement> getStatement() {
-        return forName("com.clickhouse.jdbc.ClickHouseStatement");
+        return forName("com.clickhouse.jdbc.internal.ClickHouseStatementImpl");
     }
 
     @Override
     public Class<PreparedStatement> getPreparedStatement() {
-        return forName("com.clickhouse.jdbc.internal.ClickHouseStatementImpl");
+        return forName("com.clickhouse.jdbc.internal.InputBasedPreparedStatement");
     }
 
     @Override

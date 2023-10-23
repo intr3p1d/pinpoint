@@ -94,6 +94,11 @@ public class ClickHouse_0_3_2_IT extends ClickHouseITBase {
 
     @Test
     public void testStatement() throws SQLException {
-        super.executeQueries();
+        super.testStatements();
+    }
+
+    @Test
+    public void testPreparedStatement() throws SQLException {
+        super.testPreparedStatements();
     }
 }

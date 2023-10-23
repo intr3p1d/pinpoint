@@ -16,12 +16,13 @@
 package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.clickhouse.jdbc.ClickHouseConnection;
-import com.clickhouse.jdbc.ClickHouseStatement;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlNormalizer;
+import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
@@ -32,17 +33,23 @@ import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
 
 /**
  * @author intr3p1d
  */
 public class ClickHouseITBase {
     private final Logger logger = LogManager.getLogger(getClass());
-    static final String TABLE_NAME = "jdbc_example_basic";
+    private static final String TABLE_NAME = "jdbc_example_basic";
+
+    private static final SqlNormalizer sqlNormalizer = new DefaultSqlNormalizer();
 
     protected DriverProperties driverProperties;
     protected ClickHouseITHelper clickHouseITHelper;
@@ -93,47 +100,117 @@ public class ClickHouseITBase {
         return clickHouseITHelper.getConnection();
     }
 
-    public void executeQueries() throws SQLException {
+    public void testStatements() throws SQLException {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
 
         ClickHouseConnection conn = getConnection();
-        String dropAndCreateQuery = String.format(
+
+        String sql1 = String.format(
                 "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
                 TABLE_NAME);
+        String sql2 = "select * from " + TABLE_NAME;
+        String sql3 = "select * from " + TABLE_NAME;
 
-        int count;
-        try (ClickHouseStatement stmt = conn.createStatement()) {
-            // multi-statement query is supported by default
-            // session will be created automatically during execution
-            stmt.execute(dropAndCreateQuery);
-            count = stmt.getUpdateCount();
-            logger.info(count);
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(sql1);
         }
 
-        String sql = "select * from " + TABLE_NAME;
-        try (ClickHouseStatement stmt = conn.createStatement()) {
-            // set max_result_rows = 3, result_overflow_mode = 'break'
-            // or simply discard rows after the first 3 in read-only mode
+        try (Statement stmt = conn.createStatement()) {
             stmt.setMaxRows(3);
-            count = 0;
-            try (ResultSet rs = stmt.executeQuery(sql)) {
+            int count = 0;
+            try (ResultSet rs = stmt.executeQuery(sql2)) {
                 while (rs.next()) {
                     count++;
                 }
             }
-            logger.info(count);
         }
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.setMaxRows(3);
+            int count = stmt.executeUpdate(sql3);
+        }
+
+        verifier.printCache();
 
         Method connect = jdbcApi.getDriver().getConnect();
         verifier.verifyTrace(Expectations.event(DB_TYPE, connect, null, databaseAddress, databaseName, Expectations.cachedArgs(jdbcUrl)));
 
-        Method execute = jdbcApi.getPreparedStatement().getExecute();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(dropAndCreateQuery, null)));
+        Method execute = jdbcApi.getStatement().getExecute();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(sql1, null)));
 
-        Method executeQuery = jdbcApi.getPreparedStatement().getExecuteQuery();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeQuery, null, databaseAddress, databaseName, Expectations.sql(sql, null)));
+        Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeQuery, null, databaseAddress, databaseName, Expectations.sql(sql2, null)));
+
+        Method executeUpdate = jdbcApi.getStatement().getExecuteUpdate();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeUpdate, null, databaseAddress, databaseName, Expectations.sql(sql3, null)));
 
     }
+
+    public void testPreparedStatements() throws SQLException {
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+
+        ClickHouseConnection conn = getConnection();
+
+        String sql1 = "drop table if exists t_map;"
+                + "CREATE TABLE t_map"
+                + "("
+                + "    `audit_seq` Int64 CODEC(Delta(8), LZ4),"
+                + "`timestamp` Int64 CODEC(Delta(8), LZ4),"
+                + "`event_type` LowCardinality(String),"
+                + "`event_subtype` LowCardinality(String),"
+                + "`actor_type` LowCardinality(String),"
+                + "`actor_id` String,"
+                + "`actor_tenant_id` LowCardinality(String),"
+                + "`actor_tenant_name` String,"
+                + "`actor_firstname` String,"
+                + "`actor_lastname` String,"
+                + "`resource_type` LowCardinality(String),"
+                + "`resource_id` String,"
+                + "`resource_container` LowCardinality(String),"
+                + "`resource_path` String,"
+                + "`origin_ip` String,"
+                + "`origin_app_name` LowCardinality(String),"
+                + "`origin_app_instance` String,"
+                + "`description` String,"
+                + "`attributes` Map(String, String)"
+                + ")"
+                + "ENGINE = MergeTree "
+                + "ORDER BY (resource_container, event_type, event_subtype) "
+                + "SETTINGS index_granularity = 8192";
+        String sql2 = "INSERT INTO t_map SETTINGS async_insert=1,wait_for_async_insert=1 " +
+                "VALUES (8481365034795008,1673349039830,'operation-9','a','service', 'bc3e47b8-2b34-4c1a-9004-123656fa0000','b', 'c', 'service-56','d', 'object','e', 'my-value-62', 'mypath', 'some.hostname.address.com', 'app-9', 'instance-6','x', ?)";
+
+        try (Statement s = conn.createStatement()) {
+            s.execute(sql1);
+            try (PreparedStatement stmt = conn.prepareStatement(sql2)) {
+                stmt.setObject(1, Collections.singletonMap("key1", "value1"));
+                stmt.execute();
+                stmt.executeUpdate();
+                stmt.executeQuery();
+            }
+        }
+
+
+        verifier.printCache();
+
+        Method connect = jdbcApi.getDriver().getConnect();
+        verifier.verifyTrace(Expectations.event(DB_TYPE, connect, null, databaseAddress, databaseName, Expectations.cachedArgs(jdbcUrl)));
+
+        Method execute = jdbcApi.getStatement().getExecute();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(normalize(sql1), null)));
+
+        Method executePrepared = jdbcApi.getPreparedStatement().getExecute();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executePrepared, null, databaseAddress, databaseName, Expectations.sql(normalize(sql2), null)));
+
+        Method executeQueryPrepared = jdbcApi.getPreparedStatement().getExecuteQuery();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeQueryPrepared, null, databaseAddress, databaseName, Expectations.sql(normalize(sql2), null)));
+
+    }
+
+    private String normalize(String sql) {
+        return sqlNormalizer.normalizeSql(sql).getNormalizedSql();
+    }
+
 }

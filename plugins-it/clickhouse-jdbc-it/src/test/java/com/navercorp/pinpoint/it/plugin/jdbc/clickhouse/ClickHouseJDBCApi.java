@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.Objects;
 
 /**
@@ -29,37 +30,6 @@ public class ClickHouseJDBCApi extends DefaultJDBCApi {
 
     public ClickHouseJDBCApi(JDBCDriverClass jdbcDriverClass) {
         super(jdbcDriverClass);
-    }
-
-
-
-    public PreparedStatementClass getPreparedStatement() {
-        return new ClickHousePreparedStatementClass(getJDBCDriverClass());
-    }
-
-
-    public static class ClickHousePreparedStatementClass implements PreparedStatementClass {
-        private final JDBCDriverClass jdbcDriverClass;
-
-        public ClickHousePreparedStatementClass(JDBCDriverClass jdbcDriverClass) {
-            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
-        }
-
-        protected Class<PreparedStatement> getPreparedStatement() {
-            return jdbcDriverClass.getPreparedStatement();
-        }
-
-        @Override
-        public Method getExecute() {
-            final Class<PreparedStatement> statement = getPreparedStatement();
-            return getDeclaredMethod(statement, "execute", String.class);
-        }
-
-        @Override
-        public Method getExecuteQuery() {
-            final Class<PreparedStatement> statement = getPreparedStatement();
-            return getDeclaredMethod(statement, "executeQuery", String.class);
-        }
     }
 
 }
