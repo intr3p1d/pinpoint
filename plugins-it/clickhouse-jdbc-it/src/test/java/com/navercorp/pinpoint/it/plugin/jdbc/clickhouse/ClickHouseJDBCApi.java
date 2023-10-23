@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DefaultJDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.util.Objects;
+
 
 /**
  * @author intr3p1d
@@ -26,6 +30,33 @@ public class ClickHouseJDBCApi extends DefaultJDBCApi {
 
     public ClickHouseJDBCApi(JDBCDriverClass jdbcDriverClass) {
         super(jdbcDriverClass);
+    }
+
+
+    public ConnectionClass getConnection() {
+        return new ClickHouseConnectionClass(getJDBCDriverClass());
+    }
+
+
+    public static class ClickHouseConnectionClass extends DefaultJDBCApi.DefaultConnectionClass {
+
+        private final JDBCDriverClass jdbcDriverClass;
+
+        public ClickHouseConnectionClass(JDBCDriverClass jdbcDriverClass) {
+            super(jdbcDriverClass);
+            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+        }
+
+        protected Class<Connection> getConnection() {
+            return jdbcDriverClass.getConnection();
+        }
+
+        @Override
+        public Method getPrepareStatement() {
+            final Class<Connection> connection = getConnection();
+            return getDeclaredMethod(connection, "prepareStatement", String.class, int.class, int.class, int.class);
+        }
+
     }
 
 }

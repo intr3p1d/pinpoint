@@ -44,7 +44,7 @@ public class ClickHouseJDBCDriverClass extends AbstractJDBCDriverClass {
 
     @Override
     public Class<PreparedStatement> getPreparedStatement() {
-        return forName("com.clickhouse.jdbc.internal.InputBasedPreparedStatement");
+        return forName("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement");
     }
 
     @Override

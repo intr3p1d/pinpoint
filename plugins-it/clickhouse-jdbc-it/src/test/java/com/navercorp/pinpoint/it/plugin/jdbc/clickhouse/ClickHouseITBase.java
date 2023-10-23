@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlNormalizer;
+import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
@@ -181,35 +182,57 @@ public class ClickHouseITBase {
         String sql2 = "INSERT INTO t_map SETTINGS async_insert=1,wait_for_async_insert=1 " +
                 "VALUES (8481365034795008,1673349039830,'operation-9','a','service', 'bc3e47b8-2b34-4c1a-9004-123656fa0000','b', 'c', 'service-56','d', 'object','e', 'my-value-62', 'mypath', 'some.hostname.address.com', 'app-9', 'instance-6','x', ?)";
 
-        try (Statement s = conn.createStatement()) {
-            s.execute(sql1);
-            try (PreparedStatement stmt = conn.prepareStatement(sql2)) {
-                stmt.setObject(1, Collections.singletonMap("key1", "value1"));
-                stmt.execute();
-                stmt.executeUpdate();
-                stmt.executeQuery();
-            }
+        String sql0 = "INSERT INTO test (name, age) VALUES (?, 5)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql0)) {
+            stmt.setString(1, "maru");
+            stmt.execute();
         }
 
+        try (Statement s = conn.createStatement()) {
+            s.execute(sql1);
+        }
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql2)) {
+            stmt.setObject(1, Collections.singletonMap("key1", "value1"));
+            stmt.execute();
+        }
 
         verifier.printCache();
 
         Method connect = jdbcApi.getDriver().getConnect();
         verifier.verifyTrace(Expectations.event(DB_TYPE, connect, null, databaseAddress, databaseName, Expectations.cachedArgs(jdbcUrl)));
 
+        NormalizedSql normalizedSql0 = normalize(sql0);
+
+        Method prepare1 = jdbcApi.getConnection().getPrepareStatement();
+        verifier.verifyTrace(Expectations.event(DB_TYPE, prepare1, null, databaseAddress, databaseName,
+                Expectations.sql(normalizedSql0.getNormalizedSql(), normalizedSql0.getParseParameter())));
+
+        Method executePrepared1 = jdbcApi.getPreparedStatement().getExecute();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executePrepared1, null, databaseAddress, databaseName,
+                Expectations.sql(normalizedSql0.getNormalizedSql(), normalizedSql0.getParseParameter(), "maru")));
+
+
+        NormalizedSql normalizedSql1 = normalize(sql1);
         Method execute = jdbcApi.getStatement().getExecute();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(normalize(sql1), null)));
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName,
+                Expectations.sql(normalizedSql1.getNormalizedSql(), normalizedSql1.getParseParameter())));
 
-        Method executePrepared = jdbcApi.getPreparedStatement().getExecute();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executePrepared, null, databaseAddress, databaseName, Expectations.sql(normalize(sql2), null)));
+        NormalizedSql normalizedSql2 = normalize(sql2);
+        Method prepare2 = jdbcApi.getConnection().getPrepareStatement();
+        verifier.verifyTrace(Expectations.event(DB_TYPE, prepare2, null, databaseAddress, databaseName,
+                Expectations.sql(normalizedSql2.getNormalizedSql(), normalizedSql2.getParseParameter())));
 
-        Method executeQueryPrepared = jdbcApi.getPreparedStatement().getExecuteQuery();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeQueryPrepared, null, databaseAddress, databaseName, Expectations.sql(normalize(sql2), null)));
-
+        Method executePrepared2 = jdbcApi.getPreparedStatement().getExecute();
+        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executePrepared2, null, databaseAddress, databaseName,
+                Expectations.sql(normalizedSql2.getNormalizedSql(), normalizedSql2.getParseParameter(), "java.util.Collections$SingletonMap")));
     }
 
-    private String normalize(String sql) {
-        return sqlNormalizer.normalizeSql(sql).getNormalizedSql();
+    private NormalizedSql normalize(String sql) {
+        return sqlNormalizer.normalizeSql(sql);
     }
+
+
 
 }

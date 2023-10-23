@@ -83,7 +83,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addConnectionTransformer(final ClickHouseConfig config) {
 
-        // 0.3.2-patch11
+        // before 0.3.2-patch11
         transformTemplate.transform("ru.yandex.clickhouse.ClickHouseConnectionImpl", ConnectionTransform.class);
 
         // after 0.3.2
@@ -152,7 +152,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addDriverTransformer() {
 
-        // 0.3.2-patch11
+        // before 0.3.2-patch11
         transformTemplate.transform("ru.yandex.clickhouse.ClickHouseDriver", DriverTransform.class);
         // after 0.3.2
         transformTemplate.transform("com.clickhouse.jdbc.ClickHouseDriver", DriverTransform.class);
@@ -174,12 +174,15 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addPreparedStatementTransformer(final ClickHouseConfig config) {
 
-        // 0.3.2-patch11
+        // before 0.3.2-patch11
         transformTemplate.transform("ru.yandex.clickhouse.ClickHousePreparedStatementImpl", PreparedStatementTransform.class);
 
         // after 0.3.2
-        transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class);
+        // added after 0.3.2-test1
         transformTemplate.transform("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement", PreparedStatementTransform.class);
+
+        // added after 0.3.2-test3
+        transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class);
 
     }
@@ -226,7 +229,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addStatementTransformer() {
 
-        // 0.3.2-patch11
+        // before 0.3.2-patch11
         transformTemplate.transform("ru.yandex.clickhouse.ClickHouseStatementImpl", StatementTransformer.class);
 
         // after 0.3.2
