@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 import java.util.Properties;
 
+
 /**
  * @author intr3p1d
  */
@@ -48,18 +49,17 @@ import java.util.Properties;
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-clickhouse-jdbc-plugin"})
 @Dependency({
-        "com.clickhouse:clickhouse-jdbc:0.4.1",
-        "com.clickhouse:clickhouse-java:0.4.1",
-        "com.clickhouse:clickhouse-client:0.4.1",
+        "com.clickhouse:clickhouse-jdbc:[0.4.0,]",
+        "com.clickhouse:clickhouse-http-client:0.4.1",
+        "net.jpountz.lz4:lz4:1.3.0",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
 })
 @PinpointConfig("pinpoint-clickhouse.config")
 @SharedDependency({
-        "com.clickhouse:clickhouse-jdbc:0.4.1",
-
+        "com.clickhouse:clickhouse-jdbc:0.3.2-patch11",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION,
-        "org.testcontainers:testcontainers:1.19.0",
-        "org.testcontainers:clickhouse:1.19.0"
+        ClickHouseOption.TEST_CONTAINER,
+        ClickHouseOption.CLICKHOUSE,
 })
 @SharedTestLifeCycleClass(ClickHouseServer.class)
 public class ClickHouse_0_4_x_IT extends ClickHouseITBase{

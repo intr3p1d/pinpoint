@@ -70,7 +70,8 @@ public class ClickHouseITBase {
             DriverProperties driverProperties,
             JdbcUrlParserV2 jdbcUrlParser,
             JDBCDriverClass jdbcDriverClass,
-            JDBCApi jdbcApi) {
+            JDBCApi jdbcApi
+    ) {
         this.driverProperties = driverProperties;
         this.clickHouseITHelper = new ClickHouseITHelper(driverProperties);
 
@@ -232,7 +233,5 @@ public class ClickHouseITBase {
     private NormalizedSql normalize(String sql) {
         return sqlNormalizer.normalizeSql(sql);
     }
-
-
 
 }

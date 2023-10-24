@@ -55,8 +55,8 @@ import java.util.Properties;
 @SharedDependency({
         "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION,
-        "org.testcontainers:testcontainers:1.19.0",
-        "org.testcontainers:clickhouse:1.19.0"
+        ClickHouseOption.TEST_CONTAINER,
+        ClickHouseOption.CLICKHOUSE,
 })
 @SharedTestLifeCycleClass(ClickHouseServer.class)
 public class ClickHouse_0_3_2_IT extends ClickHouseITBase {

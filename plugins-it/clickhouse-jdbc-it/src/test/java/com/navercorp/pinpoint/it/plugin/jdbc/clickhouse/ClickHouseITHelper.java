@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 import com.clickhouse.jdbc.ClickHouseDriver;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -28,6 +30,8 @@ import java.util.Properties;
  * @author intr3p1d
  */
 public class ClickHouseITHelper {
+
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final String jdbcUrl;
     private final String userName;
@@ -49,10 +53,9 @@ public class ClickHouseITHelper {
         properties.put("user", userName);
         properties.put("password", password);
 
-        // final Connection conn = DriverManager.getConnection(jdbcUrl, userName, password);
         final Connection conn = driver.connect(jdbcUrl, properties);
 
-        System.out.println("Connected to: " + conn.getMetaData().getURL());
+        logger.info("Connected to: " + conn.getMetaData().getURL());
         return conn;
     }
 
