@@ -213,6 +213,10 @@ public class ModuleSupport {
         Class<?> spiProviderClazz = forName(spiProviderName, classLoader);
         agentModule.addUses(spiProviderClazz);
 
+        final String slf4jProviderName = "org.slf4j.spi.SLF4JServiceProvider";
+        Class<?> slf4jProviderClazz = forName(slf4jProviderName, classLoader);
+        agentModule.addUses(slf4jProviderClazz);
+
         final String log4jProviderName = "org.apache.logging.log4j.core.impl.Log4jProvider";
         Class<?> log4jProviderClazz = forName(log4jProviderName, classLoader);
         agentModule.addUses(log4jProviderClazz);
