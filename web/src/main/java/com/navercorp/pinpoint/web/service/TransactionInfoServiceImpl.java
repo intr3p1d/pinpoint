@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
@@ -58,6 +59,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final TraceDao traceDao;
 
+    private final ServiceTypeRegistryService registry;
     private final AnnotationKeyMatcherService annotationKeyMatcherService;
 
     private final MetaDataFilter metaDataFilter;
@@ -65,10 +67,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private final RecorderFactoryProvider recordFactoryProvider;
 
     public TransactionInfoServiceImpl(TraceDao traceDao,
+                                      ServiceTypeRegistryService registry,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
                                       Optional<MetaDataFilter> metaDataFilter,
                                       RecorderFactoryProvider recordFactoryProvider) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+        this.registry = Objects.requireNonNull(registry, "registry");
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
         this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
         this.recordFactoryProvider = Objects.requireNonNull(recordFactoryProvider, "recordFactoryProvider");
@@ -140,6 +144,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             recordSet.setAgentId(viewPointAlign.getAgentId());
             recordSet.setAgentName(viewPointAlign.getAgentName());
             recordSet.setApplicationId(viewPointAlign.getApplicationId());
+            recordSet.setApplicationServiceType(
+                    registry.findServiceType(viewPointAlign.getApplicationServiceType()).getName()
+            );
 
             final String applicationName = getRpcArgument(viewPointAlign);
             recordSet.setApplicationName(applicationName);
@@ -160,7 +167,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         if (rootEndTime - startTime <= 0) {
             recordSet.setEndTime(endTime);
-        } else if ((double)(rootEndTime - startTime) / (endTime-startTime) < 0.1) {
+        } else if ((double) (rootEndTime - startTime) / (endTime - startTime) < 0.1) {
             recordSet.setEndTime(rootEndTime);
         } else {
             recordSet.setEndTime(endTime);

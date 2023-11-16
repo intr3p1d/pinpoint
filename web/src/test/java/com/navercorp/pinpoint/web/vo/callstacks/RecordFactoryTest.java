@@ -341,7 +341,7 @@ public class RecordFactoryTest {
         ApiParserProvider mockedApiParserProvider = new ApiParserProvider();
         when(mockedProvider.getRecordFactory()).thenReturn(new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, mockedProxyRequestTypeRegistryService, mockedApiParserProvider));
 
-        TransactionInfoService dut = new TransactionInfoServiceImpl(mockedDao, mockedAnnotationKeyMatcherService, Optional.empty(), mockedProvider);
+        TransactionInfoService dut = new TransactionInfoServiceImpl(mockedDao, mockServiceTypeRegistryService, mockedAnnotationKeyMatcherService, Optional.empty(), mockedProvider);
 
         RecordSet actuals = dut.createRecordSet(callTreeIterator, spanMatchFilter);
         assertThat(actuals.getStartTime()).isEqualTo(1670305848569L);

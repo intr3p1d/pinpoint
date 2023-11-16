@@ -29,6 +29,7 @@ public class RecordSet {
 
     private List<Record> recordList;
     private String applicationName;
+    private String applicationServiceType;
     private long beginTimestamp;
 
     private String agentId;
@@ -88,6 +89,13 @@ public class RecordSet {
         return beginTimestamp;
     }
 
+    public String getApplicationServiceType() {
+        return applicationServiceType;
+    }
+
+    public void setApplicationServiceType(String applicationServiceType) {
+        this.applicationServiceType = applicationServiceType;
+    }
 
     public String getAgentId() {
         return agentId;
