@@ -16,16 +16,24 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 /**
  * @author jaehong.kim
  */
 public class AnnotationRecord extends BaseRecord {
-    public AnnotationRecord(final int tab, final int id, final int parentId, final String title, final String arguments, final boolean authorized) {
+    public AnnotationRecord(
+            final int tab, final int id, final int parentId, final String title, final String arguments, final boolean authorized,
+            String agentId, String applicationName, ServiceType applicationServiceType
+    ) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
         this.title = title;
         this.arguments = arguments;
         this.isAuthorized = authorized;
+        this.agentId = agentId;
+        this.applicationName = applicationName;
+        this.applicationServiceType = applicationServiceType;
     }
 }

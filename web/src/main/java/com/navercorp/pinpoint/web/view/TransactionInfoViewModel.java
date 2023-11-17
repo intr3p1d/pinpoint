@@ -236,6 +236,7 @@ public class TransactionInfoViewModel {
         private long end;
         private boolean excludeFromTimeline;
         private String applicationName = "";
+        private String applicationServiceType = "";
         private int tab;
         private String id = "";
         private String parentId = "";
@@ -264,6 +265,7 @@ public class TransactionInfoViewModel {
             end = record.getBegin() + record.getElapsed();
             excludeFromTimeline = record.isExcludeFromTimeline();
             applicationName = record.getApplicationName();
+            applicationServiceType = record.getApplicationServiceType();
             tab = record.getTab();
             id = String.valueOf(record.getId());
             if (record.getParentId() > 0) {
@@ -310,6 +312,10 @@ public class TransactionInfoViewModel {
 
         public String getApplicationName() {
             return applicationName;
+        }
+
+        public String getApplicationServiceType() {
+            return applicationServiceType;
         }
 
         public int getTab() {

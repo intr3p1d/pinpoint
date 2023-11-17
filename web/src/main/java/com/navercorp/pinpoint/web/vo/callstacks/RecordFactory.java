@@ -188,7 +188,13 @@ public class RecordFactory {
             if (key.isViewInRecordSet()) {
                 final String title = this.annotationRecordFormatter.formatTitle(key, annotation, align);
                 final String arguments = this.annotationRecordFormatter.formatArguments(key, annotation, align);
-                final Record record = new AnnotationRecord(depth, getNextId(), parentId, title, arguments, annotation.isAuthorized());
+                final Record record = new AnnotationRecord(
+                        depth, getNextId(), parentId, title, arguments, annotation.isAuthorized(),
+                        align.getAgentId(), align.getApplicationId(),
+                        registry.findServiceType(
+                                align.getApplicationServiceType()
+                        )
+                );
                 list.add(record);
             }
         }

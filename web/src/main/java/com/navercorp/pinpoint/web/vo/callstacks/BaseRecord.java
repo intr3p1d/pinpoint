@@ -35,7 +35,8 @@ public abstract class BaseRecord implements Record {
     protected String agentId;
     protected String agentName;
     protected String applicationName;
-    protected ServiceType serviceType;
+    protected ServiceType applicationServiceType;
+    protected ServiceType apiServiceType;
     protected String destinationId;
     protected boolean hasChild;
     protected boolean hasException;
@@ -109,18 +110,25 @@ public abstract class BaseRecord implements Record {
         return applicationName;
     }
 
+    public String getApplicationServiceType(){
+        if (applicationServiceType == null){
+            return "";
+        }
+        return applicationServiceType.getName();
+    }
+
     public String getApiType() {
         if (destinationId == null) {
-            if (serviceType == null) {
+            if (apiServiceType == null) {
                 // no ServiceType when parameter
                 return "";
             }
-            return serviceType.getDesc();
+            return apiServiceType.getDesc();
         }
-        if (serviceType.isIncludeDestinationId()) {
-            return serviceType.getDesc() + "(" + destinationId + ")";
+        if (apiServiceType.isIncludeDestinationId()) {
+            return apiServiceType.getDesc() + "(" + destinationId + ")";
         } else {
-            return serviceType.getDesc();
+            return apiServiceType.getDesc();
         }
 
     }
@@ -222,7 +230,7 @@ public abstract class BaseRecord implements Record {
                 ", applicationName=" +
                 applicationName +
                 ", serviceType=" +
-                serviceType +
+                apiServiceType +
                 ", destinationId=" +
                 destinationId +
                 ", excludeFromTimeline=" +

@@ -53,6 +53,8 @@ public interface Record {
 
     String getApplicationName();
 
+    String getApplicationServiceType();
+
     String getApiType();
 
     boolean isExcludeFromTimeline();
