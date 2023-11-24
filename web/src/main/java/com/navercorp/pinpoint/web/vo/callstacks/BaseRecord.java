@@ -40,6 +40,7 @@ public abstract class BaseRecord implements Record {
     protected String destinationId;
     protected boolean hasChild;
     protected boolean hasException;
+    protected long exceptionChainId;
     protected String transactionId;
     protected long spanId;
     protected long executionMilliseconds;
@@ -110,8 +111,8 @@ public abstract class BaseRecord implements Record {
         return applicationName;
     }
 
-    public String getApplicationServiceType(){
-        if (applicationServiceType == null){
+    public String getApplicationServiceType() {
+        if (applicationServiceType == null) {
             return "";
         }
         return applicationServiceType.getName();
@@ -167,6 +168,10 @@ public abstract class BaseRecord implements Record {
 
     public boolean getHasException() {
         return hasException;
+    }
+
+    public long getExceptionChainId() {
+        return exceptionChainId;
     }
 
     public String getTransactionId() {

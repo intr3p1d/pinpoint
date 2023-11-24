@@ -178,7 +178,12 @@ public class RecordFactory {
         if (!align.hasException()) {
             return null;
         }
-        return new ExceptionRecord(depth, getNextId(), parentId, align);
+        return new ExceptionRecord(
+                depth, getNextId(), parentId, align,
+                registry.findServiceType(
+                        align.getApplicationServiceType()
+                )
+        );
     }
 
     public List<Record> getAnnotations(final int depth, final int parentId, Align align) {
@@ -189,11 +194,7 @@ public class RecordFactory {
                 final String title = this.annotationRecordFormatter.formatTitle(key, annotation, align);
                 final String arguments = this.annotationRecordFormatter.formatArguments(key, annotation, align);
                 final Record record = new AnnotationRecord(
-                        depth, getNextId(), parentId, title, arguments, annotation.isAuthorized(),
-                        align.getAgentId(), align.getApplicationId(),
-                        registry.findServiceType(
-                                align.getApplicationServiceType()
-                        )
+                        depth, getNextId(), parentId, title, arguments, annotation.isAuthorized()
                 );
                 list.add(record);
             }
