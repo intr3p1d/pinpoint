@@ -17,20 +17,18 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.navercorp.pinpoint.grpc.trace.PCustomMetric;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
+import com.navercorp.pinpoint.grpc.trace.PDoubleValue;
 import com.navercorp.pinpoint.grpc.trace.PDouleGaugeMetric;
 import com.navercorp.pinpoint.grpc.trace.PIntCountMetric;
 import com.navercorp.pinpoint.grpc.trace.PIntGaugeMetric;
 import com.navercorp.pinpoint.grpc.trace.PIntValue;
 import com.navercorp.pinpoint.grpc.trace.PLongCountMetric;
 import com.navercorp.pinpoint.grpc.trace.PLongGaugeMetric;
+import com.navercorp.pinpoint.grpc.trace.PLongValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.CustomMetricVo;
-import com.navercorp.pinpoint.profiler.monitor.metric.custom.DoubleGaugeMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntCountMetricVo;
-import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntGaugeMetricVo;
-import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongCountMetricVo;
-import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongGaugeMetricVo;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -42,11 +40,6 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 
 /**
  * @author intr3p1d
@@ -124,11 +117,23 @@ public interface CustomMetricMapper {
     PCustomMetric map(PIntCountMetric intCountMetric);
 
     @Mappings({
+            @Mapping(source = "metricName", target = "name"),
+            @Mapping(source = "customMetricVos", target = "valuesList"),
+    })
+    PIntCountMetric createIntCountMetric(String metricName, CustomMetricVo[] customMetricVos);
+
+    @Mappings({
             @Mapping(source = ".", target = "longCountMetric"),
             @Mapping(target = "unknownFields", ignore = true),
             @Mapping(target = "allFields", ignore = true),
     })
     PCustomMetric map(PLongCountMetric pLongCountMetric);
+
+    @Mappings({
+            @Mapping(source = "metricName", target = "name"),
+            @Mapping(source = "customMetricVos", target = "valuesList", qualifiedByName = "ToPLongCountValues"),
+    })
+    PLongCountMetric createLongCountMetric(String metricName, CustomMetricVo[] customMetricVos);
 
     @Mappings({
             @Mapping(source = ".", target = "intGaugeMetric"),
@@ -138,11 +143,23 @@ public interface CustomMetricMapper {
     PCustomMetric map(PIntGaugeMetric pIntGaugeMetric);
 
     @Mappings({
+            @Mapping(source = "metricName", target = "name"),
+            @Mapping(source = "customMetricVos", target = "valuesList", qualifiedByName = "ToPIntGaugeValues"),
+    })
+    PIntGaugeMetric createIntGaugeMetric(String metricName, CustomMetricVo[] customMetricVos);
+
+    @Mappings({
             @Mapping(source = ".", target = "longGaugeMetric"),
             @Mapping(target = "unknownFields", ignore = true),
             @Mapping(target = "allFields", ignore = true),
     })
     PCustomMetric map(PLongGaugeMetric pLongGaugeMetric);
+
+    @Mappings({
+            @Mapping(source = "metricName", target = "name"),
+            @Mapping(source = "customMetricVos", target = "valuesList", qualifiedByName = "ToPLongGaugeValues"),
+    })
+    PLongGaugeMetric createLongGaugeMetric(String metricName, CustomMetricVo[] customMetricVos);
 
     @Mappings({
             @Mapping(source = ".", target = "doubleGaugeMetric"),
@@ -153,82 +170,130 @@ public interface CustomMetricMapper {
 
     @Mappings({
             @Mapping(source = "metricName", target = "name"),
-            @Mapping(source = "customMetricVos", target = "valuesList", qualifiedByName = "ToPIntValues"),
+            @Mapping(source = "customMetricVos", target = "valuesList", qualifiedByName = "ToPDoubleGaugeValues"),
     })
-    PIntCountMetric createIntCountMetric(String metricName, CustomMetricVo[] customMetricVos);
+    PDouleGaugeMetric createDoubleGaugeMetric(String metricName, CustomMetricVo[] customMetricVos);
 
-    @Named("ToPIntValues")
-    default List<PIntValue> createCountMetric(CustomMetricVo[] customMetricVos) {
-        return createCountMetrics(
-                customMetricVos,
-                IntCountMetricVo.class::isInstance,
-                (CustomMetricVo customMetricVo) -> ((IntCountMetricVo) customMetricVo).getValue(),
-                CustomMetricMapper::createIntValue,
-                CustomMetricMapper::createNotSetIntValue
-        );
-    }
-    default <CountMetric, PValue, Type extends Number> List<PValue> mapAbstractCountMetric(
-            CustomMetricVo[] customMetricVos,
-            Predicate<CustomMetricVo> isInstanceOf,
-            Function<CountMetric, Type> extractor,
-            Function<Type, PValue> createValue,
-            Supplier<PValue> createNotSetValue
-    ) {
-        List<PValue> intValues = new ArrayList<>();
 
-        Type prevValue = 0;
-        for (CustomMetricVo customMetricVo : customMetricVos) {
-            if (isInstanceOf.test(customMetricVo)) {
-                Type value = extractor.apply((CountMetric) customMetricVo);
-                intValues.add(createValue.apply(value - prevValue));
-                prevValue = value;
-            } else {
-                intValues.add(createNotSetValue.get());
-            }
+    class Holder<V> {
+        V value;
+
+        public Holder(V value) {
+            this.value = value;
         }
 
-        return intValues;
-    }
-
-
-    default <CountMetric, PValue> List<PValue> createCountMetrics(
-            CustomMetricVo[] customMetricVos,
-            Predicate<CustomMetricVo> isInstanceOf,
-            ToIntFunction<CountMetric> extractor,
-            IntFunction<PValue> createValue,
-            Supplier<PValue> createNotSetValue
-    ) {
-        List<PValue> intValues = new ArrayList<>();
-
-        int prevValue = 0;
-        for (CustomMetricVo customMetricVo : customMetricVos) {
-            if (isInstanceOf.test(customMetricVo)) {
-                int value = extractor.applyAsInt((CountMetric) customMetricVo);
-                intValues.add(createValue.apply(value - prevValue));
-                prevValue = value;
-            } else {
-                intValues.add(createNotSetValue.get());
-            }
+        public V getValue() {
+            return value;
         }
 
-        return intValues;
+        public void setValue(V value) {
+            this.value = value;
+        }
     }
 
-    @Named("ToPIntValues")
-    default List<PIntValue> map(CustomMetricVo[] customMetricVos) {
+    default List<PIntValue> mapIntCountMetricVo(
+            CustomMetricVo[] customMetricVos
+    ) {
         List<PIntValue> intValues = new ArrayList<>();
 
-        int prevValue = 0;
+        Holder<Integer> prevValue = new Holder<>(0);
         for (CustomMetricVo customMetricVo : customMetricVos) {
-            if (customMetricVo instanceof IntCountMetricVo) {
-                int value = ((IntCountMetricVo) customMetricVo).getValue();
-                intValues.add(createIntValue(value - prevValue));
-            } else {
-                intValues.add(createNotSetIntValue());
-            }
+            intValues.add(toIntCountValue(customMetricVo, prevValue));
         }
-
         return intValues;
+    }
+
+    @Named("ToPLongCountValues")
+    default List<PLongValue> mapLongCountMetricVo(
+            CustomMetricVo[] customMetricVos
+    ) {
+        List<PLongValue> longValues = new ArrayList<>();
+
+        Holder<Long> prevValue = new Holder<>((long) 0);
+        for (CustomMetricVo customMetricVo : customMetricVos) {
+            longValues.add(toLongCountValue(customMetricVo, prevValue));
+        }
+        return longValues;
+    }
+
+    @Named("ToPIntGaugeValues")
+    default List<PIntValue> mapIntGaugeMetricVo(
+            CustomMetricVo[] customMetricVos
+    ) {
+        List<PIntValue> intValues = new ArrayList<>();
+
+        for (CustomMetricVo customMetricVo : customMetricVos) {
+            intValues.add(toIntGaugeValue(customMetricVo));
+        }
+        return intValues;
+    }
+
+    @Named("ToPLongGaugeValues")
+    default List<PLongValue> mapLongGaugeMetricVo(
+            CustomMetricVo[] customMetricVos
+    ) {
+        List<PLongValue> longValues = new ArrayList<>();
+
+        for (CustomMetricVo customMetricVo : customMetricVos) {
+            longValues.add(toLongGaugeValue(customMetricVo));
+        }
+        return longValues;
+    }
+
+    @Named("ToPDoubleGaugeValues")
+    default List<PDoubleValue> mapDoubleGaugeMetricVo(
+            CustomMetricVo[] customMetricVos
+    ) {
+        List<PDoubleValue> doubleValues = new ArrayList<>();
+
+        for (CustomMetricVo customMetricVo : customMetricVos) {
+            doubleValues.add(toDoubleGaugeValue(customMetricVo));
+        }
+        return doubleValues;
+    }
+
+    default PIntValue toIntCountValue(CustomMetricVo customMetricVo, Holder<Integer> prev) {
+        if (customMetricVo instanceof IntCountMetricVo) {
+            int value = ((IntCountMetricVo) customMetricVo).getValue();
+            PIntValue intValue = createIntValue(value - prev.getValue());
+            prev.setValue(value);
+            return intValue;
+        }
+        return createNotSetIntValue();
+    }
+
+    default PLongValue toLongCountValue(CustomMetricVo customMetricVo, Holder<Long> prev) {
+        if (customMetricVo instanceof IntCountMetricVo) {
+            long value = ((IntCountMetricVo) customMetricVo).getValue();
+            PLongValue longValue = createLongValue(value - prev.getValue());
+            prev.setValue(value);
+            return longValue;
+        }
+        return createNotSetLongValue();
+    }
+
+    default PIntValue toIntGaugeValue(CustomMetricVo customMetricVo) {
+        if (customMetricVo instanceof IntCountMetricVo) {
+            int value = ((IntCountMetricVo) customMetricVo).getValue();
+            return createIntValue(value);
+        }
+        return createNotSetIntValue();
+    }
+
+    default PLongValue toLongGaugeValue(CustomMetricVo customMetricVo) {
+        if (customMetricVo instanceof IntCountMetricVo) {
+            int value = ((IntCountMetricVo) customMetricVo).getValue();
+            return createLongValue(value);
+        }
+        return createNotSetLongValue();
+    }
+
+    default PDoubleValue toDoubleGaugeValue(CustomMetricVo customMetricVo) {
+        if (customMetricVo instanceof IntCountMetricVo) {
+            int value = ((IntCountMetricVo) customMetricVo).getValue();
+            return createDoubleValue(value);
+        }
+        return createNotSetDoubleValue();
     }
 
     static PIntValue createIntValue(int value) {
@@ -243,11 +308,27 @@ public interface CustomMetricMapper {
         return builder.build();
     }
 
-    PCustomMetric createFromLongCountMetric(String metricName, LongCountMetricVo[] snapshotList);
+    static PLongValue createLongValue(long value) {
+        PLongValue.Builder builder = PLongValue.newBuilder();
+        builder.setValue(value);
+        return builder.build();
+    }
 
-    PCustomMetric createFromIntGaugeMetric(String string, IntGaugeMetricVo[] snapshotList);
+    static PLongValue createNotSetLongValue() {
+        PLongValue.Builder builder = PLongValue.newBuilder();
+        builder.setIsNotSet(true);
+        return builder.build();
+    }
 
-    PCustomMetric createFromLongGaugeMetric(String string, LongGaugeMetricVo[] snapshotList);
+    static PDoubleValue createDoubleValue(double value) {
+        PDoubleValue.Builder builder = PDoubleValue.newBuilder();
+        builder.setValue(value);
+        return builder.build();
+    }
 
-    PCustomMetric createFromDoubleGaugeMetric(String string, DoubleGaugeMetricVo[] snapshotList);
+    static PDoubleValue createNotSetDoubleValue() {
+        PDoubleValue.Builder builder = PDoubleValue.newBuilder();
+        builder.setIsNotSet(true);
+        return builder.build();
+    }
 }
