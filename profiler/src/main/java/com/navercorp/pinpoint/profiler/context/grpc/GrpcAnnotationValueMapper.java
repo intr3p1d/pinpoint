@@ -61,13 +61,6 @@ public class GrpcAnnotationValueMapper {
 
     private final PBytesStringStringValue.Builder bytesStringStringBuilder = PBytesStringStringValue.newBuilder();
 
-    @Qualifier
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.CLASS)
-    public @interface ToPAnnotiationValue {
-    }
-
-    @ToPAnnotiationValue
     public PAnnotationValue buildPAnnotationValue(Annotation<?> annotation) {
         if (annotation == null) {
             throw new NullPointerException("annotation");

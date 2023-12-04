@@ -27,6 +27,12 @@ import com.navercorp.pinpoint.grpc.trace.PIntValue;
 import com.navercorp.pinpoint.grpc.trace.PLongCountMetric;
 import com.navercorp.pinpoint.grpc.trace.PLongGaugeMetric;
 import com.navercorp.pinpoint.grpc.trace.PLongValue;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
@@ -46,6 +52,8 @@ import java.util.Set;
  * @author Taejin Koo
  */
 public class GrpcCustomMetricMessageConverter implements MessageConverter<MetricType, PCustomMetricMessage> {
+
+    private final CustomMetricMapper mapper = CustomMetricMapper.INSTANCE;
 
     @Override
     public PCustomMetricMessage toMessage(MetricType message) {
@@ -69,7 +77,7 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<Metric
             }
 
             for (String metricName : metricNameSet) {
-                PCustomMetric pCustomMetric = create(metricName, agentCustomMetricSnapshotList);
+                PCustomMetric pCustomMetric = mapper.create(metricName, agentCustomMetricSnapshotList);
                 if (pCustomMetric != null) {
                     builder.addCustomMetrics(pCustomMetric);
                 }
