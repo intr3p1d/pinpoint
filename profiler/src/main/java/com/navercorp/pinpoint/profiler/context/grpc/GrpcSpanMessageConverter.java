@@ -48,10 +48,12 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,13 +84,17 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final SpanUriGetter spanUriGetter;
 
+    private final SpanMessageMapper mapper;
+
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
-                                    SpanUriGetter spanUriGetter) {
+                                    SpanUriGetter spanUriGetter,
+                                    SpanMessageMapper spanMessageMapper) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
         this.spanUriGetter = Objects.requireNonNull(spanUriGetter);
+        this.mapper = Objects.requireNonNull(spanMessageMapper, "spanMessageMapper");
     }
 
     @Override
@@ -107,6 +113,18 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     @VisibleForTesting
     PSpan buildPSpan(Span span) {
+        final PSpan.Builder pSpan = PSpan.newBuilder();
+
+        this.spanProcessor.preProcess(span, pSpan);
+        mapper.toProto(span, pSpan);
+        this.spanProcessor.postProcess(span, pSpan);
+        return pSpan.build();
+
+    }
+
+
+    @VisibleForTesting
+    PSpan buildPSpan2(Span span) {
         final PSpan.Builder pSpan = PSpan.newBuilder();
 
         pSpan.setVersion(SpanVersion.TRACE_V2);

@@ -38,6 +38,9 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetterProvider;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentHeaderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
@@ -162,9 +165,11 @@ public class GrpcModule extends PrivateModule {
         // Span
         TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {};
         Key<MessageConverter<SpanType, GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
+
+        bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class);
+        bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
         // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
-
         TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {};
         bind(spanPostProcessorType).toProvider(GrpcSpanProcessorProvider.class).in(Scopes.SINGLETON);
 

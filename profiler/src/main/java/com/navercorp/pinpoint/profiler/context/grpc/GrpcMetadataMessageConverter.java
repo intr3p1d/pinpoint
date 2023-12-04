@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapper;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
  */
 public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataType, GeneratedMessageV3> {
 
+    MetaDataMapper mapper = MetaDataMapper.INSTANCE;
 
     public GrpcMetadataMessageConverter() {
 
@@ -43,47 +45,17 @@ public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataTy
     public GeneratedMessageV3 toMessage(MetaDataType message) {
         if (message instanceof SqlMetaData) {
             final SqlMetaData sqlMetaData = (SqlMetaData) message;
-            return convertSqlMetaData(sqlMetaData);
+            return mapper.convertSqlMetaData(sqlMetaData);
         } else if (message instanceof SqlUidMetaData) {
             final SqlUidMetaData sqlUidMetaData = (SqlUidMetaData) message;
-            return convertSqlUidMetaData(sqlUidMetaData);
+            return mapper.convertSqlUidMetaData(sqlUidMetaData);
         } else if (message instanceof ApiMetaData) {
             final ApiMetaData apiMetaData = (ApiMetaData) message;
-            return convertApiMetaData(apiMetaData);
+            return mapper.convertApiMetaData(apiMetaData);
         } else if (message instanceof StringMetaData) {
             final StringMetaData stringMetaData = (StringMetaData) message;
-            return convertStringMetaData(stringMetaData);
+            return mapper.convertStringMetaData(stringMetaData);
         }
         return null;
-    }
-
-    private PSqlMetaData convertSqlMetaData(final SqlMetaData sqlMetaData) {
-        final PSqlMetaData.Builder builder = PSqlMetaData.newBuilder();
-        builder.setSqlId(sqlMetaData.getSqlId());
-        builder.setSql(sqlMetaData.getSql());
-        return builder.build();
-    }
-
-    private PSqlUidMetaData convertSqlUidMetaData(final SqlUidMetaData sqlUidMetaData) {
-        PSqlUidMetaData.Builder builder = PSqlUidMetaData.newBuilder();
-        builder.setSqlUid(ByteString.copyFrom(sqlUidMetaData.getSqlUid()));
-        builder.setSql(sqlUidMetaData.getSql());
-        return builder.build();
-    }
-
-    private PApiMetaData convertApiMetaData(final ApiMetaData apiMetaData) {
-        final PApiMetaData.Builder builder = PApiMetaData.newBuilder();
-        builder.setApiId(apiMetaData.getApiId());
-        builder.setApiInfo(apiMetaData.getApiInfo());
-        builder.setLine(apiMetaData.getLine());
-        builder.setType(apiMetaData.getType());
-        return builder.build();
-    }
-
-    private PStringMetaData convertStringMetaData(final StringMetaData stringMetaData) {
-        final PStringMetaData.Builder builder = PStringMetaData.newBuilder();
-        builder.setStringId(stringMetaData.getStringId());
-        builder.setStringValue(stringMetaData.getStringValue());
-        return builder.build();
     }
 }
