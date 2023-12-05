@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 import org.mapstruct.Qualifier;
 
 import java.lang.annotation.ElementType;
@@ -41,6 +42,7 @@ import java.lang.annotation.Target;
 
 /**
  * WARNING Not thread safe
+ *
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcAnnotationValueMapper {
@@ -61,14 +63,15 @@ public class GrpcAnnotationValueMapper {
 
     private final PBytesStringStringValue.Builder bytesStringStringBuilder = PBytesStringStringValue.newBuilder();
 
+    AnnotationValueMapper mapper = AnnotationValueMapper.INSTANCE;
+
+
     public PAnnotationValue buildPAnnotationValue(Annotation<?> annotation) {
         if (annotation == null) {
             throw new NullPointerException("annotation");
         }
-
         if (annotation instanceof GrpcAnnotationSerializable) {
-            GrpcAnnotationSerializable serializable = (GrpcAnnotationSerializable) annotation;
-            return serializable.apply(this);
+            return mapper.map(annotation);
         }
         throw new UnsupportedOperationException("unsupported annotation:" + annotation);
     }
@@ -144,13 +147,7 @@ public class GrpcAnnotationValueMapper {
         builder.clear();
         return value;
     }
-    @Qualifier
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.CLASS)
-    public @interface ToIntStringValue {
-    }
 
-    @ToIntStringValue
     public PIntStringValue newIntStringValue(IntStringValue v) {
         final PIntStringValue.Builder builder = this.intStringBuilder;
 
