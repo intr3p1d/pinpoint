@@ -28,7 +28,11 @@ import com.navercorp.pinpoint.grpc.trace.PLongValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.CustomMetricVo;
+import com.navercorp.pinpoint.profiler.monitor.metric.custom.DoubleGaugeMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntCountMetricVo;
+import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntGaugeMetricVo;
+import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongCountMetricVo;
+import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongGaugeMetricVo;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -91,20 +95,26 @@ public interface CustomMetricMapper {
                     createIntCountMetric(metricName, customMetricVos)
             );
         }
-        /*
         if (representativeCustomMetricVo instanceof LongCountMetricVo) {
-            return createLongCountMetric(metricName, customMetricVos);
+            return map(
+                    createLongCountMetric(metricName, customMetricVos)
+            );
         }
         if (representativeCustomMetricVo instanceof IntGaugeMetricVo) {
-            return createIntGaugeMetric(metricName, customMetricVos);
+            return map(
+                    createIntGaugeMetric(metricName, customMetricVos)
+            );
         }
         if (representativeCustomMetricVo instanceof LongGaugeMetricVo) {
-            return createLongGaugeMetric(metricName, customMetricVos);
+            return map(
+                    createLongGaugeMetric(metricName, customMetricVos)
+            );
         }
         if (representativeCustomMetricVo instanceof DoubleGaugeMetricVo) {
-            return createDoubleGaugeMetric(metricName, customMetricVos);
+            return map(
+                    createDoubleGaugeMetric(metricName, customMetricVos)
+            );
         }
-         */
         return null;
     }
 
@@ -118,7 +128,7 @@ public interface CustomMetricMapper {
 
     @Mappings({
             @Mapping(source = "metricName", target = "name"),
-            @Mapping(source = "customMetricVos", target = "valuesList"),
+            @Mapping(source = "customMetricVos", target = "valuesList", qualifiedByName = "ToPIntCountValues"),
     })
     PIntCountMetric createIntCountMetric(String metricName, CustomMetricVo[] customMetricVos);
 
@@ -191,6 +201,7 @@ public interface CustomMetricMapper {
         }
     }
 
+    @Named("ToPIntCountValues")
     default List<PIntValue> mapIntCountMetricVo(
             CustomMetricVo[] customMetricVos
     ) {

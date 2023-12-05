@@ -51,6 +51,7 @@ public interface AgentInfoMapper {
     @Mappings({
             @Mapping(source = "agentInformation.hostIp", target = "ip"),
             @Mapping(source = "agentInformation.machineName", target = "hostname"),
+            @Mapping(source = ".", target = "ports", qualifiedByName = "emptyPort"),
             @Mapping(source = "agentInformation.container", target = "container"),
             @Mapping(source = "agentInformation.pid", target = "pid"),
             @Mapping(source = "agentInformation.serverType.code", target = "serviceType"),
@@ -60,11 +61,13 @@ public interface AgentInfoMapper {
     PAgentInfo map(AgentInfo agentInfo);
 
     @Mappings({
+            @Mapping(source = "vmArgs", target = "vmArgList"),
+            @Mapping(source = "serviceInfos", target = "serviceInfoList"),
     })
     PServerMetaData map(ServerMetaData serverMetaData);
 
     @Mappings({
-            @Mapping(source = "serviceLibs", target = "serviceLibList")
+            @Mapping(source = "serviceLibs", target = "serviceLibList"),
     })
     PServiceInfo map(ServiceInfo serviceInfo);
 
@@ -75,8 +78,13 @@ public interface AgentInfoMapper {
     })
     PJvmInfo map(JvmInformation jvmInformation);
 
+    @Named("emptyPort")
+    default String emptyPort(AgentInfo agentInfo) {
+        return "";
+    }
+
     @Named("currentVersion")
-    public default String currentVersion(AgentInfo agentInfo){
+    default String currentVersion(AgentInfo agentInfo) {
         return Version.VERSION;
     }
 
