@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
-import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 
