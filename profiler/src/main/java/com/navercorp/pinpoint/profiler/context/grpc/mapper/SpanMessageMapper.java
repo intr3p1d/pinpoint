@@ -63,7 +63,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 )
 public interface SpanMessageMapper {
     String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
-    String DEFAULT_RPC_NAME = "UNKNOWN";
     String DEFAULT_END_POINT = "UNKNOWN";
 
     // WARNING: Thread unsafe
@@ -131,7 +130,7 @@ public interface SpanMessageMapper {
     @Mappings({
             @Mapping(source = ".", target = "value", qualifiedByName = "toAnnotationValue")
     })
-    PAnnotation toProto(Annotation<?> annotation);
+    PAnnotation map(Annotation<?> annotation);
 
     @Named("toAnnotationValue")
     default PAnnotationValue toAnnotationValue(Annotation<?> annotation) {
