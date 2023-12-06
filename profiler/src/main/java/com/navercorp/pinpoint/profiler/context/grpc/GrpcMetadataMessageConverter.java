@@ -38,24 +38,14 @@ public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataTy
     MetaDataMapper mapper = MetaDataMapper.INSTANCE;
 
     public GrpcMetadataMessageConverter() {
-
     }
 
     @Override
     public GeneratedMessageV3 toMessage(MetaDataType message) {
-        if (message instanceof SqlMetaData) {
-            final SqlMetaData sqlMetaData = (SqlMetaData) message;
-            return mapper.convertSqlMetaData(sqlMetaData);
-        } else if (message instanceof SqlUidMetaData) {
-            final SqlUidMetaData sqlUidMetaData = (SqlUidMetaData) message;
-            return mapper.convertSqlUidMetaData(sqlUidMetaData);
-        } else if (message instanceof ApiMetaData) {
-            final ApiMetaData apiMetaData = (ApiMetaData) message;
-            return mapper.convertApiMetaData(apiMetaData);
-        } else if (message instanceof StringMetaData) {
-            final StringMetaData stringMetaData = (StringMetaData) message;
-            return mapper.convertStringMetaData(stringMetaData);
+        try {
+            return mapper.map(message);
+        } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 }
