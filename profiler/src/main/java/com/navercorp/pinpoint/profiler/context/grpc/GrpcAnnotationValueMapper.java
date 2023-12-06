@@ -16,29 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
-import com.google.protobuf.ByteString;
 import com.google.protobuf.StringValue;
-import com.navercorp.pinpoint.common.util.BytesStringStringValue;
-import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.util.IntStringValue;
-import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
-import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
-import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
-import org.mapstruct.Qualifier;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * WARNING Not thread safe
@@ -47,22 +29,6 @@ import java.lang.annotation.Target;
  */
 public class GrpcAnnotationValueMapper {
 
-    private final PAnnotationValue.Builder annotationBuilder = PAnnotationValue.newBuilder();
-
-    private final StringValue.Builder stringValueBuilder = StringValue.newBuilder();
-
-    private final PIntBooleanIntBooleanValue.Builder intBoolBoolBuilder = PIntBooleanIntBooleanValue.newBuilder();
-
-    private final PLongIntIntByteByteStringValue.Builder longIntIntByteByteStringBuilder = PLongIntIntByteByteStringValue.newBuilder();
-
-    private final PIntStringStringValue.Builder intStringStringBuilder = PIntStringStringValue.newBuilder();
-
-    private final PIntStringValue.Builder intStringBuilder = PIntStringValue.newBuilder();
-
-    private final PStringStringValue.Builder stringStringBuilder = PStringStringValue.newBuilder();
-
-    private final PBytesStringStringValue.Builder bytesStringStringBuilder = PBytesStringStringValue.newBuilder();
-
     AnnotationValueMapper mapper = AnnotationValueMapper.INSTANCE;
 
 
@@ -70,126 +36,10 @@ public class GrpcAnnotationValueMapper {
         if (annotation == null) {
             throw new NullPointerException("annotation");
         }
-        if (annotation instanceof GrpcAnnotationSerializable) {
+        try {
             return mapper.map(annotation);
+        } catch (Exception e) {
+            throw new UnsupportedOperationException("unsupported annotation:" + annotation, e);
         }
-        throw new UnsupportedOperationException("unsupported annotation:" + annotation);
-    }
-
-    public PIntBooleanIntBooleanValue newIntBooleanIntBooleanValue(IntBooleanIntBooleanValue v) {
-        final PIntBooleanIntBooleanValue.Builder builder = this.intBoolBoolBuilder;
-
-        builder.setIntValue1(v.getIntValue1());
-        builder.setBoolValue1(v.isBooleanValue1());
-        builder.setIntValue2(v.getIntValue2());
-        builder.setBoolValue2(v.isBooleanValue2());
-
-        PIntBooleanIntBooleanValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-    public PLongIntIntByteByteStringValue newLongIntIntByteByteStringValue(LongIntIntByteByteStringValue v) {
-        final PLongIntIntByteByteStringValue.Builder builder = this.longIntIntByteByteStringBuilder;
-
-        builder.setLongValue(v.getLongValue());
-        builder.setIntValue1(v.getIntValue1());
-        if (v.getIntValue2() != -1) {
-            builder.setIntValue2(v.getIntValue2());
-        }
-        if (v.getByteValue1() != -1) {
-            builder.setByteValue1(v.getByteValue1());
-        }
-        if (v.getByteValue2() != -1) {
-            builder.setByteValue2(v.getByteValue2());
-        }
-        if (v.getStringValue() != null) {
-            StringValue stringValue = newStringValue(v.getStringValue());
-            builder.setStringValue(stringValue);
-        }
-
-        PLongIntIntByteByteStringValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-
-    public PIntStringStringValue newIntStringStringValue(IntStringStringValue v) {
-        final PIntStringStringValue.Builder builder = this.intStringStringBuilder;
-
-        builder.setIntValue(v.getIntValue());
-        if (v.getStringValue1() != null) {
-            StringValue stringValue1 = newStringValue(v.getStringValue1());
-            builder.setStringValue1(stringValue1);
-        }
-        if (v.getStringValue2() != null) {
-            StringValue stringValue2 = newStringValue(v.getStringValue2());
-            builder.setStringValue2(stringValue2);
-        }
-        PIntStringStringValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-    public PBytesStringStringValue newBytesStringStringValue(BytesStringStringValue v) {
-        final PBytesStringStringValue.Builder builder = this.bytesStringStringBuilder;
-
-        builder.setBytesValue(ByteString.copyFrom(v.getBytesValue()));
-        if (v.getStringValue1() != null) {
-            StringValue stringValue1 = newStringValue(v.getStringValue1());
-            builder.setStringValue1(stringValue1);
-        }
-        if (v.getStringValue2() != null) {
-            StringValue stringValue2 = newStringValue(v.getStringValue2());
-            builder.setStringValue2(stringValue2);
-        }
-        PBytesStringStringValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-    public PIntStringValue newIntStringValue(IntStringValue v) {
-        final PIntStringValue.Builder builder = this.intStringBuilder;
-
-        builder.setIntValue(v.getIntValue());
-        if (v.getStringValue() != null) {
-            StringValue stringValue = newStringValue(v.getStringValue());
-            builder.setStringValue(stringValue);
-        }
-        PIntStringValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-    public PStringStringValue newStringStringValue(StringStringValue v) {
-        final PStringStringValue.Builder builder = this.stringStringBuilder;
-
-        if (v.getStringValue1() != null) {
-            StringValue stringValue1 = newStringValue(v.getStringValue1());
-            builder.setStringValue1(stringValue1);
-        }
-
-        if (v.getStringValue2() != null) {
-            StringValue stringValue2 = newStringValue(v.getStringValue2());
-            builder.setStringValue2(stringValue2);
-        }
-        PStringStringValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-    public StringValue newStringValue(String stringValue) {
-        final StringValue.Builder builder = this.stringValueBuilder;
-
-        builder.setValue(stringValue);
-        StringValue value = builder.build();
-        builder.clear();
-        return value;
-    }
-
-    public PAnnotationValue.Builder getAnnotationBuilder() {
-        final PAnnotationValue.Builder builder = this.annotationBuilder;
-        builder.clear();
-        return builder;
     }
 }

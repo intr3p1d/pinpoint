@@ -55,7 +55,7 @@ import java.util.Comparator;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {
                 TraceIdMapStructUtils.class,
-                GrpcAnnotationValueMapper.class,
+                AnnotationValueMapper.class,
                 SpanUriGetter.class,
         }
 )

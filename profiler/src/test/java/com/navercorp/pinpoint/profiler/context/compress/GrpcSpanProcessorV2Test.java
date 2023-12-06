@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
@@ -43,7 +44,7 @@ public class GrpcSpanProcessorV2Test {
 
     private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
 
-    private SpanMessageMapper mapper = new SpanMessageMapperImpl(new GrpcAnnotationValueMapper(), new SpanAutoUriGetter());
+    private SpanMessageMapper mapper = new SpanMessageMapperImpl(AnnotationValueMapper.INSTANCE, new SpanAutoUriGetter());
     private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, new SpanAutoUriGetter(), mapper);
 
     @Test

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
@@ -33,7 +32,6 @@ import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.annotation.BooleanAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.ByteAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.BytesAnnotation;
@@ -45,9 +43,7 @@ import com.navercorp.pinpoint.profiler.context.annotation.NullAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.ObjectAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.ShortAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.StringAnnotation;
-import org.checkerframework.checker.units.qual.C;
 import org.mapstruct.CollectionMappingStrategy;
-import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -128,15 +124,13 @@ public interface AnnotationValueMapper {
     })
     PAnnotationValue map(LongAnnotation annotation);
 
-
-
     @Mappings({
             @Mapping(source = "value", target = "stringValue", qualifiedByName = "ObjectToString"),
     })
     PAnnotationValue map(ObjectAnnotation annotation);
 
     @Named("ObjectToString")
-    default String objectToString(Object o){
+    default String objectToString(Object o) {
         return (String) o;
     }
 
@@ -149,7 +143,6 @@ public interface AnnotationValueMapper {
             @Mapping(source = "value", target = "stringValue"),
     })
     PAnnotationValue map(StringAnnotation annotation);
-
 
     default PAnnotationValue map(DataTypeAnnotation annotation) {
         PAnnotationValue.Builder builder = PAnnotationValue.newBuilder();
@@ -191,33 +184,6 @@ public interface AnnotationValueMapper {
 
     @Mappings({
     })
-    PIntBooleanIntBooleanValue map(IntBooleanIntBooleanValue v);
-
-    @Mappings({
-    })
-    PLongIntIntByteByteStringValue map(LongIntIntByteByteStringValue v);
-
-    @Condition
-    default boolean isNotMinusOne(int value) {
-        return value != -1;
-    }
-/*
-    @Condition
-    default boolean isNotMinusOne(byte value) {
-        return value != -1;
-    }
-*/
-    @Mappings({
-    })
-    PIntStringStringValue map(IntStringStringValue v);
-
-    @Mappings({
-            @Mapping(source = "bytesValue", target = "bytesValue", qualifiedByName = "copyFrom"),
-    })
-    PBytesStringStringValue map(BytesStringStringValue v);
-
-    @Mappings({
-    })
     PIntStringValue map(IntStringValue v);
 
     @Mappings({
@@ -226,6 +192,41 @@ public interface AnnotationValueMapper {
 
     @Mappings({
     })
+    PIntStringStringValue map(IntStringStringValue v);
+
+    @Mappings({
+            @Mapping(source = "intValue2", target = "intValue2", conditionQualifiedByName = "isNotMinusInt"),
+            @Mapping(source = "byteValue1", target = "byteValue1", conditionQualifiedByName = "isNotMinusByte"),
+            @Mapping(source = "byteValue2", target = "byteValue2", conditionQualifiedByName = "isNotMinusByte"),
+    })
+    PLongIntIntByteByteStringValue map(LongIntIntByteByteStringValue v);
+
+
+    @Named("isNotMinusInt")
+    default boolean isNotMinusOne(int value) {
+        return value != -1;
+    }
+
+    @Named("isNotMinusByte")
+    default boolean isNotMinusOne(byte value) {
+        return value != -1;
+    }
+
+    @Mappings({
+            @Mapping(source = "booleanValue1", target = "boolValue1"),
+            @Mapping(source = "booleanValue2", target = "boolValue2"),
+    })
+    PIntBooleanIntBooleanValue map(IntBooleanIntBooleanValue v);
+
+    @Mappings({
+            @Mapping(source = "bytesValue", target = "bytesValue", qualifiedByName = "copyFrom"),
+    })
+    PBytesStringStringValue map(BytesStringStringValue v);
+
+    @Mappings({
+            @Mapping(source = ".", target = "value")
+    })
     StringValue map(String stringValue);
+
 
 }
