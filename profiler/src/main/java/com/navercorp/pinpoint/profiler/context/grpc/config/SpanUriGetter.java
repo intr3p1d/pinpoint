@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import org.mapstruct.Qualifier;
 
@@ -12,9 +13,19 @@ public interface SpanUriGetter {
     @Qualifier
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.CLASS)
-    public @interface ToCollectedUri {
+    @interface ToCollectedUri {
     }
 
+    String DEFAULT_RPC_NAME = "UNKNOWN";
+
     @ToCollectedUri
+    default String getNonEmptyCollectedUri(Shared shared){
+        String collectedUri = getCollectedUri(shared);
+        if (StringUtils.isEmpty(collectedUri)) {
+            return DEFAULT_RPC_NAME;
+        }
+        return collectedUri;
+    }
+
     String getCollectedUri(Shared shared);
 }

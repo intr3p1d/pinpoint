@@ -56,7 +56,7 @@ public interface AgentInfoMapper {
             @Mapping(source = "agentInformation.pid", target = "pid"),
             @Mapping(source = "agentInformation.serverType.code", target = "serviceType"),
             @Mapping(source = "agentInformation.jvmVersion", target = "vmVersion"),
-            @Mapping(source = ".", target = "agentVersion", qualifiedByName = "currentVersion")
+            @Mapping(source = ".", target = "agentVersion", qualifiedByName = "agentVersion")
     })
     PAgentInfo map(AgentInfo agentInfo);
 
@@ -83,8 +83,8 @@ public interface AgentInfoMapper {
         return "";
     }
 
-    @Named("currentVersion")
-    default String currentVersion(AgentInfo agentInfo) {
+    @Named("agentVersion")
+    default String agentVersion(AgentInfo agentInfo) {
         return Version.VERSION;
     }
 

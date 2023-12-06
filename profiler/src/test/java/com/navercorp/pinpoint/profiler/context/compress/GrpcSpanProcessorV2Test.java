@@ -22,10 +22,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
-import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl;
@@ -33,7 +31,6 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
@@ -85,7 +82,7 @@ public class GrpcSpanProcessorV2Test {
 
         PSpan.Builder builder = PSpan.newBuilder();
         for (SpanEvent spanEvent : span.getSpanEventList()) {
-            PSpanEvent pSpanEvent = converter.buildPSpanEvent(spanEvent);
+            PSpanEvent pSpanEvent = mapper.map(spanEvent);
             builder.addSpanEvent(pSpanEvent);
         }
 

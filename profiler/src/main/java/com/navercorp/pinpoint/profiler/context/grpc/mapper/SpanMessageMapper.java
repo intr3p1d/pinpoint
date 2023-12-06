@@ -20,19 +20,23 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
 import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
+import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
-import com.navercorp.pinpoint.profiler.context.compress.SpanEventSequenceComparator;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Condition;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -42,8 +46,6 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
-import java.util.Comparator;
 
 /**
  * @author intr3p1d
@@ -60,20 +62,17 @@ import java.util.Comparator;
         }
 )
 public interface SpanMessageMapper {
-
-    static final byte V2 = TraceDataFormatVersion.V2.getVersion();
-    final static Comparator<SpanEvent> SEQUENCE_COMPARATOR = SpanEventSequenceComparator.INSTANCE;
-
-    public static final String DEFAULT_END_POINT = "UNKNOWN";
-    public static final String DEFAULT_RPC_NAME = "UNKNOWN";
-    public static final String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
+    String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
+    String DEFAULT_RPC_NAME = "UNKNOWN";
+    String DEFAULT_END_POINT = "UNKNOWN";
 
     // WARNING: Thread unsafe
     GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
 
 
     @Mappings({
-            @Mapping(source = ".", target = "version", qualifiedByName = "currentVersion"),
+            @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
+            @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
 
             @Mapping(source = "span.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
             @Mapping(source = "span.traceRoot.traceId.spanId", target = "spanId"),
@@ -81,21 +80,45 @@ public interface SpanMessageMapper {
 
             @Mapping(source = "span.elapsedTime", target = "elapsed"),
 
-            @Mapping(source = ".", target = "acceptEvent", qualifiedByName = "toAcceptEvent"),
+            @Mapping(source = "span", target = "acceptEvent", qualifiedByName = "toAcceptEvent"),
 
             @Mapping(source = "span.traceRoot.traceId.flags", target = "flag"),
             @Mapping(source = "span.traceRoot.shared.errorCode", target = "err"),
 
+            @Mapping(source = "span.exceptionInfo", target = "exceptionInfo"),
             @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo"),
 
             @Mapping(source = "span.annotations", target = "annotationList"),
 
             @Mapping(source = "span.spanEventList", target = "spanEventList")
     })
-    public abstract void toProto(Span span, @MappingTarget PSpan.Builder builder);
+    void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
-    @Named("currentVersion")
-    default int currentVersion(Span span){
+    @Mappings({
+            @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
+            @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
+
+            @Mapping(source = "spanChunk.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
+            @Mapping(source = "spanChunk.traceRoot.traceId.spanId", target = "spanId"),
+            @Mapping(source = "spanChunk.traceRoot.shared.endPoint", target = "endPoint"),
+
+            @Mapping(source = "spanChunk.spanEventList", target = "spanEventList"),
+    })
+    void map(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
+
+    @InheritConfiguration
+    @Mappings({
+            @Mapping(source = "asyncSpanChunk.localAsyncId", target = "localAsyncId"),
+    })
+    void map(AsyncSpanChunk asyncSpanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
+
+    @Mappings({
+    })
+    PLocalAsyncId map(LocalAsyncId localAsyncId);
+
+
+    @Named("spanVersion")
+    default int spanVersion(short applicationServiceType) {
         return SpanVersion.TRACE_V2;
     }
 
@@ -103,12 +126,12 @@ public interface SpanMessageMapper {
             @Mapping(source = "elapsedTime", target = "endElapsed"),
             @Mapping(source = "depth", target = "depth"),
     })
-    public abstract PSpanEvent toProto(SpanEvent spanEvent);
+    PSpanEvent map(SpanEvent spanEvent);
 
     @Mappings({
             @Mapping(source = ".", target = "value", qualifiedByName = "toAnnotationValue")
     })
-    public abstract PAnnotation toProto(Annotation<?> annotation);
+    PAnnotation toProto(Annotation<?> annotation);
 
     @Named("toAnnotationValue")
     default PAnnotationValue toAnnotationValue(Annotation<?> annotation) {
@@ -117,17 +140,24 @@ public interface SpanMessageMapper {
 
     @Named("toAcceptEvent")
     @Mappings({
+            @Mapping(source = "remoteAddr", target = "remoteAddr", defaultValue = DEFAULT_REMOTE_ADDRESS),
             @Mapping(source = "traceRoot.shared", target = "rpc", qualifiedBy = SpanUriGetter.ToCollectedUri.class),
-            @Mapping(source = "traceRoot.shared.endPoint", target = "endPoint"),
+            @Mapping(source = "traceRoot.shared.endPoint", target = "endPoint", defaultValue = DEFAULT_END_POINT),
 
-            @Mapping(source = ".", target = "parentInfo", qualifiedByName = "toParentInfo")
+            @Mapping(source = ".", target = "parentInfo")
     })
-    public abstract PAcceptEvent toAcceptEvent(Span span);
+    PAcceptEvent toAcceptEvent(Span span);
 
-    @Named("toParentInfo")
     @Mappings({
+            @Mapping(source = "parentApplicationType", target = "parentApplicationType", conditionQualifiedByName = "isNotZero"),
     })
     PParentInfo toParentInfo(Span span);
+
+    @Condition
+    @Named("isNotZero")
+    default boolean isNotZero(short parentApplicationType) {
+        return parentApplicationType != 0;
+    }
 
     @Condition
     default boolean isNotEmpty(String value) {
