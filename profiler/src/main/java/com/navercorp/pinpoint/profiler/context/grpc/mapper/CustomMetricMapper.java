@@ -43,7 +43,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author intr3p1d
@@ -59,7 +61,29 @@ public interface CustomMetricMapper {
 
     CustomMetricMapper INSTANCE = Mappers.getMapper(CustomMetricMapper.class);
 
-    PCustomMetricMessage map(AgentCustomMetricSnapshotBatch snapshotBatch);
+    default PCustomMetricMessage map(AgentCustomMetricSnapshotBatch message) {
+        List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList = message.getAgentCustomMetricSnapshotList();
+
+        Set<String> metricNameSet = new HashSet<>();
+        for (AgentCustomMetricSnapshot agentCustomMetricSnapshot : agentCustomMetricSnapshotList) {
+            metricNameSet.addAll(agentCustomMetricSnapshot.getMetricNameSet());
+        }
+
+        PCustomMetricMessage.Builder builder = PCustomMetricMessage.newBuilder();
+        for (AgentCustomMetricSnapshot agentCustomMetricSnapshot : agentCustomMetricSnapshotList) {
+            builder.addTimestamp(agentCustomMetricSnapshot.getTimestamp());
+            builder.addCollectInterval(agentCustomMetricSnapshot.getCollectInterval());
+        }
+
+        for (String metricName : metricNameSet) {
+            PCustomMetric pCustomMetric = create(metricName, agentCustomMetricSnapshotList);
+            if (pCustomMetric != null) {
+                builder.addCustomMetrics(pCustomMetric);
+            }
+        }
+
+        return builder.build();
+    }
 
     default PCustomMetric create(
             String metricName,

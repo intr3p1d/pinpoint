@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
-import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
@@ -35,7 +34,8 @@ public class GrpcStatMessageConverter implements MessageConverter<MetricType, Ge
 
     private final AgentStatMapper agentStatMapper = AgentStatMapper.INSTANCE;
 
-    private final MessageConverter<MetricType, PCustomMetricMessage> customMetricMessageConverter = new GrpcCustomMetricMessageConverter();
+    private final CustomMetricMapper customMetricMapper = CustomMetricMapper.INSTANCE;
+
     private final MessageConverter<MetricType, PAgentUriStat> uriStatMessageConverter = new GrpcUriStatMessageConverter();
 
 
@@ -49,8 +49,7 @@ public class GrpcStatMessageConverter implements MessageConverter<MetricType, Ge
             return agentStatMapper.map(agentStatMetricSnapshot);
         } else if (message instanceof AgentCustomMetricSnapshotBatch) {
             final AgentCustomMetricSnapshotBatch agentCustomMetricSnapshotBatch = (AgentCustomMetricSnapshotBatch) message;
-            final PCustomMetricMessage pCustomMetricMessage = customMetricMessageConverter.toMessage(agentCustomMetricSnapshotBatch);
-            return pCustomMetricMessage;
+            return customMetricMapper.map(agentCustomMetricSnapshotBatch);
         } else if (message instanceof AgentUriStatData) {
             final AgentUriStatData agentUriStatData = (AgentUriStatData) message;
             final PAgentUriStat agentUriStat = uriStatMessageConverter.toMessage(agentUriStatData);
