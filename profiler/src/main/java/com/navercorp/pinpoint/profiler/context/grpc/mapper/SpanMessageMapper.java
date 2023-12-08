@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Condition;
