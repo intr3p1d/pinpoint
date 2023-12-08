@@ -167,12 +167,6 @@ public interface AnnotationValueMapper {
     })
     PAnnotationValue map(StringAnnotation annotation);
 
-
-    default PAnnotationValue map(NullAnnotation<?> annotation) {
-        return null;
-    }
-
-
     default PAnnotationValue map(DataTypeAnnotation annotation) {
         PAnnotationValue.Builder builder = PAnnotationValue.newBuilder();
 

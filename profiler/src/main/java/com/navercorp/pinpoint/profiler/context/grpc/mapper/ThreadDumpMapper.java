@@ -15,15 +15,23 @@
  */
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
+import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
+import com.navercorp.pinpoint.grpc.trace.PThreadState;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.MonitorInfoMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Condition;
+import org.mapstruct.EnumMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -40,8 +48,27 @@ public interface ThreadDumpMapper {
     ThreadDumpMapper INSTANCE = Mappers.getMapper(ThreadDumpMapper.class);
 
     @Mappings({
-            @Mapping(target = "threadState", ignore = true)
+            @Mapping(source = "threadState", target = "threadState"),
+            @Mapping(source = "stackTrace", target = "stackTraceList", ignore = true),
+            @Mapping(source = "lockedMonitors", target = "lockedMonitorList"),
+            @Mapping(source = "lockedSynchronizers", target = "lockedSynchronizerList", ignore = true),
     })
     PThreadDump map(ThreadDumpMetricSnapshot snapshot);
+    
+    @AfterMapping
+    default void addAll(ThreadDumpMetricSnapshot snapshot, @MappingTarget PThreadDump.Builder builder) {
+        for (String stackTrace : snapshot.getStackTrace()) {
+            builder.addStackTrace(stackTrace);
+        }
+        for (String lockedSynchronizer : snapshot.getLockedSynchronizers()) {
+            builder.addLockedSynchronizer(lockedSynchronizer);
+        }
+    }
+
+    @EnumMapping(nameTransformationStrategy = "prefix", configuration = "THREAD_STATE_")
+    @ValueMapping(source = MappingConstants.ANY_REMAINING, target = "THREAD_STATE_UNKNOWN")
+    PThreadState map(Thread.State state);
+
+    PMonitorInfo map(MonitorInfoMetricSnapshot monitorInfoMetricSnapshot);
 
 }
