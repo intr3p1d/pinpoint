@@ -167,7 +167,7 @@ public class GrpcModule extends PrivateModule {
         TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {};
         Key<MessageConverter<SpanType, GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
 
-        bind(AnnotationValueMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapperImpl.class);
+        bind(AnnotationValueMapper.class).toInstance(AnnotationValueMapper.INSTANCE);
         bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class);
         bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
         // not singleton

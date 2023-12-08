@@ -46,8 +46,10 @@ import com.navercorp.pinpoint.profiler.context.annotation.StringAnnotation;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
@@ -69,6 +71,8 @@ import java.lang.annotation.Target;
  * @author intr3p1d
  */
 @Mapper(
+        componentModel = MappingConstants.ComponentModel.JSR330,
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         subclassExhaustiveStrategy = SubclassExhaustiveStrategy.COMPILE_ERROR,
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,

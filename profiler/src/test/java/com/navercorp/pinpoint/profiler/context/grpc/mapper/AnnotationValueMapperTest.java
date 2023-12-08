@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author Woonduk Kang(emeroad)
  */
 class AnnotationValueMapperTest {
-    private final AnnotationValueMapper mapper = AnnotationValueMapper.INSTANCE;
+    private final AnnotationValueMapper mapper = new AnnotationValueMapperImpl();
 
 
     @Test
