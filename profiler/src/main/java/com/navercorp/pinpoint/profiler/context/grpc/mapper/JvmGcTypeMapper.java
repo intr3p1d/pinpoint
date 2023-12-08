@@ -50,7 +50,7 @@ public interface JvmGcTypeMapper {
     @Qualifier
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.CLASS)
-    public @interface ToPJvmGcType {
+    @interface ToPJvmGcType {
     }
 
     @ToPJvmGcType

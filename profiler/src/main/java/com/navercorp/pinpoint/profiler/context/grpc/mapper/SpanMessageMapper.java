@@ -65,10 +65,6 @@ public interface SpanMessageMapper {
     String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
     String DEFAULT_END_POINT = "UNKNOWN";
 
-    // WARNING: Thread unsafe
-    GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
-
-
     @Mappings({
             @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
             @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
@@ -128,14 +124,10 @@ public interface SpanMessageMapper {
     PSpanEvent map(SpanEvent spanEvent);
 
     @Mappings({
-            @Mapping(source = ".", target = "value", qualifiedByName = "toAnnotationValue")
+            @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class),
     })
     PAnnotation map(Annotation<?> annotation);
 
-    @Named("toAnnotationValue")
-    default PAnnotationValue toAnnotationValue(Annotation<?> annotation) {
-        return grpcAnnotationValueMapper.buildPAnnotationValue(annotation);
-    }
 
     @Named("toAcceptEvent")
     @Mappings({

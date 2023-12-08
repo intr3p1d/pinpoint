@@ -42,7 +42,7 @@ public class GrpcSpanProcessorV2Test {
     private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
 
     private SpanMessageMapper mapper = new SpanMessageMapperImpl(AnnotationValueMapper.INSTANCE, new SpanAutoUriGetter());
-    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, new SpanAutoUriGetter(), mapper);
+    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, mapper);
 
     @Test
     public void preProcess() {

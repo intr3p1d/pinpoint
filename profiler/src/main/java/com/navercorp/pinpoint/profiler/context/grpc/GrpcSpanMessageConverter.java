@@ -76,23 +76,16 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor;
     // WARNING not thread safe
-    private final GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
 
-    private final PSpanEvent.Builder pSpanEventBuilder = PSpanEvent.newBuilder();
-    private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
-
-    private final SpanUriGetter spanUriGetter;
 
     private final SpanMessageMapper mapper;
 
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
-                                    SpanUriGetter spanUriGetter,
                                     SpanMessageMapper spanMessageMapper) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
-        this.spanUriGetter = Objects.requireNonNull(spanUriGetter);
         this.mapper = Objects.requireNonNull(spanMessageMapper, "spanMessageMapper");
     }
 

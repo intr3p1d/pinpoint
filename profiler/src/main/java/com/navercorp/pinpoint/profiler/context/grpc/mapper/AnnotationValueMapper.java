@@ -43,21 +43,33 @@ import com.navercorp.pinpoint.profiler.context.annotation.NullAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.ObjectAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.ShortAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.StringAnnotation;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.BeforeMapping;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.Qualifier;
+import org.mapstruct.SubclassExhaustiveStrategy;
 import org.mapstruct.SubclassMapping;
 import org.mapstruct.SubclassMappings;
+import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author intr3p1d
  */
 @Mapper(
+        subclassExhaustiveStrategy = SubclassExhaustiveStrategy.COMPILE_ERROR,
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
@@ -68,6 +80,13 @@ public interface AnnotationValueMapper {
 
     AnnotationValueMapper INSTANCE = Mappers.getMapper(AnnotationValueMapper.class);
 
+    @Qualifier
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.CLASS)
+    @interface ToPAnnotationValue {
+    }
+
+    @ToPAnnotationValue
     default PAnnotationValue map(Annotation<?> annotation) {
         if (annotation instanceof NullAnnotation) {
             return null;
@@ -143,6 +162,12 @@ public interface AnnotationValueMapper {
             @Mapping(source = "value", target = "stringValue"),
     })
     PAnnotationValue map(StringAnnotation annotation);
+
+
+    default PAnnotationValue map(NullAnnotation<?> annotation) {
+        return null;
+    }
+
 
     default PAnnotationValue map(DataTypeAnnotation annotation) {
         PAnnotationValue.Builder builder = PAnnotationValue.newBuilder();

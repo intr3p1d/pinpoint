@@ -57,7 +57,7 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
 
     @Override
     public MessageConverter<SpanType, GeneratedMessageV3> get() {
-        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, spanUriGetter, mapper);
+        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, mapper);
     }
 
 }

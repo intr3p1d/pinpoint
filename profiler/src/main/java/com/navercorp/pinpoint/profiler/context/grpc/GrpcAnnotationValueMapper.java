@@ -35,7 +35,8 @@ public class GrpcAnnotationValueMapper {
             throw new NullPointerException("annotation");
         }
         try {
-            return mapper.map(annotation);
+            // return mapper.map(annotation);
+            return null;
         } catch (Exception e) {
             throw new UnsupportedOperationException("unsupported annotation:" + annotation, e);
         }

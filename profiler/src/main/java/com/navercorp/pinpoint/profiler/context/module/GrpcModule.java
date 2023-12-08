@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProv
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetterProvider;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentHeaderFactoryProvider;
@@ -166,6 +167,7 @@ public class GrpcModule extends PrivateModule {
         TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {};
         Key<MessageConverter<SpanType, GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
 
+        bind(AnnotationValueMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapperImpl.class);
         bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class);
         bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
         // not singleton
