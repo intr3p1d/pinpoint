@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
+import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
+import com.navercorp.pinpoint.grpc.trace.PNextEvent;
 import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -118,9 +119,29 @@ public interface SpanMessageMapper {
 
     @Mappings({
             @Mapping(source = "elapsedTime", target = "endElapsed"),
-            @Mapping(source = "depth", target = "depth"),
+            @Mapping(source = "depth", target = "depth", conditionQualifiedByName = "isNotMinusOne"),
+            @Mapping(source = ".", target = "nextEvent"),
+            @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent"),
+            @Mapping(source = "annotations", target = "annotationList"),
     })
     PSpanEvent map(SpanEvent spanEvent);
+
+
+    @Mappings({
+            @Mapping(source = ".", target = "messageEvent"),
+    })
+    PNextEvent mapNextEvent(SpanEvent spanEvent);
+
+    @Mappings({
+            @Mapping(source = "nextSpanId", target = "nextSpanId", conditionQualifiedByName = "isNotMinusOne"),
+    })
+    PMessageEvent mapMessageEvent(SpanEvent spanEvent);
+
+    @Condition
+    @Named("isNotMinusOne")
+    default boolean isNotMinusOne(int v) {
+        return v != -1;
+    }
 
     @Mappings({
             @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class),

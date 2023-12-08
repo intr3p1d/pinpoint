@@ -17,45 +17,19 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.google.protobuf.StringValue;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.IntStringValue;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
-import com.navercorp.pinpoint.grpc.trace.PAnnotation;
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
-import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
-import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
-import com.navercorp.pinpoint.grpc.trace.PNextEvent;
-import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
-import com.navercorp.pinpoint.grpc.trace.PTransactionId;
-import com.navercorp.pinpoint.io.SpanVersion;
-import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.AsyncId;
-import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
-import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
-import com.navercorp.pinpoint.profiler.context.id.Shared;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -64,9 +38,6 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanMessageConverter implements MessageConverter<SpanType, GeneratedMessageV3> {
-    public static final String DEFAULT_END_POINT = "UNKNOWN";
-    public static final String DEFAULT_RPC_NAME = "UNKNOWN";
-    public static final String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(this.logger, 100);
