@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.EnumMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValueCheckStrategy;
@@ -54,13 +55,7 @@ public interface JvmGcTypeMapper {
     }
 
     @ToPJvmGcType
-    @ValueMappings({
-            @ValueMapping(source = "UNKNOWN", target = "JVM_GC_TYPE_UNKNOWN"),
-            @ValueMapping(source = "SERIAL", target = "JVM_GC_TYPE_SERIAL"),
-            @ValueMapping(source = "PARALLEL", target = "JVM_GC_TYPE_PARALLEL"),
-            @ValueMapping(source = "CMS", target = "JVM_GC_TYPE_CMS"),
-            @ValueMapping(source = "G1", target = "JVM_GC_TYPE_G1"),
-            @ValueMapping(source = MappingConstants.ANY_REMAINING, target = "JVM_GC_TYPE_UNKNOWN")
-    })
+    @EnumMapping(nameTransformationStrategy = "prefix", configuration = "JVM_GC_TYPE_")
+    @ValueMapping(source = MappingConstants.ANY_REMAINING, target = "JVM_GC_TYPE_UNKNOWN")
     PJvmGcType map(JvmGcType message);
 }

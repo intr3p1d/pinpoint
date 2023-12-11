@@ -73,7 +73,9 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {
                 JvmGcTypeMapper.class,
-                ThreadDumpMapper.class
+                ThreadDumpMapper.class,
+                UriStatMapper.class,
+                CustomMetricMapper.class
         }
 )
 public interface AgentStatMapper {
@@ -145,13 +147,6 @@ public interface AgentStatMapper {
     PTotalThread map(TotalThreadMetricSnapshot snapshot);
 
     PLoadedClass map(LoadedClassMetricSnapshot snapshot);
-
-
-    // Need to separate new GrpcCustomMetricMessageConverter();
-    PCustomMetricMessage map(AgentCustomMetricSnapshotBatch batch);
-
-    // Need to separate new GrpcUriStatMessageConverter();
-    PAgentUriStat map(AgentUriStatData agentUriStatData);
 
     @Condition
     default boolean isNotZero(long value) {
