@@ -44,7 +44,7 @@ class GrpcAgentInfoMessageConverterTest {
                 ),
                 new JvmInformation("1.0", JvmGcType.G1)
         );
-        PAgentInfo pAgentInfo = converter.convertAgentInfo(agentInfo);
+        PAgentInfo pAgentInfo = (PAgentInfo) converter.toMessage(agentInfo);
 
 
         AgentInformation agentInformation = agentInfo.getAgentInformation();

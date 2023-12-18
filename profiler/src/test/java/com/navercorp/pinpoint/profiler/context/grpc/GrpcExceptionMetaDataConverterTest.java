@@ -50,7 +50,7 @@ class GrpcExceptionMetaDataConverterTest {
         ExceptionMetaData exceptionMetaData = exceptionMetaDataFactory.newExceptionMetaData(
                 wrapperFactory.newExceptionWrappers(new RuntimeException(), 0, 0)
         );
-        PExceptionMetaData pExceptionMetaData = grpcExceptionMetaDataConverter.convertPExceptionMetaData(exceptionMetaData);
+        PExceptionMetaData pExceptionMetaData = (PExceptionMetaData) grpcExceptionMetaDataConverter.toMessage(exceptionMetaData);
 
         assertEquals(exceptionMetaData.getExceptionWrappers().size(), pExceptionMetaData.getExceptionsList().size());
         for (int i = 0; i < exceptionMetaData.getExceptionWrappers().size(); i++) {

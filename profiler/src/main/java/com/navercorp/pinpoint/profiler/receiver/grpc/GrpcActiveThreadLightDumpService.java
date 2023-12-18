@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcThreadStateMessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadDumpCoreService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDump;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpRequest;
@@ -49,7 +49,8 @@ public class GrpcActiveThreadLightDumpService implements ProfilerGrpcCommandServ
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final GrpcThreadStateMessageConverter grpcThreadStateMessageConverter = new GrpcThreadStateMessageConverter();
+
+    private final ThreadDumpMapper mapper = ThreadDumpMapper.INSTANCE;
 
     private final ActiveThreadDumpCoreService activeThreadDump;
 
@@ -121,7 +122,7 @@ public class GrpcActiveThreadLightDumpService implements ProfilerGrpcCommandServ
         PThreadLightDump.Builder builder = PThreadLightDump.newBuilder();
         builder.setThreadName(threadInfo.getThreadName());
         builder.setThreadId(threadInfo.getThreadId());
-        builder.setThreadState(grpcThreadStateMessageConverter.toMessage(threadInfo.getThreadState()));
+        builder.setThreadState(mapper.map(threadInfo.getThreadState()));
         return builder.build();
     }
 
