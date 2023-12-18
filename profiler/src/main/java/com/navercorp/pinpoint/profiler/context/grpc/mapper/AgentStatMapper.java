@@ -134,7 +134,7 @@ public interface AgentStatMapper {
 
     @Mappings({
             @Mapping(source = "avg", target = "avg", conditionQualifiedBy = MapperUtils.IsNotZeroLong.class),
-            @Mapping(source = "max", target = "max", conditionQualifiedByName = "isNotZero"),
+            @Mapping(source = "max", target = "max", conditionQualifiedBy = MapperUtils.IsNotZeroLong.class),
     })
     PResponseTime map(ResponseTimeValue value);
 

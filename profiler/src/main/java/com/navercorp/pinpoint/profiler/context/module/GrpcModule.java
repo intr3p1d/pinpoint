@@ -66,6 +66,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mapstruct.factory.Mappers;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -167,8 +168,8 @@ public class GrpcModule extends PrivateModule {
         TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {};
         Key<MessageConverter<SpanType, GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
 
-        bind(AnnotationValueMapper.class).toInstance(AnnotationValueMapper.INSTANCE);
-        bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class);
+        bind(AnnotationValueMapper.class).toInstance(Mappers.getMapper(AnnotationValueMapper.class));
+        bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class).in(Scopes.SINGLETON);
         bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
         // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
