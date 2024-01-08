@@ -34,6 +34,11 @@ public class ExceptionMetaDataEntity {
 
     private String errorClassName;
     private String errorMessage;
+
+    private String errorMessage_logtype;
+    private String errorMessage_dictionaryVars;
+    private String errorMessage_encodedVars;
+
     private int exceptionDepth;
 
     private String stackTraceClassName;
@@ -131,6 +136,30 @@ public class ExceptionMetaDataEntity {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getErrorMessage_logtype() {
+        return errorMessage_logtype;
+    }
+
+    public void setErrorMessage_logtype(String errorMessage_logtype) {
+        this.errorMessage_logtype = errorMessage_logtype;
+    }
+
+    public String getErrorMessage_dictionaryVars() {
+        return errorMessage_dictionaryVars;
+    }
+
+    public void setErrorMessage_dictionaryVars(String errorMessage_dictionaryVars) {
+        this.errorMessage_dictionaryVars = errorMessage_dictionaryVars;
+    }
+
+    public String getErrorMessage_encodedVars() {
+        return errorMessage_encodedVars;
+    }
+
+    public void setErrorMessage_encodedVars(String errorMessage_encodedVars) {
+        this.errorMessage_encodedVars = errorMessage_encodedVars;
     }
 
     public int getExceptionDepth() {
