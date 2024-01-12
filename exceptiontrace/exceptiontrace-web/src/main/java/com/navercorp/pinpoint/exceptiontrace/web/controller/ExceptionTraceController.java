@@ -33,6 +33,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +62,8 @@ public class ExceptionTraceController {
     private final ExceptionTraceService exceptionTraceService;
     private final TenantProvider tenantProvider;
 
+    @Value("${pinpoint.modules.web.exceptiontrace.errormessage.clp.enabled:false}")
+    private boolean errorMessageClpEnabled;
 
     public ExceptionTraceController(ExceptionTraceService exceptionTraceService, TenantProvider tenantProvider) {
         this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
@@ -76,6 +79,7 @@ public class ExceptionTraceController {
             @RequestParam("exceptionId") long exceptionId
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
@@ -101,6 +105,7 @@ public class ExceptionTraceController {
             @RequestParam("count") int count
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
@@ -125,6 +130,7 @@ public class ExceptionTraceController {
             @RequestParam("groupBy") List<String> groupByList
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
@@ -150,6 +156,7 @@ public class ExceptionTraceController {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)

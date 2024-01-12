@@ -17,8 +17,10 @@
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.exceptiontrace.web.ExceptionTraceWebConfig;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
  * @author intr3p1d
  */
 public class ExceptionTraceQueryParameter extends QueryParameter {
+
+    private final boolean errorMessageClpEnabled;
 
     private final String tenantId;
     private final String applicationName;
@@ -48,8 +52,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
     private final long timeWindowRangeCount;
 
-    protected ExceptionTraceQueryParameter(Builder builder) {
+    protected ExceptionTraceQueryParameter(
+            Builder builder
+    ) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
+        this.errorMessageClpEnabled = builder.errorMessageClpEnabled;
         this.tenantId = builder.tenantId;
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
@@ -67,6 +74,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         private static final int MAX_LIMIT = 65536;
         private Integer hardLimit = null;
+
+        private boolean errorMessageClpEnabled;
 
         private String tenantId;
         private String applicationName;
@@ -87,6 +96,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         @Override
         protected Builder self() {
             return this;
+        }
+
+        public Builder setErrorMessageClpEnabled(boolean errorMessageClpEnabled) {
+            this.errorMessageClpEnabled = errorMessageClpEnabled;
+            return self();
         }
 
         public Builder setTenantId(String tenantId) {

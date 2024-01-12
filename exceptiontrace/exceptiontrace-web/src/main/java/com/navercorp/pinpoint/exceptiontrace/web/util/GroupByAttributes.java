@@ -18,30 +18,33 @@ package com.navercorp.pinpoint.exceptiontrace.web.util;
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
 
+import java.util.Arrays;
+
 /**
  * @author intr3p1d
  */
 public enum GroupByAttributes {
-    ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
-    ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
-    STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH),
-    URI_TEMPLATE("path", PinotColumns.URI_TEMPLATE);
+    URI_TEMPLATE("path", PinotColumns.URI_TEMPLATE),
+    ERROR(
+            "error",
+            PinotColumns.ERROR_MESSAGE_LOG_TYPE, PinotColumns.ERROR_CLASS_NAME, PinotColumns.STACK_TRACE_HASH
+    );
 
     private static final EnumGetter<GroupByAttributes> GETTER = new EnumGetter<>(GroupByAttributes.class);
     private final String name;
-    private final PinotColumns column;
+    private final PinotColumns[] columns;
 
-    GroupByAttributes(String name, PinotColumns column) {
+    GroupByAttributes(String name, PinotColumns... columns) {
         this.name = name;
-        this.column = column;
+        this.columns = columns;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getAttributeName() {
-        return column.getName();
+    public String[] getColumns() {
+        return Arrays.stream(columns).map(PinotColumns::getName).toArray(String[]::new);
     }
 
     public static GroupByAttributes fromValue(String name) {

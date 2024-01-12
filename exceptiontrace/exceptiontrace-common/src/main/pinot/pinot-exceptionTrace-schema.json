@@ -42,6 +42,22 @@
       "dataType": "STRING"
     },
     {
+      "name": "errorMessage_logtype",
+      "dataType": "STRING",
+      "maxLength": 2147483647
+    },
+    {
+      "name": "errorMessage_encodedVars",
+      "dataType": "LONG",
+      "singleValueField": false
+    },
+    {
+      "name": "errorMessage_dictionaryVars",
+      "dataType": "STRING",
+      "singleValueField": false,
+      "maxLength": 2147483647
+    },
+    {
       "name": "exceptionDepth",
       "dataType": "INT"
     },
