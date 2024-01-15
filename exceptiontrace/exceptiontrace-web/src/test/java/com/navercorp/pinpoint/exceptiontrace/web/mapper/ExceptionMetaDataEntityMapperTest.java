@@ -25,6 +25,13 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.function.Predicate.not;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author intr3p1d
  */
@@ -233,5 +240,18 @@ class ExceptionMetaDataEntityMapperTest {
         entity.setErrorMessage("errorMessage");
         entity.setStackTraceHash("stackTraceHash");
         return entity;
+    }
+
+    @Test
+    public void testEncodedLogtype() {
+        String example = "INFO Task \\x11\\x00 assigned to container: [NodeAddress:\\x11\\x01, ...\n" +
+                "ContainerID:\\x11\\x02], operation took \\x12\\x13 seconds";
+
+        String replaced = mapper.replacePlaceHolders(example);
+        logger.info(example);
+        logger.info(replaced);
+        assertNotEquals(example, replaced);
+        assertFalse(replaced.contains("\\x11"));
+        assertFalse(replaced.contains("\\x12"));
     }
 }

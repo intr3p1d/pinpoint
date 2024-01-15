@@ -71,8 +71,15 @@ public interface ExceptionMetaDataEntityMapper {
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {
         if (entity.getErrorMessage_logtype() != null) {
-            return entity.getErrorMessage_logtype();
+            return replacePlaceHolders(entity.getErrorMessage_logtype());
         }
         return entity.getErrorMessage();
+    }
+
+    @Named("replacePlaceHolders")
+    default String replacePlaceHolders(String encodedLogtype) {
+        return encodedLogtype
+                .replaceAll("\\x11.", "sdf")
+                .replaceAll("\\x12.", "fsd");
     }
 }
