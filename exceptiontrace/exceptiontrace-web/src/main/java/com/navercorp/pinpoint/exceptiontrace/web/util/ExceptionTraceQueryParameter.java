@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class ExceptionTraceQueryParameter extends QueryParameter {
 
     private final boolean errorMessageClpEnabled;
+    private final String tableName;
 
     private final String tenantId;
     private final String applicationName;
@@ -57,6 +58,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     ) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.errorMessageClpEnabled = builder.errorMessageClpEnabled;
+        this.tableName = builder.tableName;
         this.tenantId = builder.tenantId;
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
@@ -76,6 +78,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private Integer hardLimit = null;
 
         private boolean errorMessageClpEnabled;
+        private String tableName;
 
         private String tenantId;
         private String applicationName;
@@ -100,6 +103,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public Builder setErrorMessageClpEnabled(boolean errorMessageClpEnabled) {
             this.errorMessageClpEnabled = errorMessageClpEnabled;
+            return self();
+        }
+
+        public Builder setTableName(String tableName) {
+            this.tableName = tableName;
             return self();
         }
 

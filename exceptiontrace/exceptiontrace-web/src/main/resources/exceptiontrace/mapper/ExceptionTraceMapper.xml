@@ -10,7 +10,7 @@
     <resultMap id="exceptionTraceValueViewEntity" type="ExceptionTraceValueViewEntity">
     </resultMap>
 
-    <sql id="exceptionTraceTable">exceptionTrace</sql>
+    <sql id="exceptionTraceTable">${tableName}</sql>
 
     <sql id="allGroupByAttributes">
         <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">

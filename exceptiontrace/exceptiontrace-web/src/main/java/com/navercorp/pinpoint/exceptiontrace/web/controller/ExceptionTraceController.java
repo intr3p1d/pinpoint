@@ -64,6 +64,8 @@ public class ExceptionTraceController {
 
     @Value("${pinpoint.modules.web.exceptiontrace.errormessage.clp.enabled:false}")
     private boolean errorMessageClpEnabled;
+    @Value("${pinpoint.modules.web.exceptiontrace.table:exceptionTrace}")
+    private String tableName;
 
     public ExceptionTraceController(ExceptionTraceService exceptionTraceService, TenantProvider tenantProvider) {
         this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
@@ -80,6 +82,7 @@ public class ExceptionTraceController {
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setErrorMessageClpEnabled(errorMessageClpEnabled)
+                .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
@@ -106,6 +109,7 @@ public class ExceptionTraceController {
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setErrorMessageClpEnabled(errorMessageClpEnabled)
+                .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
@@ -131,6 +135,7 @@ public class ExceptionTraceController {
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setErrorMessageClpEnabled(errorMessageClpEnabled)
+                .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
@@ -157,6 +162,7 @@ public class ExceptionTraceController {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setErrorMessageClpEnabled(errorMessageClpEnabled)
+                .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
