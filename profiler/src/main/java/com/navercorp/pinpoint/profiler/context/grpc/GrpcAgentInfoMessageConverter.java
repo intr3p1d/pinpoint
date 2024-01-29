@@ -38,7 +38,7 @@ public class GrpcAgentInfoMessageConverter implements MessageConverter<MetaDataT
     public GeneratedMessageV3 toMessage(MetaDataType message) {
         if (message instanceof AgentInfo) {
             final AgentInfo agentInfo = (AgentInfo) message;
-            return mapper.map(agentInfo);
+            return mapper.toPAgentInfo(agentInfo);
         }
         return null;
     }

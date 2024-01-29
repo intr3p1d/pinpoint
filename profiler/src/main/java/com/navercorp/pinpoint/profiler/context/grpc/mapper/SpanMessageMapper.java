@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
@@ -35,7 +34,6 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import org.mapstruct.CollectionMappingStrategy;
-import org.mapstruct.Condition;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -89,13 +87,13 @@ public interface SpanMessageMapper {
 
             @Mapping(source = "span.spanEventList", target = "spanEventList")
     })
-    void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
+    void toPSpan(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
-    default void map(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder) {
+    default void toPSpanChunk(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder){
         if (spanChunk instanceof AsyncSpanChunk) {
-            toAsyncSpanChunk((AsyncSpanChunk) spanChunk, applicationServiceType, builder);
+            toPAsyncSpanChunk((AsyncSpanChunk) spanChunk, applicationServiceType, builder);
         } else {
-            toPSpanChunk(spanChunk, applicationServiceType, builder);
+            toPSpanChunkInternal(spanChunk, applicationServiceType, builder);
         }
     }
 
@@ -109,17 +107,17 @@ public interface SpanMessageMapper {
 
             @Mapping(source = "spanChunk.spanEventList", target = "spanEventList"),
     })
-    void toPSpanChunk(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
+    void toPSpanChunkInternal(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
     @InheritConfiguration
     @Mappings({
             @Mapping(source = "asyncSpanChunk.localAsyncId", target = "localAsyncId"),
     })
-    void toAsyncSpanChunk(AsyncSpanChunk asyncSpanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
+    void toPAsyncSpanChunk(AsyncSpanChunk asyncSpanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
     @Mappings({
     })
-    PLocalAsyncId map(LocalAsyncId localAsyncId);
+    PLocalAsyncId toPLocalAsyncId(LocalAsyncId localAsyncId);
 
 
     @Named("spanVersion")
@@ -134,23 +132,23 @@ public interface SpanMessageMapper {
             @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent"),
             @Mapping(source = "annotations", target = "annotationList"),
     })
-    PSpanEvent map(SpanEvent spanEvent);
+    PSpanEvent toPSpanEvent(SpanEvent spanEvent);
 
 
     @Mappings({
             @Mapping(source = ".", target = "messageEvent"),
     })
-    PNextEvent mapNextEvent(SpanEvent spanEvent);
+    PNextEvent toPNextEvent(SpanEvent spanEvent);
 
     @Mappings({
             @Mapping(source = "nextSpanId", target = "nextSpanId", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class),
     })
-    PMessageEvent mapMessageEvent(SpanEvent spanEvent);
+    PMessageEvent toPMessageEvent(SpanEvent spanEvent);
 
     @Mappings({
             @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class),
     })
-    PAnnotation map(Annotation<?> annotation);
+    PAnnotation toPAnnotation(Annotation<?> annotation);
 
     @Named("toAcceptEvent")
     @Mappings({
@@ -160,10 +158,10 @@ public interface SpanMessageMapper {
 
             @Mapping(source = ".", target = "parentInfo")
     })
-    PAcceptEvent toAcceptEvent(Span span);
+    PAcceptEvent toPAcceptEvent(Span span);
 
     @Mappings({
             @Mapping(source = "parentApplicationType", target = "parentApplicationType", conditionQualifiedBy = MapperUtils.IsNotZeroShort.class),
     })
-    PParentInfo toParentInfo(Span span);
+    PParentInfo toPParentInfo(Span span);
 }

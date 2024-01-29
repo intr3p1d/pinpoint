@@ -33,7 +33,6 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.factory.Mappers;
 
 /**
  * @author intr3p1d
@@ -60,25 +59,25 @@ public interface AgentInfoMapper {
             @Mapping(source = "agentInformation.jvmVersion", target = "vmVersion"),
             @Mapping(source = ".", target = "agentVersion", qualifiedByName = "agentVersion")
     })
-    PAgentInfo map(AgentInfo agentInfo);
+    PAgentInfo toPAgentInfo(AgentInfo agentInfo);
 
     @Mappings({
             @Mapping(source = "vmArgs", target = "vmArgList"),
             @Mapping(source = "serviceInfos", target = "serviceInfoList"),
     })
-    PServerMetaData map(ServerMetaData serverMetaData);
+    PServerMetaData toPServerMetaData(ServerMetaData serverMetaData);
 
     @Mappings({
             @Mapping(source = "serviceLibs", target = "serviceLibList"),
     })
-    PServiceInfo map(ServiceInfo serviceInfo);
+    PServiceInfo toPServiceInfo(ServiceInfo serviceInfo);
 
     @Mappings({
             @Mapping(source = "jvmVersion", target = "vmVersion"),
             @Mapping(source = "jvmGcType", target = "gcType", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class)
 
     })
-    PJvmInfo map(JvmInformation jvmInformation);
+    PJvmInfo toPJvmInfo(JvmInformation jvmInformation);
 
     @Named("emptyPort")
     default String emptyPort(AgentInfo agentInfo) {
