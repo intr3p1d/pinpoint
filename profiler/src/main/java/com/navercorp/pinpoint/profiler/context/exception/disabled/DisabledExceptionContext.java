@@ -40,7 +40,7 @@ public class DisabledExceptionContext implements ExceptionContext {
     }
 
     @Override
-    public void setWrapped(Throwable throwable) {
+    public void update(Throwable throwable) {
 
     }
 

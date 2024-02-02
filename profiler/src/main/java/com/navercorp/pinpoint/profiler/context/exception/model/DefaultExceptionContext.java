@@ -49,7 +49,7 @@ public class DefaultExceptionContext implements ExceptionContext {
 
 
     @Override
-    public void setWrapped(Throwable throwable) {
+    public void update(Throwable throwable) {
         contextValue.setPrevious(throwable);
     }
 

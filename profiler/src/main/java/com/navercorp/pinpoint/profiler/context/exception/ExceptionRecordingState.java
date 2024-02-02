@@ -63,7 +63,7 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setWrapped(current);
+            context.update(current);
             context.chainStart(currentStartTime, samplingState);
         }
     },
@@ -84,7 +84,7 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setWrapped(current);
+            context.update(current);
         }
     },
     FLUSH_AND_START {
@@ -107,7 +107,7 @@ public enum ExceptionRecordingState {
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setWrapped(current);
+            context.update(current);
             context.chainStart(currentStartTime, samplingState);
         }
     },
