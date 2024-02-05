@@ -29,7 +29,7 @@ public interface ExceptionContext {
 
     void flush();
 
-    void update(Throwable throwable);
+    void update(Throwable throwable, long startTime);
 
     ExceptionRecordingState stateOf(Throwable throwable);
 
@@ -38,6 +38,8 @@ public interface ExceptionContext {
     void reset();
 
     boolean hasValidExceptionId();
+
+    ExceptionContextValue getContextValue();
 
     ExceptionTraceSampler.SamplingState getSamplingState();
 

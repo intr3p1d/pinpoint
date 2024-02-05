@@ -30,11 +30,11 @@ public class DefaultExceptionContext implements ExceptionContext {
     private ExceptionTraceSampler.SamplingState samplingState = ExceptionTraceSampler.DISABLED;
 
     private final ExceptionStorage storage;
-    private final ExceptionContextValue contextValue;
+    private ExceptionContextValue topContextValue;
 
     public DefaultExceptionContext(ExceptionStorage storage) {
         this.storage = storage;
-        this.contextValue = new ExceptionContextValue();
+        this.topContextValue = new ExceptionContextValue();
     }
 
     @Override
@@ -49,31 +49,37 @@ public class DefaultExceptionContext implements ExceptionContext {
 
 
     @Override
-    public void update(Throwable throwable) {
-        contextValue.setPrevious(throwable);
+    public void update(Throwable throwable, long startTime) {
+        this.topContextValue = topContextValue.newChild(throwable, startTime);
     }
 
     @Override
     public ExceptionRecordingState stateOf(Throwable throwable) {
-        return ExceptionRecordingState.stateOf(contextValue.getPrevious(), throwable);
+        return ExceptionRecordingState.stateOf(topContextValue.getPrevious(), throwable);
     }
 
     @Override
     public void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState) {
-        contextValue.setStartTime(startTime);
+        topContextValue.setStartTime(startTime);
         setSamplingState(samplingState);
     }
 
     @Override
     public void reset() {
-        contextValue.setPrevious(null);
+        topContextValue.setPrevious(null);
         setSamplingState(ExceptionTraceSampler.DISABLED);
-        contextValue.setStartTime(0);
+        topContextValue.setStartTime(0);
     }
 
     @Override
     public boolean hasValidExceptionId() {
         return this.samplingState != null && this.samplingState.isSampling();
+    }
+
+
+    @Override
+    public ExceptionContextValue getContextValue() {
+        return topContextValue;
     }
 
     @Override
@@ -87,12 +93,12 @@ public class DefaultExceptionContext implements ExceptionContext {
 
     @Override
     public long getStartTime() {
-        return this.contextValue.getStartTime();
+        return this.topContextValue.getStartTime();
     }
 
     @Override
     public Throwable getPrevious() {
-        return this.contextValue.getPrevious();
+        return this.topContextValue.getPrevious();
     }
 
     @Override

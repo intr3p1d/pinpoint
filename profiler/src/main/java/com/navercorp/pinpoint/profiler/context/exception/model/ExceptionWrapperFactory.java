@@ -35,7 +35,53 @@ public class ExceptionWrapperFactory {
         if (context == null) {
             return null;
         }
-        return newExceptionWrappers(context.getPrevious(), context.getStartTime(), context.getExceptionId());
+        return traverseAndWrap(
+                context.getContextValue(), context.getExceptionId()
+        );
+    }
+
+    private List<ExceptionWrapper> traverseAndWrap(ExceptionContextValue topExceptionContextValue, long exceptionId) {
+        List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
+
+        ExceptionContextValue currentContextValue = topExceptionContextValue;
+        Throwable curr = topExceptionContextValue.getPrevious();
+        int depth = 0;
+
+        while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
+
+            // If exception was already catched, use the context value
+            if (curr == currentContextValue.getPreviousContextValue().getPrevious()) {
+                currentContextValue = currentContextValue.getPreviousContextValue();
+                curr = currentContextValue.getPreviousContextValue().getPrevious();
+                continue;
+            }
+
+            exceptionWrappers.add(
+                    ExceptionWrapper.newException(curr, currentContextValue.getStartTime(), exceptionId, depth, maxErrorMessageLength)
+            );
+            curr = curr.getCause();
+            depth++;
+        }
+
+        return exceptionWrappers;
+    }
+
+    public int addAllExceptionWrappers(
+            List<ExceptionWrapper> exceptionWrappers,
+            Throwable throwable, long startTime, long exceptionId,
+            int depthOffset
+    ) {
+        if (throwable == null) {
+            return depthOffset;
+        }
+        Throwable curr = throwable;
+        int depth = depthOffset;
+        while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
+            exceptionWrappers.add(ExceptionWrapper.newException(curr, startTime, exceptionId, depth, maxErrorMessageLength));
+            curr = curr.getCause();
+            depth++;
+        }
+        return depth;
     }
 
     public List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {

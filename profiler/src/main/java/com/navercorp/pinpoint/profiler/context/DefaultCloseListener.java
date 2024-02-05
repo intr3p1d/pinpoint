@@ -18,8 +18,6 @@ public class DefaultCloseListener implements CloseListener {
     @Nullable
     private final UriStatStorage uriStatStorage;
 
-    @Nullable
-    private ExceptionStorage exceptionStorage;
 
     public DefaultCloseListener(LocalTraceRoot traceRoot, ActiveTraceHandle activeTraceHandle, UriStatStorage uriStatStorage) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
