@@ -44,12 +44,12 @@ public class ExceptionWrapperFactory {
         List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
 
         ExceptionContextValue currentContextValue = topExceptionContextValue;
-        Throwable curr = topExceptionContextValue.getPrevious();
         int depth = 0;
 
-        while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
+        while (currentContextValue.getPreviousContextValue().getPrevious().getCause() != null
+                && (maxDepth == 0 || depth < maxDepth)) {
 
-            // If exception was already catched, use the context value
+            // If exception was already caught, use the context value
             if (curr == currentContextValue.getPreviousContextValue().getPrevious()) {
                 currentContextValue = currentContextValue.getPreviousContextValue();
                 curr = currentContextValue.getPreviousContextValue().getPrevious();
