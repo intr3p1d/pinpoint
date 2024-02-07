@@ -1,11 +1,13 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorage;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import jakarta.annotation.Nullable;
+
 import java.util.Objects;
 
 public class DefaultCloseListener implements CloseListener {
@@ -15,6 +17,7 @@ public class DefaultCloseListener implements CloseListener {
     private final ActiveTraceHandle activeTraceHandle;
     @Nullable
     private final UriStatStorage uriStatStorage;
+
 
     public DefaultCloseListener(LocalTraceRoot traceRoot, ActiveTraceHandle activeTraceHandle, UriStatStorage uriStatStorage) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");

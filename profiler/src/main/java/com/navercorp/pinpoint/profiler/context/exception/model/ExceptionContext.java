@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 
@@ -30,7 +29,7 @@ public interface ExceptionContext {
 
     void flush();
 
-    void setWrapped(Throwable throwable);
+    void update(Throwable throwable, long startTime);
 
     ExceptionRecordingState stateOf(Throwable throwable);
 
@@ -39,6 +38,8 @@ public interface ExceptionContext {
     void reset();
 
     boolean hasValidExceptionId();
+
+    ExceptionContextValue getContextValue();
 
     ExceptionTraceSampler.SamplingState getSamplingState();
 

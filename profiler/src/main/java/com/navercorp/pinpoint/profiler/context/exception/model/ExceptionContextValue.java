@@ -21,8 +21,26 @@ package com.navercorp.pinpoint.profiler.context.exception.model;
 public class ExceptionContextValue {
 
     private static final Throwable INITIAL_EXCEPTION = null;
+
+    private ExceptionContextValue previousContextValue = null;
     private Throwable previous = INITIAL_EXCEPTION;
     private long startTime = 0;
+
+    public ExceptionContextValue newChild(Throwable previous, long startTime) {
+        ExceptionContextValue child = new ExceptionContextValue();
+        child.setPreviousContextValue(this);
+        child.setPrevious(previous);
+        child.setStartTime(startTime);
+        return child;
+    }
+
+    public ExceptionContextValue getPreviousContextValue() {
+        return previousContextValue;
+    }
+
+    public void setPreviousContextValue(ExceptionContextValue previousContextValue) {
+        this.previousContextValue = previousContextValue;
+    }
 
     public Throwable getPrevious() {
         return previous;

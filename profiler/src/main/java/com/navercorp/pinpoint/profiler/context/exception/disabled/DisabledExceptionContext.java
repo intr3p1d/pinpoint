@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.context.exception.disabled;
 
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextValue;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 
@@ -40,7 +41,7 @@ public class DisabledExceptionContext implements ExceptionContext {
     }
 
     @Override
-    public void setWrapped(Throwable throwable) {
+    public void update(Throwable throwable, long startTime) {
 
     }
 
@@ -62,6 +63,11 @@ public class DisabledExceptionContext implements ExceptionContext {
     @Override
     public boolean hasValidExceptionId() {
         return false;
+    }
+
+    @Override
+    public ExceptionContextValue getContextValue() {
+        return null;
     }
 
     @Override
