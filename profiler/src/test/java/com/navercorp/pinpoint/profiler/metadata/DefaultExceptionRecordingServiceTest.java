@@ -49,7 +49,7 @@ public class DefaultExceptionRecordingServiceTest {
 
     DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
             exceptionTraceSampler, exceptionWrapperFactory, context
-            );
+    );
 
     long START_TIME = 1;
 
@@ -98,6 +98,12 @@ public class DefaultExceptionRecordingServiceTest {
         exceptionRecordingService.recordException(throwable, START_TIME);
     }
 
+    private List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {
+        List<ExceptionWrapper> wrappers = new ArrayList<>();
+        exceptionWrapperFactory.addAllExceptionWrappers(wrappers, throwable, null, startTime, exceptionId, 0);
+        return wrappers;
+    }
+
     @Test
     public void testRecordNothing() {
         resetContext();
@@ -119,7 +125,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             level3Error(throwableFunction);
         } catch (Throwable e) {
-            expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
+            expected = newExceptionWrappers(e, START_TIME, context.getExceptionId());
             exceptionRecordingService.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
@@ -142,7 +148,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             notChainedException(throwableFunction);
         } catch (Throwable e) {
-            expected1 = exceptionWrapperFactory.newExceptionWrappers(exceptions.get(exceptions.size() - 2), START_TIME, context.getExceptionId());
+            expected1 = newExceptionWrappers(exceptions.get(exceptions.size() - 2), START_TIME, context.getExceptionId());
             exceptionRecordingService.recordException(e, START_TIME);
             actual1 = exceptionStorage.getWrappers();
             throwable = e;
@@ -151,7 +157,7 @@ public class DefaultExceptionRecordingServiceTest {
         }
 
         exceptionStorage.flush();
-        expected2 = exceptionWrapperFactory.newExceptionWrappers(throwable, START_TIME, context.getExceptionId());
+        expected2 = newExceptionWrappers(throwable, START_TIME, context.getExceptionId());
         exceptionRecordingService.recordException(null, 0);
         actual2 = exceptionStorage.getWrappers();
         Assertions.assertEquals(expected2, actual2);
@@ -166,7 +172,7 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             rethrowGivenException(throwableFunction);
         } catch (Throwable e) {
-            expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
+            expected = newExceptionWrappers(e, START_TIME, context.getExceptionId());
             exceptionRecordingService.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());

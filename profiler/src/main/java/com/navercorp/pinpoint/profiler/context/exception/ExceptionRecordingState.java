@@ -86,53 +86,6 @@ public enum ExceptionRecordingState {
             Objects.requireNonNull(context);
             context.update(current, currentStartTime);
         }
-    },
-    FLUSH_AND_START {
-        @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
-            Objects.requireNonNull(context);
-            Objects.requireNonNull(factory);
-            return factory.newExceptionWrappers(
-                    context
-            );
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            Objects.requireNonNull(context);
-            context.update(current, currentStartTime);
-            context.chainStart(currentStartTime, samplingState);
-        }
-    },
-    FLUSH {
-        @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
-            Objects.requireNonNull(context);
-            Objects.requireNonNull(factory);
-            return factory.newExceptionWrappers(
-                    context
-            );
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            Objects.requireNonNull(context);
-            context.reset();
-        }
     };
 
     public static ExceptionRecordingState stateOf(Throwable previous, Throwable current) {
@@ -154,7 +107,7 @@ public enum ExceptionRecordingState {
     private static boolean isExceptionChainContinuing(Throwable previous, Throwable current) {
         Throwable throwable = current;
         while (throwable != null) {
-            if (throwable == previous) {
+            if (Objects.equals(throwable, previous)) {
                 return true;
             }
             throwable = throwable.getCause();

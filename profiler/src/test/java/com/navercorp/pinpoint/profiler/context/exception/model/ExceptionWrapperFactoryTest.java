@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +23,8 @@ class ExceptionWrapperFactoryTest {
         String errorMessage = "Message that exceed 10 characters";
         Throwable th = new RuntimeException(errorMessage);
 
-        List<ExceptionWrapper> wrappers = factory.newExceptionWrappers(th, ANY_INT, ANY_INT);
+        List<ExceptionWrapper> wrappers = new ArrayList<>();
+        factory.addAllExceptionWrappers(wrappers, th, null, ANY_INT, ANY_INT, 0);
 
         String abbreviated = StringUtils.abbreviate(errorMessage, MAX_LENGTH);
         Assertions.assertEquals(abbreviated, wrappers.get(0).getExceptionMessage());
@@ -34,7 +36,8 @@ class ExceptionWrapperFactoryTest {
         String errorMessage = "Message";
         Throwable th = new RuntimeException(errorMessage);
 
-        List<ExceptionWrapper> wrappers = factory.newExceptionWrappers(th, ANY_INT, ANY_INT);
+        List<ExceptionWrapper> wrappers = new ArrayList<>();
+        factory.addAllExceptionWrappers(wrappers, th, null, ANY_INT, ANY_INT, 0);
 
         String abbreviated = StringUtils.abbreviate(errorMessage, MAX_LENGTH);
         Assertions.assertEquals(abbreviated, wrappers.get(0).getExceptionMessage());
@@ -48,7 +51,8 @@ class ExceptionWrapperFactoryTest {
             th = new RuntimeException(th);
         }
 
-        List<ExceptionWrapper> wrappers = factory.newExceptionWrappers(th, ANY_INT, ANY_INT);
+        List<ExceptionWrapper> wrappers = new ArrayList<>();
+        factory.addAllExceptionWrappers(wrappers, th, null, ANY_INT, ANY_INT, 0);
         Assertions.assertEquals(MAX_DEPTH, wrappers.size());
     }
 }
