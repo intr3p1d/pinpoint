@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,17 @@
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.common.util.StringUtils;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author intr3p1d
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GroupedFieldName {
-
+public class RawGroupedFieldName {
     private String uriTemplate;
     private String errorClassName;
-    private String errorMessage;
+    private String errorMessage_logtype;
     private String stackTraceHash;
 
-    public GroupedFieldName() {
-    }
-
-    public String inAString() {
-        return StringUtils.abbreviate(
-                Stream.of(uriTemplate, errorClassName, errorMessage, stackTraceHash)
-                        .filter(StringUtils::hasLength)
-                        .collect(Collectors.joining(", ")),
-                50
-        );
-    }
 
     public String getUriTemplate() {
         return uriTemplate;
@@ -60,12 +44,12 @@ public class GroupedFieldName {
         this.errorClassName = errorClassName;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getErrorMessage_logtype() {
+        return errorMessage_logtype;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public void setErrorMessage_logtype(String errorMessage_logtype) {
+        this.errorMessage_logtype = errorMessage_logtype;
     }
 
     public String getStackTraceHash() {
@@ -76,12 +60,13 @@ public class GroupedFieldName {
         this.stackTraceHash = stackTraceHash;
     }
 
+
     @Override
     public String toString() {
-        return "GroupedFieldName{" +
+        return "RawGroupedFieldName{" +
                 "uriTemplate='" + uriTemplate + '\'' +
                 ", errorClassName='" + errorClassName + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
+                ", errorMessage_logtype='" + errorMessage_logtype + '\'' +
                 ", stackTraceHash='" + stackTraceHash + '\'' +
                 '}';
     }

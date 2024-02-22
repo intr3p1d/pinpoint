@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewE
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
+import com.navercorp.pinpoint.exceptiontrace.web.model.RawGroupedFieldName;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -58,20 +60,26 @@ public interface ExceptionMetaDataEntityMapper {
 
     @Mappings({
             @Mapping(source = "values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
-            @Mapping(source = "uriTemplate", target = "groupedFieldName.uriTemplate"),
-            @Mapping(source = "errorClassName", target = "groupedFieldName.errorClassName"),
-            @Mapping(source = ".", target = "groupedFieldName.errorMessage", qualifiedByName = "selectErrorMessage"),
-            @Mapping(source = "stackTraceHash", target = "groupedFieldName.stackTraceHash")
+
+            @Mapping(source = ".", target = "groupedFieldName"),
     })
     ExceptionTraceValueView entityToExceptionTraceValueView(ExceptionTraceValueViewEntity entity);
 
     @Mappings({
-            @Mapping(source = "uriTemplate", target = "groupedFieldName.uriTemplate"),
-            @Mapping(source = "errorClassName", target = "groupedFieldName.errorClassName"),
-            @Mapping(source = ".", target = "groupedFieldName.errorMessage", qualifiedByName = "selectErrorMessage"),
-            @Mapping(source = "stackTraceHash", target = "groupedFieldName.stackTraceHash")
+            @Mapping(source = ".", target = "groupedFieldName"),
+            @Mapping(source = ".", target = "rawFieldName"),
     })
     ExceptionTraceSummary entityToExceptionTraceSummary(ExceptionTraceSummaryEntity entity);
+
+
+    @Mappings({
+            @Mapping(source = ".", target = "errorMessage", qualifiedByName = "selectErrorMessage"),
+    })
+    GroupedFieldName entityToGroupedFieldName(ExceptionTraceSummaryEntity entity);
+
+    @Mappings({
+    })
+    RawGroupedFieldName entityToRawGroupedFieldName(ExceptionTraceSummaryEntity entity);
 
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ExceptionTraceSummary {
 
     private GroupedFieldName groupedFieldName;
+    private RawGroupedFieldName rawFieldName;
     private String mostRecentErrorClass;
     private String mostRecentErrorMessage;
     private long count;
@@ -39,6 +40,15 @@ public class ExceptionTraceSummary {
 
     public void setGroupedFieldName(GroupedFieldName groupedFieldName) {
         this.groupedFieldName = groupedFieldName;
+    }
+
+    @JsonProperty("rawFieldName")
+    public RawGroupedFieldName getRawFieldName() {
+        return rawFieldName;
+    }
+
+    public void setRawFieldName(RawGroupedFieldName rawFieldName) {
+        this.rawFieldName = rawFieldName;
     }
 
     public String getMostRecentErrorClass() {
