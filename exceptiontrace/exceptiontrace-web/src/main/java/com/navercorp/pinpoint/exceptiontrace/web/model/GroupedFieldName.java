@@ -30,6 +30,7 @@ public class GroupedFieldName {
     private String uriTemplate;
     private String errorClassName;
     private String errorMessage;
+    private String errorMessage_logtype;
     private String stackTraceHash;
 
     public GroupedFieldName() {

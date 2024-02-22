@@ -100,7 +100,7 @@ public class ExceptionTraceController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
 
-            @RequestParam(value = "query", required = false) List<String> tags,
+            @RequestParam(value = "filters", required = false) List<String> filters,
             @RequestParam("orderBy") String orderBy,
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count
@@ -113,6 +113,7 @@ public class ExceptionTraceController {
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(DETAILED_TIME_PRECISION)
                 .setHardLimit(count)
+                .addAllFilters(filters)
                 .setOrderBy(orderBy)
                 .setIsDesc(isDesc)
                 .build();
