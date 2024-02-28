@@ -76,6 +76,46 @@ public class ApplicationMapStatisticsUtils {
         return buffer.getBuffer();
     }
 
+    public static byte[] makeColumnName(String serviceGroup, String applicationName, short serviceTypeCode, short columnSlotNumber) {
+        if (applicationName == null || serviceGroup == null) {
+            // null check ??
+            applicationName = "";
+        }
+        final Buffer buffer = new AutomaticBuffer(
+                serviceGroup.length() + applicationName.length() + BytesUtils.SHORT_BYTE_LENGTH * 2
+        );
+        buffer.putShort(columnSlotNumber);
+
+        final byte[] serviceGroupBytes = BytesUtils.toBytes(serviceGroup);
+        buffer.putBytes(serviceGroupBytes);
+
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
+        buffer.putBytes(applicationNameBytes);
+
+        buffer.putShort(serviceTypeCode);
+
+        return buffer.getBuffer();
+
+    }
+
+    public static byte[] makeInboundColumnName(
+            short thatServiceType, String thatApplicationName,
+            String thisServiceGroup, short thisServiceType,
+            String thisApplicationName, short columnSlotNumber
+    ) {
+        final Buffer buffer = new AutomaticBuffer(
+                thatApplicationName.length() + thisServiceGroup.length() + thisApplicationName.length()
+                        + BytesUtils.SHORT_BYTE_LENGTH * 3
+        );
+        buffer.putPrefixedString(thisServiceGroup);
+        buffer.putShort(thisServiceType);
+        buffer.putPrefixedString(thisApplicationName);
+        buffer.putShort(columnSlotNumber);
+        buffer.putShort(thatServiceType);
+        buffer.putPrefixedString(thatApplicationName);
+        return buffer.getBuffer();
+    }
+
 
     private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
         Objects.requireNonNull(serviceType, "serviceType");
@@ -136,13 +176,27 @@ public class ApplicationMapStatisticsUtils {
     public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
 
-        final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
 
         final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 2 + 8);
 //        buffer.put2PrefixedString(applicationName);
-        buffer.putShort((short)applicationNameBytes.length);
+        buffer.putShort((short) applicationNameBytes.length);
         buffer.putBytes(applicationNameBytes);
         buffer.putShort(applicationType);
+        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
+        buffer.putLong(reverseTimeMillis);
+        return buffer.getBuffer();
+    }
+
+    public static byte[] makeRowKey(String serviceGroup, long timestamp) {
+        Objects.requireNonNull(serviceGroup, "serviceGroup");
+
+        final byte[] serviceGroupBytes = BytesUtils.toBytes(serviceGroup);
+
+        final Buffer buffer = new AutomaticBuffer(2 + serviceGroupBytes.length + 2 + 8);
+//        buffer.put2PrefixedString(applicationName);
+        buffer.putShort((short) serviceGroupBytes.length);
+        buffer.putBytes(serviceGroupBytes);
         long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
         buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
