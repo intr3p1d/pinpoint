@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceCallRowKey;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceGroupRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceResponseColumnName;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
@@ -69,7 +69,7 @@ public class HbaseMapSelfResponseTimeDao implements MapSelfResponseTimeDao {
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new ServiceCallRowKey(serviceGroup, rowTimeSlot);
+        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroup, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ServiceResponseColumnName(serviceGroup, applicationName, applicationServiceType.getCode(), slotNumber);
@@ -99,7 +99,7 @@ public class HbaseMapSelfResponseTimeDao implements MapSelfResponseTimeDao {
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new ServiceCallRowKey(serviceGroup, rowTimeSlot);
+        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroup, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ServiceResponseColumnName(serviceGroup, applicationName, applicationServiceType.getCode(), slotNumber);

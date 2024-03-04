@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.OutboudColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceCallRowKey;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceGroupColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceGroupRowKey;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -45,70 +46,65 @@ public class HbaseMapStatisticsOutboundDao implements MapStatisticsOutboundDao {
 
     private final TimeSlot timeSlot;
 
-    private final IgnoreStatFilter ignoreStatFilter;
     private final BulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public HbaseMapStatisticsOutboundDao(MapLinkConfiguration mapLinkConfiguration,
-                                         IgnoreStatFilter ignoreStatFilter,
-                                         AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                         @Qualifier("calleeBulkWriter") BulkWriter bulkWriter) {
+    public HbaseMapStatisticsOutboundDao(
+            MapLinkConfiguration mapLinkConfiguration,
+            IgnoreStatFilter ignoreStatFilter,
+            AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+            @Qualifier("outboundBulkWriter") BulkWriter bulkWriter
+    ) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
-        this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "outboundBulkWriter");
     }
 
 
     @Override
     public void update(
-            String thatServiceGroup, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
+            String thatServiceGroupName, String thatApplicationName, ServiceType thatServiceType,
+            String thisServiceGroupName, String thisApplicationName, ServiceType thisServiceType,
             String thisHost, int elapsed, boolean isError
     ) {
-        Objects.requireNonNull(thatServiceGroup, "thatServiceGroup");
-        Objects.requireNonNull(thisServiceGroup, "thisServiceGroup");
+        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
+        Objects.requireNonNull(thisServiceGroupName, "thisServiceGroupName");
+        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
+        Objects.requireNonNull(thisServiceGroupName, "thisApplicationName");
 
         if (logger.isDebugEnabled()) {
             logger.debug("[Outbound] {} {}({})[{}] -> {} {}({})",
-                    thisServiceGroup, thisApplicationName, thisServiceType, thisHost,
-                    thatServiceGroup, thatApplicationName, thatServiceType
+                    thisServiceGroupName, thisApplicationName, thisServiceType, thisHost,
+                    thatServiceGroupName, thatApplicationName, thatServiceType
             );
         }
 
         // there may be no endpoint in case of httpclient
         thisHost = StringUtils.defaultString(thisHost);
 
-        // TODO callee, caller parameter normalization
-        if (ignoreStatFilter.filter(thatServiceType, thisHost)) {
-            logger.debug("[Ignore-Outbound] {} {}({})[{}] -> {} {}({})",
-                    thisServiceGroup, thisApplicationName, thisServiceType, thisHost,
-                    thatServiceGroup, thatApplicationName, thatServiceType
-            );
-            return;
-        }
-
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey calleeRowKey = new ServiceCallRowKey(thisServiceGroup, rowTimeSlot);
 
-        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
+        // this is caller in outbound
+        final RowKey callerRowKey = new ServiceGroupRowKey(thisServiceGroupName, rowTimeSlot);
 
+        // that is callee in outbound
+        final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
         HistogramSchema histogramSchema = thatServiceType.getHistogramSchema();
 
-        final ColumnName callerColumnName = new OutboudColumnName(thisServiceGroup, thisServiceType.getCode(), thisApplicationName, callerSlotNumber);
-        this.bulkWriter.increment(calleeRowKey, callerColumnName);
+        final ColumnName calleeColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, calleeSlotNumber);
+        this.bulkWriter.increment(callerRowKey, calleeColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new OutboudColumnName(thisServiceGroup, thisServiceType.getCode(), thisApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
-            this.bulkWriter.increment(calleeRowKey, sumColumnName, elapsed);
+            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
+            this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new OutboudColumnName(thisServiceGroup, thisServiceType.getCode(), thisApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
-            this.bulkWriter.updateMax(calleeRowKey, maxColumnName, elapsed);
+            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
+            this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
         }
     }
 

@@ -21,13 +21,13 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.InboundColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceCallRowKey;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceGroupColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceGroupRowKey;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,57 +44,75 @@ public class HbaseMapStatisticsInboundDao implements MapStatisticsInboundDao {
     private final AcceptedTimeService acceptedTimeService;
 
     private final TimeSlot timeSlot;
+    private final IgnoreStatFilter ignoreStatFilter;
     private final BulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public HbaseMapStatisticsInboundDao(MapLinkConfiguration mapLinkConfiguration,
-                                        AcceptedTimeService acceptedTimeService,
-                                        TimeSlot timeSlot,
-                                        @Qualifier("callerBulkWriter") BulkWriter bulkWriter) {
+    public HbaseMapStatisticsInboundDao(
+            MapLinkConfiguration mapLinkConfiguration,
+            IgnoreStatFilter ignoreStatFilter,
+            AcceptedTimeService acceptedTimeService,
+            TimeSlot timeSlot,
+            @Qualifier("inboundBulkWriter") BulkWriter bulkWriter
+    ) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
+        this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "inboundBulkWriter");
     }
 
 
     @Override
     public void update(
-            String thatServiceGroup, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
+            String thatServiceGroupName, String thatApplicationName, ServiceType thatServiceType,
+            String thisServiceGroupName, String thisApplicationName, ServiceType thisServiceType,
             String thisHost, int elapsed, boolean isError
     ) {
+        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
+        Objects.requireNonNull(thisServiceGroupName, "thisServiceGroupName");
         Objects.requireNonNull(thatApplicationName, "thatApplicationName");
-        Objects.requireNonNull(thatApplicationName, "thisApplicationName");
-
+        Objects.requireNonNull(thisServiceGroupName, "thisApplicationName");
 
         if (logger.isDebugEnabled()) {
             logger.debug("[Inbound] {} {}({})[{}] <- {} {}({})",
-                    thisServiceGroup, thisApplicationName, thisServiceType, thisHost,
-                    thatServiceGroup, thatApplicationName, thatServiceType
+                    thisServiceGroupName, thisApplicationName, thisServiceType, thisHost,
+                    thatServiceGroupName, thatApplicationName, thatServiceType
             );
+        }
+
+
+        // TODO callee, caller parameter normalization
+        if (ignoreStatFilter.filter(thatServiceType, thisHost)) {
+            logger.debug("[Ignore-Inbound] {} {}({})[{}] <- {} {}({})",
+                    thisServiceGroupName, thisApplicationName, thisServiceType, thisHost,
+                    thatServiceGroupName, thatApplicationName, thatServiceType
+            );
+            return;
         }
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey callerRowKey = new ServiceCallRowKey(thisServiceGroup, rowTimeSlot);
 
-        final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
+        // this is callee in inbound
+        final RowKey calleeRowKey = new ServiceGroupRowKey(thisServiceGroupName, rowTimeSlot);
 
+        // this is callee in inbound
+        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
         HistogramSchema histogramSchema = thatServiceType.getHistogramSchema();
 
-        final ColumnName calleeColumnName = new InboundColumnName(thatServiceType.getCode(), thatApplicationName, thisServiceGroup, thisServiceType.getCode(), thisApplicationName, calleeSlotNumber);
-        this.bulkWriter.increment(callerRowKey, calleeColumnName);
+        final ColumnName callerColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, callerSlotNumber);
+        this.bulkWriter.increment(calleeRowKey, callerColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new InboundColumnName(thatServiceType.getCode(), thatApplicationName, thisServiceGroup, thisServiceType.getCode(), thisApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
-            this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
+            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
+            this.bulkWriter.increment(calleeRowKey, sumColumnName, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new InboundColumnName(thatServiceType.getCode(), thatApplicationName, thisServiceGroup, thisServiceType.getCode(), thisApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
-            this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
+            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
+            this.bulkWriter.updateMax(calleeRowKey, maxColumnName, elapsed);
         }
 
     }

@@ -22,14 +22,14 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class ServiceCallRowKey implements RowKey {
+public class ServiceGroupRowKey implements RowKey {
     private final String callServiceGroup;
     private final long rowTimeSlot;
 
     // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
-    public ServiceCallRowKey(String callServiceGroup, long rowTimeSlot) {
+    public ServiceGroupRowKey(String callServiceGroup, long rowTimeSlot) {
         this.callServiceGroup = Objects.requireNonNull(callServiceGroup, "callServiceGroup");
         this.rowTimeSlot = rowTimeSlot;
     }
@@ -42,7 +42,7 @@ public class ServiceCallRowKey implements RowKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ServiceCallRowKey that = (ServiceCallRowKey) o;
+        ServiceGroupRowKey that = (ServiceGroupRowKey) o;
 
         if (rowTimeSlot != that.rowTimeSlot) return false;
         if (hash != that.hash) return false;
