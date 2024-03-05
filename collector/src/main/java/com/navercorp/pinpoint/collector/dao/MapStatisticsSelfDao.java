@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author intr3p1d
  */
-public interface MapSelfResponseTimeDao extends CachedStatisticsDao {
+public interface MapStatisticsSelfDao extends CachedStatisticsDao {
     void received(String serviceGroup, String applicationName, ServiceType serviceType, int elapsed, boolean isError);
 
     void updatePing(String serviceGroup, String applicationName, ServiceType serviceType, int elapsed, boolean isError);

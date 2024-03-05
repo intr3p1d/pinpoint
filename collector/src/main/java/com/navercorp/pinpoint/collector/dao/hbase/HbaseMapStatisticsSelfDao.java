@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.MapSelfResponseTimeDao;
+import com.navercorp.pinpoint.collector.dao.MapStatisticsSelfDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class HbaseMapSelfResponseTimeDao implements MapSelfResponseTimeDao {
+public class HbaseMapStatisticsSelfDao implements MapStatisticsSelfDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -46,9 +46,9 @@ public class HbaseMapSelfResponseTimeDao implements MapSelfResponseTimeDao {
     private final BulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public HbaseMapSelfResponseTimeDao(MapLinkConfiguration mapLinkConfiguration,
-                                       AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                       @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
+    public HbaseMapStatisticsSelfDao(MapLinkConfiguration mapLinkConfiguration,
+                                     AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+                                     @Qualifier("selfStatisticsBulkWriter") BulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
@@ -57,52 +57,52 @@ public class HbaseMapSelfResponseTimeDao implements MapSelfResponseTimeDao {
 
 
     @Override
-    public void received(String serviceGroup, String applicationName, ServiceType applicationServiceType, int elapsed, boolean isError) {
-        Objects.requireNonNull(serviceGroup, "serviceGroup");
+    public void received(String serviceGroupName, String applicationName, ServiceType applicationServiceType, int elapsed, boolean isError) {
+        Objects.requireNonNull(serviceGroupName, "serviceGroupName");
         Objects.requireNonNull(applicationName, "applicationName");
 
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Received] {} {} ({})", serviceGroup, applicationName, applicationServiceType);
+            logger.debug("[Received] {} {} ({})", serviceGroupName, applicationName, applicationServiceType);
         }
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroup, rowTimeSlot);
+        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroupName, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
-        final ColumnName selfColumnName = new ServiceResponseColumnName(serviceGroup, applicationName, applicationServiceType.getCode(), slotNumber);
+        final ColumnName selfColumnName = new ServiceResponseColumnName(applicationName, applicationServiceType.getCode(), slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
 
         HistogramSchema histogramSchema = applicationServiceType.getHistogramSchema();
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new ServiceResponseColumnName(serviceGroup, applicationName, applicationServiceType.getCode(), histogramSchema.getSumStatSlot().getSlotTime());
+            final ColumnName sumColumnName = new ServiceResponseColumnName(applicationName, applicationServiceType.getCode(), histogramSchema.getSumStatSlot().getSlotTime());
             this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
         }
 
-        final ColumnName maxColumnName = new ServiceResponseColumnName(serviceGroup, applicationName, applicationServiceType.getCode(), histogramSchema.getMaxStatSlot().getSlotTime());
+        final ColumnName maxColumnName = new ServiceResponseColumnName(applicationName, applicationServiceType.getCode(), histogramSchema.getMaxStatSlot().getSlotTime());
         if (mapLinkConfiguration.isEnableMax()) {
             this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
         }
     }
 
     @Override
-    public void updatePing(String serviceGroup, String applicationName, ServiceType applicationServiceType, int elapsed, boolean isError) {
-        Objects.requireNonNull(serviceGroup, "serviceGroup");
+    public void updatePing(String serviceGroupName, String applicationName, ServiceType applicationServiceType, int elapsed, boolean isError) {
+        Objects.requireNonNull(serviceGroupName, "serviceGroupName");
         Objects.requireNonNull(applicationName, "applicationName");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Received] {} {} ({})", serviceGroup, applicationName, applicationServiceType);
+            logger.debug("[Received] {} {} ({})", serviceGroupName, applicationName, applicationServiceType);
         }
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroup, rowTimeSlot);
+        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroupName, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType, elapsed, isError);
-        final ColumnName selfColumnName = new ServiceResponseColumnName(serviceGroup, applicationName, applicationServiceType.getCode(), slotNumber);
+        final ColumnName selfColumnName = new ServiceResponseColumnName(applicationName, applicationServiceType.getCode(), slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
     }
 

@@ -15,7 +15,10 @@
  */
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
 
@@ -24,7 +27,6 @@ import java.util.Objects;
  */
 public class ServiceResponseColumnName implements ColumnName {
 
-    private final String serviceGroup;
     private final String applicationName;
     private final short serviceTypeCode;
     private final short columnSlotNumber;
@@ -34,8 +36,7 @@ public class ServiceResponseColumnName implements ColumnName {
 
     private long callCount;
 
-    public ServiceResponseColumnName(String serviceGroup, String applicationName, short serviceTypeCode, short columnSlotNumber) {
-        this.serviceGroup = Objects.requireNonNull(serviceGroup, "serviceGroup");
+    public ServiceResponseColumnName(String applicationName, short serviceTypeCode, short columnSlotNumber) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceTypeCode = serviceTypeCode;
         this.columnSlotNumber = columnSlotNumber;
@@ -50,7 +51,17 @@ public class ServiceResponseColumnName implements ColumnName {
     }
 
     public byte[] getColumnName() {
-        return ApplicationMapStatisticsUtils.makeColumnName(serviceGroup, applicationName, serviceTypeCode, columnSlotNumber);
+
+        final Buffer buffer = new AutomaticBuffer(
+                applicationName.length() + BytesUtils.SHORT_BYTE_LENGTH * 2
+        );
+        buffer.putShort(columnSlotNumber);
+
+        buffer.putShort(serviceTypeCode);
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
+        buffer.putBytes(applicationNameBytes);
+
+        return buffer.getBuffer();
     }
 
     @Override

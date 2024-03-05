@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.MapStatisticsOutboundDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.OutboudColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ServiceGroupColumnName;
