@@ -20,6 +20,7 @@ import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
+import org.springframework.web.reactive.function.client.ExchangeFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
@@ -164,5 +168,20 @@ public class SpringBoot3WebfluxPluginController {
     @ResponseBody
     public String clientPostParam(@RequestBody String body) {
         return "OK";
+    }
+
+    @PostMapping("/client/post/testExchange")
+    @ResponseBody
+    public Mono<String> useWebFlux(@RequestBody String body) {
+        final ExchangeFunction exchangeFunction = ExchangeFunctions.create(new ReactorClientHttpConnector());
+        exchangeFunction.exchange(null);
+        WebClient client = WebClient.builder().exchangeFunction(exchangeFunction).baseUrl("http://example.com").build();
+
+        return client.post()
+                .uri("/endpoint")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(body))
+                .retrieve()
+                .bodyToMono(String.class);
     }
 }
