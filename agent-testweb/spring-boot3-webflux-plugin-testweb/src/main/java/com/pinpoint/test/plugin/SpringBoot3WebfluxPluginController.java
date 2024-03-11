@@ -35,6 +35,10 @@ import org.springframework.web.reactive.result.method.annotation.RequestMappingH
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -98,8 +102,17 @@ public class SpringBoot3WebfluxPluginController {
     @GetMapping("/client/get")
     public Mono<String> clientGet(ServerWebExchange exchange) {
         exchange.getAttributes().put("pinpoint.metric.uri-template", "/test");
-        WebClient client = WebClient.create("http://www.google.com");
-        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://www.google.com"))
+                .build();
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(System.out::println)
+                .join();
+
+        WebClient client1 = WebClient.create("http://www.google.com");
+        WebClient.ResponseSpec response = client1.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);
     }
@@ -114,12 +127,23 @@ public class SpringBoot3WebfluxPluginController {
 
     @GetMapping("/client/unknown")
     public Mono<String> clientUnknown() {
-        WebClient client = WebClient.builder()
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://falfjlajdflajflajlf"))
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(System.out::println)
+                .join();
+
+
+        WebClient client2 = WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector())
                 .baseUrl("http://falfjlajdflajflajlf")
                 .build();
 
-        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+        WebClient.ResponseSpec response = client2.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);
     }
