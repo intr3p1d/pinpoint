@@ -19,6 +19,10 @@ major_compact 'ApplicationMapStatisticsCaller_Ver2'
 major_compact 'ApplicationMapStatisticsCallee_Ver2'
 major_compact 'ApplicationMapStatisticsSelf_Ver2'
 
+major_compact 'ServiceGroupMapStatisticsOutbound'
+major_compact 'ServiceGroupMapStatisticsInbound'
+major_compact 'ServiceGroupMapStatisticsSelf'
+
 major_compact 'HostApplicationMap_Ver2'
 
 exit

@@ -144,4 +144,6 @@ public class BulkFactory {
     private String newBulkWriterName(String className) {
         return className + "-writer";
     }
+
+
 }

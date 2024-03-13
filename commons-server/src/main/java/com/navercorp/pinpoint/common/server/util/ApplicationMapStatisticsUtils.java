@@ -76,7 +76,6 @@ public class ApplicationMapStatisticsUtils {
         return buffer.getBuffer();
     }
 
-
     private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
         Objects.requireNonNull(serviceType, "serviceType");
 
@@ -136,13 +135,27 @@ public class ApplicationMapStatisticsUtils {
     public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
 
-        final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
 
         final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 2 + 8);
 //        buffer.put2PrefixedString(applicationName);
-        buffer.putShort((short)applicationNameBytes.length);
+        buffer.putShort((short) applicationNameBytes.length);
         buffer.putBytes(applicationNameBytes);
         buffer.putShort(applicationType);
+        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
+        buffer.putLong(reverseTimeMillis);
+        return buffer.getBuffer();
+    }
+
+    public static byte[] makeRowKey(String serviceGroup, long timestamp) {
+        Objects.requireNonNull(serviceGroup, "serviceGroup");
+
+        final byte[] serviceGroupBytes = BytesUtils.toBytes(serviceGroup);
+
+        final Buffer buffer = new AutomaticBuffer(2 + serviceGroupBytes.length + 2 + 8);
+//        buffer.put2PrefixedString(applicationName);
+        buffer.putShort((short) serviceGroupBytes.length);
+        buffer.putBytes(serviceGroupBytes);
         long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
         buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
