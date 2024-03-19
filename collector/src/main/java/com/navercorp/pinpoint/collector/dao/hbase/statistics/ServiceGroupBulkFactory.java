@@ -37,8 +37,8 @@ public class ServiceGroupBulkFactory {
     private final BulkOperationReporterFactory bulkOperationReporterFactory;
 
     public ServiceGroupBulkFactory(BulkConfiguration bulkConfiguration,
-                       BulkIncrementerFactory bulkIncrementerFactory,
-                       BulkOperationReporterFactory bulkOperationReporterFactory) {
+                                   BulkIncrementerFactory bulkIncrementerFactory,
+                                   BulkOperationReporterFactory bulkOperationReporterFactory) {
         this.bulkConfiguration = Objects.requireNonNull(bulkConfiguration, "bulkConfiguration");
         this.bulkIncrementerFactory = Objects.requireNonNull(bulkIncrementerFactory, "bulkIncrementerFactory");
         this.bulkOperationReporterFactory = Objects.requireNonNull(bulkOperationReporterFactory, "bulkOperationReporterFactory");
@@ -81,7 +81,7 @@ public class ServiceGroupBulkFactory {
     @Bean
     public BulkIncrementer inboundBulkIncrementer() {
         String reporterName = "inboundBulkIncrementerReporter";
-        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER;
+        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_INBOUND_SERVICE_GROUP_COUNTER;
         int limitSize = bulkConfiguration.getCallerLimitSize();
 
         return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
@@ -93,19 +93,67 @@ public class ServiceGroupBulkFactory {
         return getBulkUpdater(reporterName);
     }
 
-
     @Bean
     public BulkWriter inboundBulkWriter(HbaseOperations hbaseTemplate,
-                                       TableNameProvider tableNameProvider,
-                                       @Qualifier("dsf") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                       @Qualifier("inboundBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                       @Qualifier("inboundBulkUpdater") BulkUpdater bulkUpdater) {
+                                        TableNameProvider tableNameProvider,
+                                        @Qualifier("serviceGroupInboundRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                        @Qualifier("inboundBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                        @Qualifier("inboundBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
-        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_INBOUND_SERVICE_GROUP_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
 
+    @Bean
+    public BulkIncrementer outboundBulkIncrementer() {
+        String reporterName = "outboundBulkIncrementerReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_OUTBOUND_SERVICE_GROUP_COUNTER;
+        int limitSize = bulkConfiguration.getCallerLimitSize();
+
+        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+    @Bean
+    public BulkUpdater outboundBulkUpdater() {
+        String reporterName = "outboundBulkUpdaterReporter";
+        return getBulkUpdater(reporterName);
+    }
 
 
+    @Bean
+    public BulkWriter outboundBulkWriter(HbaseOperations hbaseTemplate,
+                                         TableNameProvider tableNameProvider,
+                                         @Qualifier("serviceGroupOutboundRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                         @Qualifier("outboundBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                         @Qualifier("outboundBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_OUTBOUND_SERVICE_GROUP_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+    }
+
+
+    @Bean
+    public BulkIncrementer serviceGroupSelfBulkIncrementer() {
+        String reporterName = "serviceGroupSelfBulkIncrementerReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_SELF_SERVICE_GROUP_COUNTER;
+        int limitSize = bulkConfiguration.getCallerLimitSize();
+
+        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+    @Bean
+    public BulkUpdater serviceGroupSelfBulkUpdater() {
+        String reporterName = "ServiceGroupSelfBulkUpdaterReporter";
+        return getBulkUpdater(reporterName);
+    }
+
+    @Bean
+    public BulkWriter serviceGroupSelfBulkWriter(HbaseOperations hbaseTemplate,
+                                         TableNameProvider tableNameProvider,
+                                         @Qualifier("serviceGroupSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                         @Qualifier("serviceGroupSelfBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                         @Qualifier("serviceGroupSelfBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_SELF_SERVICE_GROUP_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+    }
 
 }

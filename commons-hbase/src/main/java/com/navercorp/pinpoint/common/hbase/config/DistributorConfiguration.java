@@ -80,6 +80,24 @@ public class DistributorConfiguration {
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
+    @Bean
+    public RowKeyDistributorByHashPrefix serviceGroupInboundRowKeyDistributor() {
+        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
+    @Bean
+    public RowKeyDistributorByHashPrefix serviceGroupOutboundRowKeyDistributor() {
+        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
+    @Bean
+    public RowKeyDistributorByHashPrefix serviceGroupSelfRowKeyDistributor() {
+        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
     private RowKeyDistributorByHashPrefix.Hasher newRangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         return new RangeOneByteSimpleHash(start, end, maxBuckets);
     }
