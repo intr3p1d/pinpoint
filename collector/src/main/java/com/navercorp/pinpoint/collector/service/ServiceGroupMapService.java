@@ -19,12 +19,17 @@ import com.navercorp.pinpoint.collector.dao.MapStatisticsInboundDao;
 import com.navercorp.pinpoint.collector.dao.MapStatisticsOutboundDao;
 import com.navercorp.pinpoint.collector.dao.MapStatisticsSelfDao;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
+@Service
+@Validated
 public class ServiceGroupMapService {
 
     private final MapStatisticsInboundDao mapStatisticsInboundDao;
@@ -43,9 +48,9 @@ public class ServiceGroupMapService {
 
 
     public void updateInbound(
-            String thatServiceGroup, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
-            String thisHost, int elapsed, boolean isError
+            @NotBlank String thatServiceGroup, @NotBlank String thatApplicationName, ServiceType thatServiceType,
+            @NotBlank String thisServiceGroup, @NotBlank String thisApplicationName, ServiceType thisServiceType,
+            @NotBlank String thisHost, int elapsed, boolean isError
     ) {
         mapStatisticsInboundDao.update(
                 thatServiceGroup, thatApplicationName, thatServiceType,
@@ -55,9 +60,9 @@ public class ServiceGroupMapService {
     }
 
     public void updateOutbound(
-            String thatServiceGroup, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
-            String thisHost, int elapsed, boolean isError
+            @NotBlank String thatServiceGroup, @NotBlank String thatApplicationName, ServiceType thatServiceType,
+            @NotBlank String thisServiceGroup, @NotBlank String thisApplicationName, ServiceType thisServiceType,
+            @NotBlank String thisHost, int elapsed, boolean isError
     ) {
         mapStatisticsOutboundDao.update(
                 thatServiceGroup, thatApplicationName, thatServiceType,
@@ -67,7 +72,7 @@ public class ServiceGroupMapService {
     }
 
     public void updateSelfResponseTime(
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
+            @NotBlank String thisServiceGroup, @NotBlank String thisApplicationName, ServiceType thisServiceType,
             int elapsed, boolean isError
     ) {
         mapStatisticsSelfDao.received(
@@ -76,11 +81,10 @@ public class ServiceGroupMapService {
     }
 
     public void updateAgentState(
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
-            int elapsed, boolean isError
+            @NotBlank String thisServiceGroup, @NotBlank String thisApplicationName, ServiceType thisServiceType
     ) {
         mapStatisticsSelfDao.updatePing(
-                thisServiceGroup, thisApplicationName, thisServiceType, elapsed, isError
+                thisServiceGroup, thisApplicationName, thisServiceType, 0, false
         );
     }
 }

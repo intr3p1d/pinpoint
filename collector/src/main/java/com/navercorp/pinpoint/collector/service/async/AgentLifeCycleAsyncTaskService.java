@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.service.async;
 
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
+import com.navercorp.pinpoint.collector.service.ServiceGroupMapService;
 import com.navercorp.pinpoint.collector.service.StatisticsService;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -42,15 +43,18 @@ public class AgentLifeCycleAsyncTaskService {
 
     private final AgentLifeCycleService agentLifeCycleService;
     private final StatisticsService statisticsService;
+    private final ServiceGroupMapService serviceGroupMapService;
     private final ServiceTypeRegistryService registry;
     private final CollectorProperties collectorProperties;
 
     public AgentLifeCycleAsyncTaskService(AgentLifeCycleService agentLifeCycleService,
                                           StatisticsService statisticsService,
+                                          ServiceGroupMapService serviceGroupMapService,
                                           ServiceTypeRegistryService registry,
                                           CollectorProperties collectorProperties) {
         this.agentLifeCycleService = agentLifeCycleService;
         this.statisticsService = statisticsService;
+        this.serviceGroupMapService = serviceGroupMapService;
         this.registry = registry;
         this.collectorProperties = collectorProperties;
     }
@@ -78,6 +82,7 @@ public class AgentLifeCycleAsyncTaskService {
         final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
         if (isUpdateAgentState(serviceType)) {
             statisticsService.updateAgentState(applicationName, serviceType, agentId);
+            serviceGroupMapService.updateAgentState("thisServiceGroup", applicationName, serviceType);
         }
     }
 
