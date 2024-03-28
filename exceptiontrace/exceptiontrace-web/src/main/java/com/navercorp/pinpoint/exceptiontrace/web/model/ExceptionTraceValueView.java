@@ -44,9 +44,14 @@ public class ExceptionTraceValueView implements TimeSeriesValueView {
         if (groupedFieldName == null) {
             return TOTAL_FIELDNAME;
         }
-        return StringUtils.defaultIfEmpty(
-                StringUtils.defaultString(groupedFieldName.inAString(), TOTAL_FIELDNAME), EMPTY_STRING
-        );
+        String stringFieldName = groupedFieldName.inAString();
+        if (stringFieldName == null) {
+            return TOTAL_FIELDNAME;
+        } else if (stringFieldName.isEmpty() || stringFieldName.equals("null")) {
+            return EMPTY_STRING;
+        } else {
+            return stringFieldName;
+        }
     }
 
     @JsonIgnore
