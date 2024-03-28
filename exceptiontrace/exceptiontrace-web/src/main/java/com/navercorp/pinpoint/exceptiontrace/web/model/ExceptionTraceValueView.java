@@ -27,8 +27,8 @@ import java.util.List;
  */
 public class ExceptionTraceValueView implements TimeSeriesValueView {
 
-    private static final String TOTAL_FIELDNAME = "total";
-    private static final String EMPTY_STRING = "(empty error message)";
+    public static final String TOTAL_FIELDNAME = "total";
+    public static final String EMPTY_STRING = "(empty error message)";
     private GroupedFieldName groupedFieldName;
     private List<Integer> values;
 

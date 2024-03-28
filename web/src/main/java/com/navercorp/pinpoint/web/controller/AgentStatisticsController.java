@@ -48,6 +48,16 @@ public class AgentStatisticsController {
         this.agentStatisticsService = Objects.requireNonNull(agentStatisticsService, "agentStatisticsService");
     }
 
+    @GetMapping("/agent/errors")
+    public void getAgentErrors() {
+        throw new RuntimeException("");
+    }
+
+    @GetMapping("/agent/errors/null")
+    public void getAgentErrors2() {
+        throw new RuntimeException("null");
+    }
+
     @GetMapping(value = "/insertAgentCount", params = {"agentCount"})
     public Response insertAgentCount(@RequestParam("agentCount") @PositiveOrZero int agentCount) {
         return insertAgentCount(agentCount, new Date().getTime());
