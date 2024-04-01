@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.typehandler.CustomStringHandler;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -39,6 +40,6 @@ public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
 
     @Override
     public void registerTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
-
+        typeHandlerRegistry.register(CustomStringHandler.class);
     }
 }

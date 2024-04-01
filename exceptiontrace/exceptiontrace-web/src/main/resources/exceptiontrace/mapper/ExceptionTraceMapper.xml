@@ -24,7 +24,7 @@
         <choose>
             <when test="!groupByAttributes.isEmpty()">
                 <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
-                    ${attr.getRepresentativeColumn}
+                    regexpReplace(${attr.getRepresentativeColumn}, '^null$', '(null string)') as "${attr.getRepresentativeColumn}"
                 </foreach>
                 ,
             </when>
