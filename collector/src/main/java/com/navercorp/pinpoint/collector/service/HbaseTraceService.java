@@ -187,7 +187,7 @@ public class HbaseTraceService implements TraceService {
                 // create virtual user
                 statisticsService.updateCaller(span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
                 serviceGroupMapService.updateOutbound(
-                        "thatDefault", span.getAcceptorHost(), ServiceType.USER,
+                        "thatDefault", span.getApplicationId(), ServiceType.USER,
                         "thisDefault", span.getApplicationId(), applicationServiceType,
                         span.getAgentId(), span.getElapsed(), isError
                 );
@@ -196,7 +196,7 @@ public class HbaseTraceService implements TraceService {
                 // update the span information of the current node (self)
                 statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
                 serviceGroupMapService.updateInbound(
-                        "thatDefault", span.getAcceptorHost(), ServiceType.USER,
+                        "thatDefault", span.getApplicationId(), ServiceType.USER,
                         "thisDefault", span.getApplicationId(), applicationServiceType,
                         span.getAgentId(), span.getElapsed(), isError
                 );

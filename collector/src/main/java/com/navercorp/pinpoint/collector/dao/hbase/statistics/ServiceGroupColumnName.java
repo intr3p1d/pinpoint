@@ -42,9 +42,11 @@ public class ServiceGroupColumnName implements ColumnName {
             String thatServiceGroupName, short thatServiceType, String thatApplicationName,
             short thisServiceType, String thisApplicationName,
             short columnSlotNumber) {
-        this.thatServiceGroupName = Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
+//        this.thatServiceGroupName = Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
+        this.thatServiceGroupName = thatServiceGroupName;
         this.thatServiceType = thatServiceType;
-        this.thatApplicationName = Objects.requireNonNull(thatApplicationName, "thatApplicationName");
+//        this.thatApplicationName = Objects.requireNonNull(thatApplicationName, "thatApplicationName");
+        this.thatApplicationName = thatApplicationName;
         this.thisServiceType = thisServiceType;
         this.thisApplicationName = Objects.requireNonNull(thisApplicationName, "thisApplicationName");
         this.columnSlotNumber = columnSlotNumber;

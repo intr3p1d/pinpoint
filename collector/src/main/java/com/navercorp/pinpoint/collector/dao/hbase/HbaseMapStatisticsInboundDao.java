@@ -71,9 +71,9 @@ public class HbaseMapStatisticsInboundDao implements MapStatisticsInboundDao {
             String thisServiceGroupName, String thisApplicationName, ServiceType thisServiceType,
             String thisHost, int elapsed, boolean isError
     ) {
-        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
+//        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
         Objects.requireNonNull(thisServiceGroupName, "thisServiceGroupName");
-        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
+//        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
         Objects.requireNonNull(thisServiceGroupName, "thisApplicationName");
 
         if (logger.isDebugEnabled()) {
