@@ -50,7 +50,7 @@ public class HbaseMapStatisticsSelfDao implements MapStatisticsSelfDao {
 
     public HbaseMapStatisticsSelfDao(MapLinkConfiguration mapLinkConfiguration,
                                      AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                     @Qualifier("selfStatisticsBulkWriter") BulkWriter bulkWriter) {
+                                     @Qualifier("serviceGroupSelfBulkWriter") BulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
