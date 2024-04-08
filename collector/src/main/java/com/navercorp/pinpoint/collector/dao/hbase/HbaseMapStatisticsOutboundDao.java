@@ -90,21 +90,21 @@ public class HbaseMapStatisticsOutboundDao implements MapStatisticsOutboundDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
 
         // this is caller in outbound
-        final RowKey callerRowKey = new ServiceGroupRowKey(thisServiceGroupName, rowTimeSlot);
+        final RowKey callerRowKey = new ServiceGroupRowKey(thisServiceGroupName, thisServiceType.getCode(), thisApplicationName, rowTimeSlot);
 
         // that is callee in outbound
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
         HistogramSchema histogramSchema = thatServiceType.getHistogramSchema();
 
-        final ColumnName calleeColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, calleeSlotNumber);
+        final ColumnName calleeColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, calleeSlotNumber);
         this.bulkWriter.increment(callerRowKey, calleeColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
+            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
             this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
+            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
             this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
         }
     }

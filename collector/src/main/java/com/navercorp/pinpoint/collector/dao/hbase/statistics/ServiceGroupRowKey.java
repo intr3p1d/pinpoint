@@ -24,15 +24,24 @@ import java.util.Objects;
  */
 public class ServiceGroupRowKey implements RowKey {
     private final String callServiceGroup;
+    private final short thisServiceType;
+    private final String thisApplicationName;
     private final long rowTimeSlot;
 
     // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
-    public ServiceGroupRowKey(String callServiceGroup, long rowTimeSlot) {
-        this.callServiceGroup = Objects.requireNonNull(callServiceGroup, "callServiceGroup");
+    public ServiceGroupRowKey(
+            String thisServiceGroup,
+            short thisServiceType, String thisApplicationName,
+            long rowTimeSlot
+    ) {
+        this.callServiceGroup = Objects.requireNonNull(thisServiceGroup, "thisServiceGroup");
+        this.thisServiceType = thisServiceType;
+        this.thisApplicationName = Objects.requireNonNull(thisApplicationName, "thisApplicationName");
         this.rowTimeSlot = rowTimeSlot;
     }
+
     public byte[] getRowKey() {
         return ApplicationMapStatisticsUtils.makeRowKey(callServiceGroup, rowTimeSlot);
     }
@@ -44,14 +53,18 @@ public class ServiceGroupRowKey implements RowKey {
 
         ServiceGroupRowKey that = (ServiceGroupRowKey) o;
 
+        if (thisServiceType != that.thisServiceType) return false;
         if (rowTimeSlot != that.rowTimeSlot) return false;
         if (hash != that.hash) return false;
-        return callServiceGroup.equals(that.callServiceGroup);
+        if (!callServiceGroup.equals(that.callServiceGroup)) return false;
+        return thisApplicationName.equals(that.thisApplicationName);
     }
 
     @Override
     public int hashCode() {
         int result = callServiceGroup.hashCode();
+        result = 31 * result + (int) thisServiceType;
+        result = 31 * result + thisApplicationName.hashCode();
         result = 31 * result + (int) (rowTimeSlot ^ (rowTimeSlot >>> 32));
         result = 31 * result + hash;
         return result;
@@ -59,10 +72,12 @@ public class ServiceGroupRowKey implements RowKey {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CallRowKey{");
-        sb.append("callServiceGroup='").append(callServiceGroup).append('\'');
-        sb.append(", rowTimeSlot=").append(rowTimeSlot);
-        sb.append('}');
-        return sb.toString();
+        return "ServiceGroupRowKey{" +
+                "callServiceGroup='" + callServiceGroup + '\'' +
+                ", thisServiceType=" + thisServiceType +
+                ", thisApplicationName='" + thisApplicationName + '\'' +
+                ", rowTimeSlot=" + rowTimeSlot +
+                ", hash=" + hash +
+                '}';
     }
 }

@@ -71,7 +71,7 @@ public class HbaseMapStatisticsSelfDao implements MapStatisticsSelfDao {
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroupName, rowTimeSlot);
+        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroupName, applicationServiceType.getCode(), applicationName, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ServiceResponseColumnName(applicationName, applicationServiceType.getCode(), slotNumber);
@@ -101,7 +101,7 @@ public class HbaseMapStatisticsSelfDao implements MapStatisticsSelfDao {
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroupName, rowTimeSlot);
+        final RowKey selfRowKey = new ServiceGroupRowKey(serviceGroupName, applicationServiceType.getCode(), applicationName, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ServiceResponseColumnName(applicationName, applicationServiceType.getCode(), slotNumber);

@@ -29,8 +29,7 @@ public class ServiceGroupColumnName implements ColumnName {
     private final short thatServiceType;
     private final String thatApplicationName;
 
-    private final short thisServiceType;
-    private final String thisApplicationName;
+
 
     private final short columnSlotNumber;
 
@@ -39,16 +38,13 @@ public class ServiceGroupColumnName implements ColumnName {
     private long callCount;
 
     public ServiceGroupColumnName(
-            String thatServiceGroupName, short thatServiceType, String thatApplicationName,
-            short thisServiceType, String thisApplicationName,
-            short columnSlotNumber) {
-//        this.thatServiceGroupName = Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
-        this.thatServiceGroupName = thatServiceGroupName;
+            String thatServiceGroupName,
+            short thatServiceType, String thatApplicationName,
+            short columnSlotNumber
+    ) {
+        this.thatServiceGroupName = Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
         this.thatServiceType = thatServiceType;
-//        this.thatApplicationName = Objects.requireNonNull(thatApplicationName, "thatApplicationName");
-        this.thatApplicationName = thatApplicationName;
-        this.thisServiceType = thisServiceType;
-        this.thisApplicationName = Objects.requireNonNull(thisApplicationName, "thisApplicationName");
+        this.thatApplicationName = Objects.requireNonNull(thatApplicationName, "thatApplicationName");
         this.columnSlotNumber = columnSlotNumber;
     }
 
@@ -59,8 +55,6 @@ public class ServiceGroupColumnName implements ColumnName {
         buffer.putShort(thatServiceType);
         buffer.putPrefixedString(thatApplicationName);
         buffer.putShort(columnSlotNumber);
-        buffer.putShort(thisServiceType);
-        buffer.putPrefixedString(thisApplicationName);
         return new byte[0];
     }
 
@@ -78,25 +72,25 @@ public class ServiceGroupColumnName implements ColumnName {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ServiceGroupColumnName that)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceGroupColumnName that = (ServiceGroupColumnName) o;
 
         if (thatServiceType != that.thatServiceType) return false;
-        if (thisServiceType != that.thisServiceType) return false;
         if (columnSlotNumber != that.columnSlotNumber) return false;
+        if (hash != that.hash) return false;
         if (callCount != that.callCount) return false;
         if (!thatServiceGroupName.equals(that.thatServiceGroupName)) return false;
-        if (!thatApplicationName.equals(that.thatApplicationName)) return false;
-        return thisApplicationName.equals(that.thisApplicationName);
+        return thatApplicationName.equals(that.thatApplicationName);
     }
 
     @Override
     public int hashCode() {
         int result = thatServiceGroupName.hashCode();
-        result = 31 * result + thatApplicationName.hashCode();
         result = 31 * result + (int) thatServiceType;
-        result = 31 * result + thisApplicationName.hashCode();
-        result = 31 * result + (int) thisServiceType;
+        result = 31 * result + thatApplicationName.hashCode();
         result = 31 * result + (int) columnSlotNumber;
+        result = 31 * result + hash;
         result = 31 * result + (int) (callCount ^ (callCount >>> 32));
         return result;
     }

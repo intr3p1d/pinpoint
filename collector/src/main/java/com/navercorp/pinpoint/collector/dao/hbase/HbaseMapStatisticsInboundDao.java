@@ -71,9 +71,9 @@ public class HbaseMapStatisticsInboundDao implements MapStatisticsInboundDao {
             String thisServiceGroupName, String thisApplicationName, ServiceType thisServiceType,
             String thisHost, int elapsed, boolean isError
     ) {
-//        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
+        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
         Objects.requireNonNull(thisServiceGroupName, "thisServiceGroupName");
-//        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
+        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
         Objects.requireNonNull(thisServiceGroupName, "thisApplicationName");
 
         if (logger.isDebugEnabled()) {
@@ -98,21 +98,21 @@ public class HbaseMapStatisticsInboundDao implements MapStatisticsInboundDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
 
         // this is callee in inbound
-        final RowKey calleeRowKey = new ServiceGroupRowKey(thisServiceGroupName, rowTimeSlot);
+        final RowKey calleeRowKey = new ServiceGroupRowKey(thisServiceGroupName, thisServiceType.getCode(), thisApplicationName, rowTimeSlot);
 
         // this is callee in inbound
         final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
         HistogramSchema histogramSchema = thatServiceType.getHistogramSchema();
 
-        final ColumnName callerColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, callerSlotNumber);
+        final ColumnName callerColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, callerSlotNumber);
         this.bulkWriter.increment(calleeRowKey, callerColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
+            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
             this.bulkWriter.increment(calleeRowKey, sumColumnName, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, thisServiceType.getCode(), thisApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
+            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
             this.bulkWriter.updateMax(calleeRowKey, maxColumnName, elapsed);
         }
 
