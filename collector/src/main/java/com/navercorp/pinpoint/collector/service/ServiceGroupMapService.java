@@ -46,28 +46,81 @@ public class ServiceGroupMapService {
         this.mapStatisticsSelfDao = Objects.requireNonNull(mapStatisticsSelfDao, "mapStatisticsSelfDao");
     }
 
-
-    public void updateInbound(
-            @NotBlank String thatServiceGroup, @NotBlank String thatApplicationName, ServiceType thatServiceType,
-            @NotBlank String thisServiceGroup, @NotBlank String thisApplicationName, ServiceType thisServiceType,
-            @NotBlank String thisHost, int elapsed, boolean isError
+    public void updateThisToThat(
+            @NotBlank String thisServiceGroup,
+            @NotBlank String thisApplicationName, ServiceType thisServiceType,
+            @NotBlank String thisHost,
+            @NotBlank String thatServiceGroup,
+            @NotBlank String thatApplicationName, ServiceType thatServiceType,
+            @NotBlank String thatHost,
+            int elapsed, boolean isError
     ) {
-        mapStatisticsInboundDao.update(
+        // this -> that
+        // inbound (that for callee <- this for caller)
+        // outbound (this for caller -> that for callee)
+
+        updateInbound(
+                thisServiceGroup, thisApplicationName, thisServiceType,
+                thatServiceGroup, thatApplicationName, thatServiceType,
+                thatHost, elapsed, isError
+        );
+
+        updateOutbound(
                 thatServiceGroup, thatApplicationName, thatServiceType,
                 thisServiceGroup, thisApplicationName, thisServiceType,
                 thisHost, elapsed, isError
         );
     }
 
-    public void updateOutbound(
-            @NotBlank String thatServiceGroup, @NotBlank String thatApplicationName, ServiceType thatServiceType,
-            @NotBlank String thisServiceGroup, @NotBlank String thisApplicationName, ServiceType thisServiceType,
-            @NotBlank String thisHost, int elapsed, boolean isError
+    public void updateThatToThis(
+            @NotBlank String thisServiceGroup,
+            @NotBlank String thisApplicationName, ServiceType thisServiceType,
+            @NotBlank String thisHost,
+            @NotBlank String thatServiceGroup,
+            @NotBlank String thatApplicationName, ServiceType thatServiceType,
+            @NotBlank String thatHost,
+            int elapsed, boolean isError
     ) {
-        mapStatisticsOutboundDao.update(
+        // that -> this
+        // inbound (this for callee <- that for caller)
+        // outbound (that for caller -> this for callee)
+
+        updateOutbound(
+                thisServiceGroup, thisApplicationName, thisServiceType,
+                thatServiceGroup, thatApplicationName, thatServiceType,
+                thatHost, elapsed, isError
+        );
+
+        updateInbound(
                 thatServiceGroup, thatApplicationName, thatServiceType,
                 thisServiceGroup, thisApplicationName, thisServiceType,
                 thisHost, elapsed, isError
+        );
+
+    }
+
+
+    public void updateInbound(
+            @NotBlank String callerServiceGroup, @NotBlank String callerApplicationName, ServiceType callerServiceType,
+            @NotBlank String calleeServiceGroup, @NotBlank String calleeApplicationName, ServiceType calleeServiceType,
+            @NotBlank String calleeHost, int elapsed, boolean isError
+    ) {
+        mapStatisticsInboundDao.update(
+                callerServiceGroup, callerApplicationName, callerServiceType,
+                calleeServiceGroup, calleeApplicationName, calleeServiceType,
+                calleeHost, elapsed, isError
+        );
+    }
+
+    public void updateOutbound(
+            @NotBlank String calleeServiceGroup, @NotBlank String calleeApplicationName, ServiceType calleeServiceType,
+            @NotBlank String callerServiceGroup, @NotBlank String callerApplicationName, ServiceType callerServiceType,
+            @NotBlank String callerHost, int elapsed, boolean isError
+    ) {
+        mapStatisticsOutboundDao.update(
+                calleeServiceGroup, calleeApplicationName, calleeServiceType,
+                callerServiceGroup, callerApplicationName, callerServiceType,
+                callerHost, elapsed, isError
         );
     }
 
@@ -76,7 +129,7 @@ public class ServiceGroupMapService {
             int elapsed, boolean isError
     ) {
         mapStatisticsSelfDao.received(
-            thisServiceGroup, thisApplicationName, thisServiceType, elapsed, isError
+                thisServiceGroup, thisApplicationName, thisServiceType, elapsed, isError
         );
     }
 

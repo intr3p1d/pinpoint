@@ -170,35 +170,25 @@ public class HbaseTraceService implements TraceService {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
                 statisticsService.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
-                serviceGroupMapService.updateOutbound(
-                        "Default", span.getAcceptorHost(), spanServiceType,
-                        "Default", span.getApplicationId(), applicationServiceType,
-                        span.getAgentId(), span.getElapsed(), isError
-                );
-
-
                 statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
-                serviceGroupMapService.updateInbound(
-                        "Default", span.getAcceptorHost(), spanServiceType,
-                        "Default", span.getApplicationId(), applicationServiceType,
-                        span.getAgentId(), span.getElapsed(), isError
+
+                serviceGroupMapService.updateThatToThis(
+                        "default", span.getApplicationId(), applicationServiceType, span.getAgentId(),
+                        "default", span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
+                        span.getElapsed(), isError
                 );
+
             } else {
                 // create virtual user
                 statisticsService.updateCaller(span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
-                serviceGroupMapService.updateOutbound(
-                        "Default", span.getApplicationId(), ServiceType.USER,
-                        "Default", span.getApplicationId(), applicationServiceType,
-                        span.getAgentId(), span.getElapsed(), isError
-                );
-
-
                 // update the span information of the current node (self)
                 statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
-                serviceGroupMapService.updateInbound(
-                        "Default", span.getApplicationId(), ServiceType.USER,
-                        "Default", span.getApplicationId(), applicationServiceType,
-                        span.getAgentId(), span.getElapsed(), isError
+
+
+                serviceGroupMapService.updateThatToThis(
+                        "default", span.getApplicationId(), applicationServiceType, span.getAgentId(),
+                        "default", span.getApplicationId(), ServiceType.USER, span.getAgentId(),
+                        span.getElapsed(), isError
                 );
             }
             bugCheck++;
@@ -221,9 +211,10 @@ public class HbaseTraceService implements TraceService {
                     hostApplicationMapDao.insert(span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(), parentApplicationName, parentApplicationType.getCode());
                     // emulate virtual queue node's send SpanEvent
                     statisticsService.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+
                     serviceGroupMapService.updateOutbound(
-                            "thatDefault", span.getAcceptorHost(), spanServiceType,
-                            "thisDefault", span.getApplicationId(), applicationServiceType,
+                            "default", span.getAcceptorHost(), spanServiceType,
+                            "default", span.getApplicationId(), applicationServiceType,
                             span.getAgentId(), span.getElapsed(), isError
                     );
 
@@ -234,8 +225,8 @@ public class HbaseTraceService implements TraceService {
 
             statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
             serviceGroupMapService.updateInbound(
-                    "thatDefault", parentApplicationName, parentApplicationType,
-                    "thisDefault", span.getApplicationId(), applicationServiceType,
+                    "default", parentApplicationName, parentApplicationType,
+                    "default", span.getApplicationId(), applicationServiceType,
                     span.getAgentId(), span.getElapsed(), isError
             );
             bugCheck++;
