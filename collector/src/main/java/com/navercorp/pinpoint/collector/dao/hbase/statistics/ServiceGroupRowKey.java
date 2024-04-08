@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.ServiceGroupMapUtils;
 
 import java.util.Objects;
 
@@ -23,27 +23,27 @@ import java.util.Objects;
  * @author intr3p1d
  */
 public class ServiceGroupRowKey implements RowKey {
-    private final String callServiceGroup;
-    private final short thisServiceType;
-    private final String thisApplicationName;
+    private final String serviceGroup;
+    private final short serviceType;
+    private final String applicationName;
     private final long rowTimeSlot;
 
     // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
     public ServiceGroupRowKey(
-            String thisServiceGroup,
-            short thisServiceType, String thisApplicationName,
+            String serviceGroup,
+            short serviceType, String applicationName,
             long rowTimeSlot
     ) {
-        this.callServiceGroup = Objects.requireNonNull(thisServiceGroup, "thisServiceGroup");
-        this.thisServiceType = thisServiceType;
-        this.thisApplicationName = Objects.requireNonNull(thisApplicationName, "thisApplicationName");
+        this.serviceGroup = Objects.requireNonNull(serviceGroup, "serviceGroup");
+        this.serviceType = serviceType;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.rowTimeSlot = rowTimeSlot;
     }
 
     public byte[] getRowKey() {
-        return ApplicationMapStatisticsUtils.makeRowKey(callServiceGroup, rowTimeSlot);
+        return ServiceGroupMapUtils.makeRowKey(serviceGroup, applicationName, serviceType, rowTimeSlot);
     }
 
     @Override
@@ -53,18 +53,18 @@ public class ServiceGroupRowKey implements RowKey {
 
         ServiceGroupRowKey that = (ServiceGroupRowKey) o;
 
-        if (thisServiceType != that.thisServiceType) return false;
+        if (serviceType != that.serviceType) return false;
         if (rowTimeSlot != that.rowTimeSlot) return false;
         if (hash != that.hash) return false;
-        if (!callServiceGroup.equals(that.callServiceGroup)) return false;
-        return thisApplicationName.equals(that.thisApplicationName);
+        if (!serviceGroup.equals(that.serviceGroup)) return false;
+        return applicationName.equals(that.applicationName);
     }
 
     @Override
     public int hashCode() {
-        int result = callServiceGroup.hashCode();
-        result = 31 * result + (int) thisServiceType;
-        result = 31 * result + thisApplicationName.hashCode();
+        int result = serviceGroup.hashCode();
+        result = 31 * result + (int) serviceType;
+        result = 31 * result + applicationName.hashCode();
         result = 31 * result + (int) (rowTimeSlot ^ (rowTimeSlot >>> 32));
         result = 31 * result + hash;
         return result;
@@ -73,9 +73,9 @@ public class ServiceGroupRowKey implements RowKey {
     @Override
     public String toString() {
         return "ServiceGroupRowKey{" +
-                "callServiceGroup='" + callServiceGroup + '\'' +
-                ", thisServiceType=" + thisServiceType +
-                ", thisApplicationName='" + thisApplicationName + '\'' +
+                "callServiceGroup='" + serviceGroup + '\'' +
+                ", thisServiceType=" + serviceType +
+                ", thisApplicationName='" + applicationName + '\'' +
                 ", rowTimeSlot=" + rowTimeSlot +
                 ", hash=" + hash +
                 '}';

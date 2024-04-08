@@ -147,19 +147,7 @@ public class ApplicationMapStatisticsUtils {
         return buffer.getBuffer();
     }
 
-    public static byte[] makeRowKey(String serviceGroup, long timestamp) {
-        Objects.requireNonNull(serviceGroup, "serviceGroup");
 
-        final byte[] serviceGroupBytes = BytesUtils.toBytes(serviceGroup);
-
-        final Buffer buffer = new AutomaticBuffer(2 + serviceGroupBytes.length + 2 + 8);
-//        buffer.put2PrefixedString(applicationName);
-        buffer.putShort((short) serviceGroupBytes.length);
-        buffer.putBytes(serviceGroupBytes);
-        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
-        buffer.putLong(reverseTimeMillis);
-        return buffer.getBuffer();
-    }
 
     public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
         Objects.requireNonNull(bytes, "bytes");
