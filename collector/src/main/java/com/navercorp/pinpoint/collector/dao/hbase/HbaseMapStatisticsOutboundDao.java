@@ -66,45 +66,45 @@ public class HbaseMapStatisticsOutboundDao implements MapStatisticsOutboundDao {
 
     @Override
     public void update(
-            String thatServiceGroupName, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroupName, String thisApplicationName, ServiceType thisServiceType,
-            String thisHost, int elapsed, boolean isError
+            String calleeServiceGroupName, String calleeApplicationName, ServiceType calleeServiceType,
+            String callerServiceGroupName, String callerApplicationName, ServiceType callerServiceType,
+            String callerHost, int elapsed, boolean isError
     ) {
-//        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
-        Objects.requireNonNull(thisServiceGroupName, "thisServiceGroupName");
-//        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
-        Objects.requireNonNull(thisServiceGroupName, "thisApplicationName");
+//        Objects.requireNonNull(calleeServiceGroupName, "calleeServiceGroupName");
+        Objects.requireNonNull(callerServiceGroupName, "callerServiceGroupName");
+//        Objects.requireNonNull(calleeApplicationName, "calleeApplicationName");
+        Objects.requireNonNull(callerServiceGroupName, "callerApplicationName");
 
         if (logger.isDebugEnabled()) {
             logger.debug("[Outbound] {} {}({})[{}] -> {} {}({})",
-                    thisServiceGroupName, thisApplicationName, thisServiceType, thisHost,
-                    thatServiceGroupName, thatApplicationName, thatServiceType
+                    callerServiceGroupName, callerApplicationName, callerServiceType, callerHost,
+                    calleeServiceGroupName, calleeApplicationName, calleeServiceType
             );
         }
 
         // there may be no endpoint in case of httpclient
-        thisHost = StringUtils.defaultString(thisHost);
+        callerHost = StringUtils.defaultString(callerHost);
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
 
         // this is caller in outbound
-        final RowKey callerRowKey = new ServiceGroupRowKey(thisServiceGroupName, thisServiceType.getCode(), thisApplicationName, rowTimeSlot);
+        final RowKey callerRowKey = new ServiceGroupRowKey(callerServiceGroupName, callerServiceType.getCode(), callerApplicationName, rowTimeSlot);
 
         // that is callee in outbound
-        final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
-        HistogramSchema histogramSchema = thatServiceType.getHistogramSchema();
+        final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
+        HistogramSchema histogramSchema = calleeServiceType.getHistogramSchema();
 
-        final ColumnName calleeColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, calleeSlotNumber);
+        final ColumnName calleeColumnName = new ServiceGroupColumnName(calleeServiceGroupName, calleeServiceType.getCode(), calleeApplicationName, calleeSlotNumber);
         this.bulkWriter.increment(callerRowKey, calleeColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
+            final ColumnName sumColumnName = new ServiceGroupColumnName(calleeServiceGroupName, calleeServiceType.getCode(), calleeApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
             this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
+            final ColumnName maxColumnName = new ServiceGroupColumnName(calleeServiceGroupName, calleeServiceType.getCode(), calleeApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
             this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
         }
     }

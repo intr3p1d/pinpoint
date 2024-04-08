@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public interface MapStatisticsInboundDao extends CachedStatisticsDao {
     void update(
-            String thatServiceGroup, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroup, String thisApplicationName, ServiceType thisServiceType,
-            String thisHost, int elapsed, boolean isError
+            String callerServiceGroupName, String callerApplicationName, ServiceType callerServiceType,
+            String calleeServiceGroupName, String calleeApplicationName, ServiceType calleeServiceType,
+            String calleeHost, int elapsed, boolean isError
     );
 }

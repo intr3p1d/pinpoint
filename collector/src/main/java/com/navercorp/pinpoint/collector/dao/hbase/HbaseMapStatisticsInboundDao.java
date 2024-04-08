@@ -67,28 +67,28 @@ public class HbaseMapStatisticsInboundDao implements MapStatisticsInboundDao {
 
     @Override
     public void update(
-            String thatServiceGroupName, String thatApplicationName, ServiceType thatServiceType,
-            String thisServiceGroupName, String thisApplicationName, ServiceType thisServiceType,
-            String thisHost, int elapsed, boolean isError
+            String callerServiceGroupName, String callerApplicationName, ServiceType callerServiceType,
+            String calleeServiceGroupName, String calleeApplicationName, ServiceType calleeServiceType,
+            String calleeHost, int elapsed, boolean isError
     ) {
-        Objects.requireNonNull(thatServiceGroupName, "thatServiceGroupName");
-        Objects.requireNonNull(thisServiceGroupName, "thisServiceGroupName");
-        Objects.requireNonNull(thatApplicationName, "thatApplicationName");
-        Objects.requireNonNull(thisServiceGroupName, "thisApplicationName");
+        Objects.requireNonNull(callerServiceGroupName, "callerServiceGroupName");
+        Objects.requireNonNull(calleeServiceGroupName, "calleeServiceGroupName");
+        Objects.requireNonNull(callerApplicationName, "callerApplicationName");
+        Objects.requireNonNull(calleeServiceGroupName, "calleeApplicationName");
 
         if (logger.isDebugEnabled()) {
             logger.debug("[Inbound] {} {}({})[{}] <- {} {}({})",
-                    thisServiceGroupName, thisApplicationName, thisServiceType, thisHost,
-                    thatServiceGroupName, thatApplicationName, thatServiceType
+                    calleeServiceGroupName, calleeApplicationName, calleeServiceType, calleeHost,
+                    callerServiceGroupName, callerApplicationName, callerServiceType
             );
         }
 
 
         // TODO callee, caller parameter normalization
-        if (ignoreStatFilter.filter(thatServiceType, thisHost)) {
+        if (ignoreStatFilter.filter(callerServiceType, calleeHost)) {
             logger.debug("[Ignore-Inbound] {} {}({})[{}] <- {} {}({})",
-                    thisServiceGroupName, thisApplicationName, thisServiceType, thisHost,
-                    thatServiceGroupName, thatApplicationName, thatServiceType
+                    calleeServiceGroupName, calleeApplicationName, calleeServiceType, calleeHost,
+                    callerServiceGroupName, callerApplicationName, callerServiceType
             );
             return;
         }
@@ -98,21 +98,21 @@ public class HbaseMapStatisticsInboundDao implements MapStatisticsInboundDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
 
         // this is callee in inbound
-        final RowKey calleeRowKey = new ServiceGroupRowKey(thisServiceGroupName, thisServiceType.getCode(), thisApplicationName, rowTimeSlot);
+        final RowKey calleeRowKey = new ServiceGroupRowKey(calleeServiceGroupName, calleeServiceType.getCode(), calleeApplicationName, rowTimeSlot);
 
-        // this is callee in inbound
-        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(thatServiceType, elapsed, isError);
-        HistogramSchema histogramSchema = thatServiceType.getHistogramSchema();
+        // that is caller in outbound
+        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
+        HistogramSchema histogramSchema = callerServiceType.getHistogramSchema();
 
-        final ColumnName callerColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, callerSlotNumber);
+        final ColumnName callerColumnName = new ServiceGroupColumnName(callerServiceGroupName, callerServiceType.getCode(), callerApplicationName, callerSlotNumber);
         this.bulkWriter.increment(calleeRowKey, callerColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
+            final ColumnName sumColumnName = new ServiceGroupColumnName(callerServiceGroupName, callerServiceType.getCode(), callerApplicationName, histogramSchema.getSumStatSlot().getSlotTime());
             this.bulkWriter.increment(calleeRowKey, sumColumnName, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new ServiceGroupColumnName(thatServiceGroupName, thatServiceType.getCode(), thatApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
+            final ColumnName maxColumnName = new ServiceGroupColumnName(callerServiceGroupName, callerServiceType.getCode(), callerApplicationName, histogramSchema.getMaxStatSlot().getSlotTime());
             this.bulkWriter.updateMax(calleeRowKey, maxColumnName, elapsed);
         }
 
