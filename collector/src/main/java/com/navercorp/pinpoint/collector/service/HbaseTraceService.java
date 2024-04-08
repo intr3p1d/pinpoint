@@ -239,7 +239,7 @@ public class HbaseTraceService implements TraceService {
 
         statisticsService.updateResponseTime(span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
         serviceGroupMapService.updateSelfResponseTime(
-                "thisDefault", span.getApplicationId(), applicationServiceType,
+                "default", span.getApplicationId(), applicationServiceType,
                 span.getElapsed(), isError
         );
 
@@ -298,16 +298,16 @@ public class HbaseTraceService implements TraceService {
             // save the information of caller (the spanevent that called span)
             statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
             serviceGroupMapService.updateOutbound(
-                    "thatDefault", spanEventApplicationName, spanEventType,
-                    "thisDefault", applicationId, applicationServiceType,
+                    "default", spanEventApplicationName, spanEventType,
+                    "default", applicationId, applicationServiceType,
                     agentId, elapsed, hasException
             );
 
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
             serviceGroupMapService.updateInbound(
-                    "thatDefault", spanEventApplicationName, spanEventType,
-                    "thisDefault", applicationId, applicationServiceType,
+                    "default", spanEventApplicationName, spanEventType,
+                    "default", applicationId, applicationServiceType,
                     agentId, elapsed, hasException
             );
         }
