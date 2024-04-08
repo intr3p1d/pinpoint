@@ -297,18 +297,14 @@ public class HbaseTraceService implements TraceService {
              */
             // save the information of caller (the spanevent that called span)
             statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
-            serviceGroupMapService.updateOutbound(
-                    "default", spanEventApplicationName, spanEventType,
-                    "default", applicationId, applicationServiceType,
-                    agentId, elapsed, hasException
-            );
 
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
-            serviceGroupMapService.updateInbound(
-                    "default", spanEventApplicationName, spanEventType,
-                    "default", applicationId, applicationServiceType,
-                    agentId, elapsed, hasException
+
+            serviceGroupMapService.updateThatToThis(
+                    "default", spanEventApplicationName, spanEventType, agentId,
+                    "default", applicationId, applicationServiceType, endPoint,
+                    elapsed, hasException
             );
         }
     }
