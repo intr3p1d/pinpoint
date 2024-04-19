@@ -1,9 +1,13 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
@@ -34,11 +38,18 @@ import java.util.Optional;
 @Validated
 public class AgentListController {
     private final AgentInfoService agentInfoService;
-
+    private final ServiceTypeRegistryService registry;
+    private final ApplicationFactory applicationFactory;
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
 
-    public AgentListController(AgentInfoService agentInfoService) {
+    public AgentListController(
+            AgentInfoService agentInfoService,
+            ServiceTypeRegistryService registry,
+            ApplicationFactory applicationFactory
+    ) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.registry = Objects.requireNonNull(registry, "registry");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
     }
 
     @GetMapping(value = "/search-all")
@@ -92,15 +103,24 @@ public class AgentListController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
-        final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
-        final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
-                AgentStatusFilters.recentRunning(from),
-                AgentInfoFilters.exactServiceTypeName(serviceTypeName),
-                applicationName,
-                Range.between(from, to),
-                paramSortBy
-        );
-        return treeView(list);
+        ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
+
+        if (serviceType.isWas()) {
+
+            final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
+            final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
+                    AgentStatusFilters.recentRunning(from),
+                    AgentInfoFilters.exactServiceTypeName(serviceTypeName),
+                    applicationName,
+                    Range.between(from, to),
+                    paramSortBy
+            );
+            return treeView(list);
+        } else {
+            final Application application = applicationFactory.createApplication(applicationName, serviceType.getCode());
+
+
+        }
     }
 
     private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {
