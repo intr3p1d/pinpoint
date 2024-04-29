@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
+import com.navercorp.pinpoint.exceptiontrace.web.model.RawGroupedFieldName;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.mapstruct.AfterMapping;
@@ -78,11 +79,16 @@ public interface ExceptionMetaDataEntityMapper {
 
     @Mappings({
             @Mapping(target = "groupedFieldName", ignore = true),
+            @Mapping(source = "entity", target = "rawFieldName"),
     })
     ExceptionTraceSummary toSummary(
             ExceptionTraceSummaryEntity entity,
             List<GroupByAttributes> attributesList
     );
+
+    @Mappings({
+    })
+    RawGroupedFieldName entityToRawGroupedFieldName(ExceptionTraceSummaryEntity entity);
 
     @AfterMapping
     default void addGroupedFieldName(
@@ -96,7 +102,8 @@ public interface ExceptionMetaDataEntityMapper {
                 case STACK_TRACE -> groupedFieldName.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
                 case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
                 case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
-                case ERROR_MESSAGE_LOG_TYPE -> groupedFieldName.setErrorMessage(checkIfNull(selectErrorMessage(entity)));
+                case ERROR_MESSAGE_LOG_TYPE ->
+                        groupedFieldName.setErrorMessage(checkIfNull(selectErrorMessage(entity)));
             }
         }
         grouped.setGroupedFieldName(groupedFieldName);
