@@ -209,4 +209,8 @@
         LIMIT 10
     </select>
 
+    <select id="selectClpVars">
+
+    </select>
+
 </mapper>

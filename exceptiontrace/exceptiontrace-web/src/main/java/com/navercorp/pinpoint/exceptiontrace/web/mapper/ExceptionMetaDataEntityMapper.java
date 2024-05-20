@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ClpConvertedEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
@@ -85,6 +87,13 @@ public interface ExceptionMetaDataEntityMapper {
             ExceptionTraceSummaryEntity entity,
             List<GroupByAttributes> attributesList
     );
+
+    @Mappings({
+            @Mapping(source = "errorMessage_encodedVars", target = "errorMessage_encodedVars", qualifiedBy = MapStructUtils.JsonStrToList.class),
+            @Mapping(source = "errorMessage_dictionaryVars", target = "errorMessage_dictionaryVars", qualifiedBy = MapStructUtils.JsonStrToList.class),
+    })
+    ClpConverted toClpConverted(ClpConvertedEntity entity);
+
 
     @AfterMapping
     default void addRawGroupedFieldName(
