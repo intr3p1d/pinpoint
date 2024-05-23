@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ClpConvertedEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
@@ -58,7 +60,8 @@ import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replace
 public interface ExceptionMetaDataEntityMapper {
 
     @Mappings({
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
+            @Mapping(source = ".", target = "stackTrac" +
+                    "e", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
     })
     ExceptionMetaData toModel(ExceptionMetaDataEntity entity);
 
@@ -85,6 +88,11 @@ public interface ExceptionMetaDataEntityMapper {
             ExceptionTraceSummaryEntity entity,
             List<GroupByAttributes> attributesList
     );
+
+    @Mappings({
+    })
+    ClpConverted toClpConverted(ClpConvertedEntity entity);
+
 
     @AfterMapping
     default void addRawGroupedFieldName(
