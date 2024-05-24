@@ -40,6 +40,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
@@ -106,11 +108,16 @@ public interface ExceptionMetaDataEntityMapper {
                 case STACK_TRACE -> groupedFieldName.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
                 case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
                 case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
-                case ERROR_MESSAGE_LOG_TYPE ->
-                        groupedFieldName.setErrorMessage_logtype(checkIfNull(entity.getErrorMessage_logtype()));
+                case ERROR_MESSAGE_LOG_TYPE -> groupedFieldName.setErrorMessage_logtype(checkIfNull(
+                        encode(entity.getErrorMessage_logtype())));
             }
         }
         summary.setRawFieldName(groupedFieldName);
+    }
+
+    @Named("encode")
+    default String encode(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8);
     }
 
     @AfterMapping

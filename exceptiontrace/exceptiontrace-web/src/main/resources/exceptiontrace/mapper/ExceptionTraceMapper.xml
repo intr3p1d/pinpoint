@@ -231,7 +231,8 @@
         </if>
         AND errorMessage_logtype = #{logType}
         GROUP BY arraySliceInt(${targetColumn}, #{targetIndex}, #{targetIndex} + 1)
-        ORDER BY "count" desc
+        ORDER BY "count" desc,
+            "replacedToken"
         LIMIT 100
     </select>
 
