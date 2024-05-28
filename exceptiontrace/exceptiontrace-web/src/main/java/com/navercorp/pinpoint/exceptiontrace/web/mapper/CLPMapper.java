@@ -15,7 +15,12 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author intr3p1d
@@ -25,18 +30,64 @@ public class CLPMapper {
     // Special placeholder characters for CLP-encoded log type.
     public final static char DICTIONARY_VARIABLE_VALUE = '\u0011';
     public final static char NON_DICTIONARY_VALUE = '\u0012';
+    public final static String DICTIONARY_REPLACEMENT = "<ClpPlaceHolder dict %d/>";
+    public final static String NON_DICTIONARY_REPLACEMENT = "<ClpPlaceHolder non-dict %d/>";
 
-    public final static String DICTIONARY_REPLACEMENT = "▨▨▨";
-    public final static String NON_DICTIONARY_REPLACEMENT = "▧▧▧";
+    static String fixEncodingAndBeautify(String encodedLogType) {
+        return beautifyDictPlaceHolder(beautifyNonDictPlaceHolder(
+                escapeXml(makeReadableString(
+                        encodedLogType
+                ))
+        ));
+    }
 
-    static String makeReadableString(String encodedLogType) {
-        byte[] encodedLogTypeBytes = encodedLogType.getBytes(StandardCharsets.ISO_8859_1);
+    static String makeReadableString(String isoString) {
+        byte[] encodedLogTypeBytes = isoString.getBytes(StandardCharsets.ISO_8859_1);
         return new String(encodedLogTypeBytes, StandardCharsets.UTF_8);
+    }
+
+    static String escapeXml(String rawString) {
+        return StringEscapeUtils.escapeXml11(rawString);
     }
 
     static String replacePlaceHolders(String encodedLogType) {
         return encodedLogType
                 .replaceAll(String.valueOf(DICTIONARY_VARIABLE_VALUE), DICTIONARY_REPLACEMENT)
                 .replaceAll(String.valueOf(NON_DICTIONARY_VALUE), NON_DICTIONARY_REPLACEMENT);
+    }
+
+
+    static String beautifyNonDictPlaceHolder(String encodedLogType) {
+        return replaceHolder(
+                encodedLogType,
+                String.valueOf((NON_DICTIONARY_VALUE)),
+                x -> stringFunction(NON_DICTIONARY_REPLACEMENT, x)
+        );
+    }
+
+    static String beautifyDictPlaceHolder(String encodedLogType) {
+        return replaceHolder(
+                encodedLogType,
+                String.valueOf((DICTIONARY_VARIABLE_VALUE)),
+                x -> stringFunction(DICTIONARY_REPLACEMENT, x)
+        );
+    }
+
+    static String stringFunction(String format, int index) {
+        return String.format(format, index);
+    }
+
+    static String replaceHolder(String encodedLogType, String replacedCharacter, Function<Integer, String> replacement) {
+        Pattern pattern = Pattern.compile(replacedCharacter);
+        Matcher matcher = pattern.matcher(encodedLogType);
+        StringBuilder result = new StringBuilder();
+        int wordCount = 1;
+
+        while (matcher.find()) {
+            matcher.appendReplacement(result, replacement.apply(wordCount++));
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
     }
 }

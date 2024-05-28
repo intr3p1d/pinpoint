@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.query;
 
-import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
+import com.navercorp.pinpoint.exceptiontrace.web.util.ClpReplacedColumns;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 
 /**
@@ -28,7 +28,7 @@ public class ClpQueryParameter extends QueryParameter {
     private final String applicationName;
     private final String agentId;
 
-    private final String targetColumn;
+    private final ClpReplacedColumns targetColumn;
     private final int targetIndex;
     private final String logType;
 
@@ -38,7 +38,7 @@ public class ClpQueryParameter extends QueryParameter {
         this.tenantId = builder.tenantId;
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
-        this.targetColumn = builder.targetColumn.getName();
+        this.targetColumn = builder.targetColumn;
         this.targetIndex = builder.targetIndex;
         this.logType = builder.logType;
     }
@@ -50,7 +50,7 @@ public class ClpQueryParameter extends QueryParameter {
         private String applicationName;
         private String agentId;
 
-        private PinotColumns targetColumn;
+        private ClpReplacedColumns targetColumn;
         private int targetIndex;
         private String logType;
 
@@ -81,7 +81,7 @@ public class ClpQueryParameter extends QueryParameter {
         }
 
         public Builder setTargetColumn(String targetColumn) {
-            this.targetColumn = PinotColumns.valueOf(targetColumn);
+            this.targetColumn = ClpReplacedColumns.fromValue(targetColumn);
             return self();
         }
 
@@ -109,7 +109,9 @@ public class ClpQueryParameter extends QueryParameter {
                 ", tenantId='" + tenantId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
-                ", targetColumn='" + targetColumn + '\'' +
+                ", targetColumn=" + targetColumn +
+                ", targetIndex=" + targetIndex +
+                ", logType='" + logType + '\'' +
                 '}';
     }
 }

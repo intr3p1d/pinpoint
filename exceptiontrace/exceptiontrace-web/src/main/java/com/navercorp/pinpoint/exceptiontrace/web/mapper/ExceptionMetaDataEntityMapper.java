@@ -44,6 +44,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.fixEncodingAndBeautify;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
 
@@ -142,9 +143,7 @@ public interface ExceptionMetaDataEntityMapper {
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {
         if (entity.getErrorMessage_logtype() != null) {
-            return replacePlaceHolders(
-                    makeReadableString(entity.getErrorMessage_logtype())
-            );
+            return fixEncodingAndBeautify(entity.getErrorMessage_logtype());
         }
         return entity.getErrorMessage();
     }

@@ -15,25 +15,43 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
-import com.navercorp.pinpoint.exceptiontrace.common.pinot.CLPSuffix;
+import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
+import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotFunctions;
 
 /**
  * @author intr3p1d
  */
 public enum ClpReplacedColumns {
 
-    ERROR_MESSAGE_ENCODED_VARS(PinotColumns.ERROR_MESSAGE_ENCODED_VARS, ARRAY_SLICE_INT),
-    ERROR_MESSAGE_DICTIONARY_VARS(PinotColumns.ERROR_MESSAGE_DICTIONARY_VARS, ARRAY_SLICE_STRING);
+    ERROR_MESSAGE_ENCODED_VARS("non-dict", PinotColumns.ERROR_MESSAGE_ENCODED_VARS, PinotFunctions.ARRAY_SLICE_INT),
+    ERROR_MESSAGE_DICTIONARY_VARS("dict", PinotColumns.ERROR_MESSAGE_DICTIONARY_VARS, PinotFunctions.ARRAY_SLICE_STRING);
 
-    private static final String ARRAY_SLICE_INT = "arraySliceInt";
-    private static final String ARRAY_SLICE_STRING = "arraySliceString";
+    private static final EnumGetter<ClpReplacedColumns> GETTER = new EnumGetter<>(ClpReplacedColumns.class);
 
+    private final String name;
     private final PinotColumns columns;
-    private final String sliceFunction;
+    private final PinotFunctions sliceFunction;
 
-    ClpReplacedColumns(PinotColumns columns, String sliceFunction) {
+    ClpReplacedColumns(String name, PinotColumns columns, PinotFunctions sliceFunction) {
+        this.name = name;
         this.columns = columns;
         this.sliceFunction = sliceFunction;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public PinotColumns getColumns() {
+        return columns;
+    }
+
+    public PinotFunctions getSliceFunction() {
+        return sliceFunction;
+    }
+
+    public static ClpReplacedColumns fromValue(String name) {
+        return GETTER.fromValue(ClpReplacedColumns::getName, name);
     }
 }
