@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ClpConvertedEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
@@ -38,8 +40,11 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.fixEncodingAndBeautify;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
 
@@ -58,7 +63,8 @@ import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replace
 public interface ExceptionMetaDataEntityMapper {
 
     @Mappings({
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
+            @Mapping(source = ".", target = "stackTrac" +
+                    "e", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
     })
     ExceptionMetaData toModel(ExceptionMetaDataEntity entity);
 
@@ -86,6 +92,11 @@ public interface ExceptionMetaDataEntityMapper {
             List<GroupByAttributes> attributesList
     );
 
+    @Mappings({
+    })
+    ClpConverted toClpConverted(ClpConvertedEntity entity);
+
+
     @AfterMapping
     default void addRawGroupedFieldName(
             ExceptionTraceSummaryEntity entity,
@@ -98,11 +109,16 @@ public interface ExceptionMetaDataEntityMapper {
                 case STACK_TRACE -> groupedFieldName.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
                 case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
                 case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
-                case ERROR_MESSAGE_LOG_TYPE ->
-                        groupedFieldName.setErrorMessage_logtype(checkIfNull(entity.getErrorMessage_logtype()));
+                case ERROR_MESSAGE_LOG_TYPE -> groupedFieldName.setErrorMessage_logtype(checkIfNull(
+                        encode(entity.getErrorMessage_logtype())));
             }
         }
         summary.setRawFieldName(groupedFieldName);
+    }
+
+    @Named("encode")
+    default String encode(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8);
     }
 
     @AfterMapping
@@ -127,9 +143,7 @@ public interface ExceptionMetaDataEntityMapper {
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {
         if (entity.getErrorMessage_logtype() != null) {
-            return replacePlaceHolders(
-                    makeReadableString(entity.getErrorMessage_logtype())
-            );
+            return fixEncodingAndBeautify(entity.getErrorMessage_logtype());
         }
         return entity.getErrorMessage();
     }
