@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
-import org.apache.commons.text.StringEscapeUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
@@ -35,7 +34,7 @@ public class CLPMapper {
 
     static String fixEncodingAndBeautify(String encodedLogType) {
         return beautifyDictPlaceHolder(beautifyNonDictPlaceHolder(
-                escapeXml(makeReadableString(
+                (makeReadableString(
                         encodedLogType
                 ))
         ));
@@ -46,9 +45,9 @@ public class CLPMapper {
         return new String(encodedLogTypeBytes, StandardCharsets.UTF_8);
     }
 
-    static String escapeXml(String rawString) {
-        return StringEscapeUtils.escapeXml11(rawString);
-    }
+//    static String escapeXml(String rawString) {
+//        return StringEscapeUtils.escapeXml11(rawString);
+//    }
 
     static String replacePlaceHolders(String encodedLogType) {
         return encodedLogType
@@ -81,7 +80,7 @@ public class CLPMapper {
         Pattern pattern = Pattern.compile(replacedCharacter);
         Matcher matcher = pattern.matcher(encodedLogType);
         StringBuilder result = new StringBuilder();
-        int wordCount = 1;
+        int wordCount = 0;
 
         while (matcher.find()) {
             matcher.appendReplacement(result, replacement.apply(wordCount++));
