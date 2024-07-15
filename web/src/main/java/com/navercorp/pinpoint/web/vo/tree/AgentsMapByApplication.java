@@ -68,9 +68,9 @@ public class AgentsMapByApplication<T> {
                         Comparator.naturalOrder(),
                         SortByAgentInfo.agentIdAsc(agentInfoFn).getComparator(),
                         agentCollection,
-                        finisherFn
+                        finisherFn,
+                        (I x) -> agentStatusPredicate.test(agentStatusFn.apply(x))
                 )
-                        .withFilterBefore((I x) -> agentStatusPredicate.test(agentStatusFn.apply(x)))
                         .build();
 
         return new AgentsMapByApplication<>(instancesListMap);

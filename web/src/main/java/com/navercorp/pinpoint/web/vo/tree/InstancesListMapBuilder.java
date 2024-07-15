@@ -26,24 +26,18 @@ public class InstancesListMapBuilder<T, R> {
                             Comparator<String> keyComparator,
                             Comparator<R> sortNestedListBy,
                             Collection<T> collection,
-                            Function<T, R> finisher) {
+                            Function<T, R> finisher,
+                            Predicate<T> filter) {
         this.keyExtractor = Objects.requireNonNull(keyExtractor, "keyExtractor");
         this.keyComparator = Objects.requireNonNull(keyComparator, "keyComparator");
         this.sortNestedListBy = Objects.requireNonNull(sortNestedListBy, "sortNestedListBy");
         this.collection = Objects.requireNonNull(collection, "collection");
         this.finisher = Objects.requireNonNullElse(finisher, this::castingIdentity);
-    }
-
-    public InstancesListMapBuilder<T, R> withFilterBefore(Predicate<T> filter) {
-        this.filter = filter;
-        return this;
+        this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     private boolean filterBefore(T t) {
-        if (filter != null) {
-            return filter.test(t);
-        }
-        return true;
+        return filter.test(t);
     }
 
     public InstancesListMap<R> build() {
@@ -56,16 +50,9 @@ public class InstancesListMapBuilder<T, R> {
     }
 
     private List<R> getProcessedCollection() {
-        List<R> result = new ArrayList<>(collection.size());
-        for (T t : collection) {
-            if (!filterBefore(t)) {
-                continue;
-            }
-
-            R r = finisher.apply(t);
-            result.add(r);
-        }
-        return result;
+        return collection.stream().parallel().filter(
+                this.filter
+        ).map(finisher).toList();
     }
 
     @SuppressWarnings("unchecked")

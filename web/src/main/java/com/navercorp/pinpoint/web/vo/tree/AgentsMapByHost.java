@@ -44,9 +44,9 @@ public class AgentsMapByHost {
                         CONTAINER_GOES_UP,
                         sortByAgentInfo.getComparator(),
                         agentCollection,
-                        x -> newAgentStatusAndLink(x, hyperLinkFactory)
+                        x -> newAgentStatusAndLink(x, hyperLinkFactory),
+                        agentStatusPredicate
                 )
-                        .withFilterBefore(agentStatusPredicate)
                         .build();
 
         return new AgentsMapByHost(instancesListMap);
