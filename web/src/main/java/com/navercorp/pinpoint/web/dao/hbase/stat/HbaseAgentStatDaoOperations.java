@@ -125,6 +125,7 @@ public class HbaseAgentStatDaoOperations {
     private Scan createScan(AgentStatType agentStatType, String agentId, Range range, int scanCacheSize) {
         Scan scan = this.operationFactory.createScan(agentId, agentStatType, range.getFrom(), range.getTo());
         scan.setCaching(scanCacheSize);
+        scan.setOneRowLimit();
         scan.setId(agentStatType.getChartType());
         scan.addFamily(columnFamily.getName());
         return scan;
