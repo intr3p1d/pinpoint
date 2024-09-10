@@ -15,31 +15,37 @@
  */
 package com.navercorp.pinpoint.collector.monitor.config;
 
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.HBaseMetricsAdapter;
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import io.micrometer.core.instrument.MeterRegistry;
-import org.apache.hadoop.hbase.client.ClusterConnection;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.MetricsConnection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author intr3p1d
  */
+@Configuration
 public class HbaseMetrics {
+
+    private final Logger logger = LogManager.getLogger(HbaseMetrics.class);
     MetricsConnection metricsConnection;
 
+    public HbaseMetrics() {
+        logger.info("Install {}", HbaseMetrics.class.getSimpleName());
+    }
+
     @Bean
-    public static void collectHBaseMetrics(
-            MeterRegistry meterRegistry,
-            ConnectionFactoryBean connectionFactoryBean
+    public HBaseMetricsAdapter collectHBaseMetrics(
+            MeterRegistry meterRegistry
     ) {
         try {
-            Connection connection = connectionFactoryBean.getObject();
-            MetricsConnection metricsConnection = ((ClusterConnection) connection).getConnectionMetrics();
-
-            metricsConnection.getMetricRegistry().addListener(meterRegistry);
+            return new HBaseMetricsAdapter(meterRegistry);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 }
