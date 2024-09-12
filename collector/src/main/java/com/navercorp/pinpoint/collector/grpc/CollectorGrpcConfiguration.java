@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanReceiverConfiguratio
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatReceiverConfiguration;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
-import com.navercorp.pinpoint.collector.monitor.config.HbaseMetrics;
+import com.navercorp.pinpoint.collector.monitor.config.HbaseMetricsConfiguration;
 import com.navercorp.pinpoint.collector.monitor.config.MicrometerConfiguration;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
@@ -56,7 +56,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
         GrpcKeepAliveScheduler.class,
 
         MicrometerConfiguration.class,
-        HbaseMetrics.class,
+        HbaseMetricsConfiguration.class,
 
         ChannelzConfiguration.class
 })

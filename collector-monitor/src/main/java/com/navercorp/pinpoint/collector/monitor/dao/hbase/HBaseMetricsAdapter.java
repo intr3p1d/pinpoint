@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.collector.monitor.dao.hbase;
 
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.Counter;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.Gauge;
@@ -12,61 +13,66 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.navercorp.pinpoint.collector.monitor.dao.hbase.MetricNameExtractor.customName;
+import static com.navercorp.pinpoint.collector.monitor.dao.hbase.MetricNameExtractor.extractTags;
 
 
 public class HBaseMetricsAdapter {
     private final Logger logger = LogManager.getLogger(HBaseMetricsAdapter.class);
     private final MeterRegistry meterRegistry;
-    private final MetricRegistry metricRegistry;
+    private final Collection<MetricRegistry> metricRegistries;
 
-    public HBaseMetricsAdapter(MeterRegistry meterRegistry, MetricRegistry metricRegistry) {
+    public HBaseMetricsAdapter(MeterRegistry meterRegistry, Collection<MetricRegistry> metricRegistries) {
         this.meterRegistry = meterRegistry;
-        this.metricRegistry = metricRegistry;
+        this.metricRegistries = metricRegistries;
         initialize();
     }
 
     private void initialize() {
-        logger.info("initialize");
-        logger.info(System.getProperty("hbase.client.metrics.enable"));
-        logger.info(System.getProperty("hbase.client.table.metrics.enable"));
-        logger.info(metricRegistry);
+        logger.info("initialize metricRegistries: {}", metricRegistries);
 
-        if (metricRegistry != null) {
-            logger.info(metricRegistry);
-            metricRegistry.getMetrics().forEach((name, metric) -> {
-                if (metric instanceof Counter counter) {
-                    registerCounterMetric(name, counter);
-                } else if (metric instanceof Timer timer) {
-                    registerTimerMetric(name, timer);
-                } else if (metric instanceof Gauge<?> gauge) {
-                    registerGaugeMetric(name, gauge);
-                } else if (metric instanceof Histogram histogram) {
-                    registerHistogramMetric(name, histogram);
-                }
-            });
+        for (MetricRegistry metricRegistry : metricRegistries) {
+            if (metricRegistry != null) {
+                logger.info(metricRegistry);
+                metricRegistry.getMetrics().forEach((name, metric) -> {
+                    if (metric instanceof Counter counter) {
+                        registerCounterMetric(name, counter);
+                    } else if (metric instanceof Timer timer) {
+                        registerTimerMetric(name, timer);
+                    } else if (metric instanceof Gauge<?> gauge) {
+                        registerGaugeMetric(name, gauge);
+                    } else if (metric instanceof Histogram histogram) {
+                        registerHistogramMetric(name, histogram);
+                    }
+                });
+            }
         }
     }
 
     private void registerCounterMetric(String name, Counter counter) {
         io.micrometer.core.instrument.Gauge.builder(customName(name), counter, Counter::getCount)
-                .tags(Tags.empty())
+                .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
     private void registerTimerMetric(String name, Timer timer) {
         io.micrometer.core.instrument.Gauge.builder(customName(name), timer, Timer::getCount)
+                .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
     private void registerGaugeMetric(String name, Gauge<?> gauge) {
         io.micrometer.core.instrument.Gauge.builder(customName(name), gauge, HBaseMetricsAdapter::doubleValue)
-                .tags(Tags.empty())
+                .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
     private void registerHistogramMetric(String name, Histogram histogram) {
         DistributionSummary.builder(customName(name))
-                .tags(Tags.empty())
+                .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
@@ -78,14 +84,13 @@ public class HBaseMetricsAdapter {
         return Double.parseDouble(value.toString());
     }
 
-    private static String customName(String name) {
-        return "hbase.metrics." + name;
-    }
 
     @Override
     public String toString() {
         return "HBaseMetricsAdapter{" +
-                "meterRegistry=" + meterRegistry +
+                "logger=" + logger +
+                ", meterRegistry=" + meterRegistry +
+                ", metricRegistries=" + metricRegistries +
                 '}';
     }
 }
