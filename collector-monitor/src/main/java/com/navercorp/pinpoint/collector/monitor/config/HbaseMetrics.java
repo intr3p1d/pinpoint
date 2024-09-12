@@ -20,7 +20,9 @@ import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.AsyncConnectionImpl;
+import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionImplementation;
 import org.apache.hadoop.hbase.client.MetricsConnection;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.MetricRegistry;
 import org.apache.logging.log4j.LogManager;
@@ -59,8 +61,14 @@ public class HbaseMetrics {
         logger.info("collectHBaseMetrics {}", HbaseMetrics.class.getSimpleName());
         try {
 
-            Connection connection = connectionFactoryBean.getObject();
+            ConnectionImplementation connection = (ConnectionImplementation) connectionFactoryBean.getObject();
             logger.info(connection);
+            MetricsConnection metricsConnection1 = getMetricsConnection(connection);
+            logger.info(metricsConnection1);
+            MetricRegistry metricRegistry1 = getMetricRegistry(metricsConnection1);
+            logger.info(metricRegistry1);
+            HBaseMetricsAdapter adapter1 = new HBaseMetricsAdapter(meterRegistry, metricRegistry1);
+            logger.info(adapter1);
 
             AsyncConnectionImpl asyncConnection = (AsyncConnectionImpl) asyncConnectionFactoryBean.getObject();
             logger.info(asyncConnection);
@@ -94,6 +102,17 @@ public class HbaseMetrics {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static MetricsConnection getMetricsConnection(ClusterConnection connectionImplementation) {
+        try {
+            Method method = connectionImplementation.getClass().getDeclaredMethod("getConnectionMetrics");
+            method.setAccessible(true);
+            return (MetricsConnection) method.invoke(connectionImplementation);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static MetricRegistry getMetricRegistry(MetricsConnection metricsConnection) {
