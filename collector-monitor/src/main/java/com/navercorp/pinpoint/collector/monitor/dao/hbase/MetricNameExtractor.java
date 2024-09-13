@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public class MetricNameExtractor {
 
-    static String customName(String name) {
+    static String extractName(String name) {
         int atIndex = name.lastIndexOf('.');
         if (atIndex != -1) {
             return name.substring(0, atIndex);

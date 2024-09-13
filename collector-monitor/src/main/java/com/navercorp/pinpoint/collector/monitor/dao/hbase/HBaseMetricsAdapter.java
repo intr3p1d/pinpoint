@@ -2,8 +2,6 @@ package com.navercorp.pinpoint.collector.monitor.dao.hbase;
 
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.Tags;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.Counter;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.Gauge;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.Histogram;
@@ -13,10 +11,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static com.navercorp.pinpoint.collector.monitor.dao.hbase.MetricNameExtractor.customName;
+import static com.navercorp.pinpoint.collector.monitor.dao.hbase.MetricNameExtractor.extractName;
 import static com.navercorp.pinpoint.collector.monitor.dao.hbase.MetricNameExtractor.extractTags;
 
 
@@ -53,25 +49,25 @@ public class HBaseMetricsAdapter {
     }
 
     private void registerCounterMetric(String name, Counter counter) {
-        io.micrometer.core.instrument.Gauge.builder(customName(name), counter, Counter::getCount)
+        io.micrometer.core.instrument.Gauge.builder(extractName(name), counter, Counter::getCount)
                 .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
     private void registerTimerMetric(String name, Timer timer) {
-        io.micrometer.core.instrument.Gauge.builder(customName(name), timer, Timer::getCount)
+        io.micrometer.core.instrument.Gauge.builder(extractName(name), timer, Timer::getCount)
                 .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
     private void registerGaugeMetric(String name, Gauge<?> gauge) {
-        io.micrometer.core.instrument.Gauge.builder(customName(name), gauge, HBaseMetricsAdapter::doubleValue)
+        io.micrometer.core.instrument.Gauge.builder(extractName(name), gauge, HBaseMetricsAdapter::doubleValue)
                 .tags(extractTags(name))
                 .register(meterRegistry);
     }
 
     private void registerHistogramMetric(String name, Histogram histogram) {
-        DistributionSummary.builder(customName(name))
+        DistributionSummary.builder(extractName(name))
                 .tags(extractTags(name))
                 .register(meterRegistry);
     }

@@ -14,7 +14,7 @@ class MetricNameExtractorTest {
     public void testCustomName() {
         String example = "org.apache.hadoop.hbase.client.MetricsConnection.executorPoolActiveThreads.84fd554c-8030-4ac4-b997-2fc1f9ce86fd@54455c8d";
         String expected = "org.apache.hadoop.hbase.client.MetricsConnection.executorPoolActiveThreads";
-        String actual = MetricNameExtractor.customName(example);
+        String actual = MetricNameExtractor.extractName(example);
 
         Assertions.assertEquals(expected, actual);
     }

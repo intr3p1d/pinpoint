@@ -21,7 +21,6 @@ import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.AsyncConnectionImpl;
 import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.MetricsConnection;
 import org.apache.hadoop.hbase.shaded.com.codahale.metrics.MetricRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,10 +58,9 @@ public class HbaseMetricsConfiguration {
             AsyncConnectionImpl asyncConn = (AsyncConnectionImpl) asyncConnectionFactoryBean.getObject();
             List<MetricRegistry> registries = getRegistriesFromConnections(conn, asyncConn);
 
-            HBaseMetricsAdapter adapter = new HBaseMetricsAdapter(
+            return new HBaseMetricsAdapter(
                     meterRegistry, registries
             );
-            return adapter;
         } catch (Exception e) {
             logger.error("HbaseMetrics Error: ", e);
         }
