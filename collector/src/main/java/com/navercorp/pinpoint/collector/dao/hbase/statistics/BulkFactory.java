@@ -49,7 +49,7 @@ public class BulkFactory {
         return bulkIncrementerFactory.wrap(bulkUpdater, bulkConfiguration.getCalleeLimitSize(), reporter);
     }
 
-    private BulkWriter newBulkWriter(String loggerName,
+    private BulkWriter<RowKey, ColumnName> newBulkWriter(String loggerName,
                                      HbaseOperations hbaseTemplate,
                                      HbaseAsyncTemplate asyncTemplate,
                                      HbaseColumnFamily descriptor,
@@ -82,7 +82,7 @@ public class BulkFactory {
 
 
     @Bean
-    public BulkWriter callerBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter<RowKey, ColumnName> callerBulkWriter(HbaseOperations hbaseTemplate,
                                        HbaseAsyncTemplate asyncTemplate,
                                        TableNameProvider tableNameProvider,
                                        @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
@@ -110,7 +110,7 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkWriter calleeBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter<RowKey, ColumnName> calleeBulkWriter(HbaseOperations hbaseTemplate,
                                        HbaseAsyncTemplate asyncTemplate,
                                        TableNameProvider tableNameProvider,
                                        @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
@@ -136,7 +136,7 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkWriter selfBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter<RowKey, ColumnName> selfBulkWriter(HbaseOperations hbaseTemplate,
                                      HbaseAsyncTemplate asyncTemplate,
                                      TableNameProvider tableNameProvider,
                                      @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
