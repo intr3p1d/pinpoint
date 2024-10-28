@@ -18,5 +18,5 @@ package com.navercorp.pinpoint.collector.dao.redis;
 /**
  * @author intr3p1d
  */
-public class RedisBulkWriter {
+public class RedisBulkWriter<RowKey, ColumnName> {
 }
