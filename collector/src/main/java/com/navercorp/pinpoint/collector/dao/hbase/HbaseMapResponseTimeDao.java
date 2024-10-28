@@ -60,7 +60,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
 
