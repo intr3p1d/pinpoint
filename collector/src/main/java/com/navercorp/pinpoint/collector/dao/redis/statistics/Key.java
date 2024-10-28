@@ -21,4 +21,6 @@ package com.navercorp.pinpoint.collector.dao.redis.statistics;
 public class Key {
     // ts:tableKind:tenantId:serviceId:applicationId
     // slotNumber caller or callee... etc
+
+    // label can be filtering by redis
 }
