@@ -51,12 +51,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     private final AcceptedTimeService acceptedTimeService;
 
     private final TimeSlot timeSlot;
-    private final BulkWriter bulkWriter;
+    private final BulkWriter<RowKey, ColumnName> bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapResponseTimeDao(MapLinkConfiguration mapLinkConfiguration,
                                    AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                   @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
+                                   @Qualifier("selfBulkWriter") BulkWriter<RowKey, ColumnName> bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
