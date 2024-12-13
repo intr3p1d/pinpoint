@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.dao.redis.statistics;
 /**
  * @author intr3p1d
  */
-public class Key {
+public class TimeSeriesKey {
     // ts:tableKind:tenantId:serviceId:applicationId
     // slotNumber caller or callee... etc
 

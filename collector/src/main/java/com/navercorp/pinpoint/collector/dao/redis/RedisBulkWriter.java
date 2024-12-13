@@ -15,8 +15,36 @@
  */
 package com.navercorp.pinpoint.collector.dao.redis;
 
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.dao.redis.statistics.TimeSeriesKey;
+import com.navercorp.pinpoint.collector.dao.redis.statistics.TimeSeriesValue;
+
 /**
  * @author intr3p1d
  */
-public class RedisBulkWriter<RowKey, ColumnName> {
+public class RedisBulkWriter implements BulkWriter<TimeSeriesKey, TimeSeriesValue> {
+    @Override
+    public void increment(TimeSeriesKey rowKey, TimeSeriesValue columnName) {
+
+    }
+
+    @Override
+    public void increment(TimeSeriesKey rowKey, TimeSeriesValue columnName, long addition) {
+
+    }
+
+    @Override
+    public void updateMax(TimeSeriesKey rowKey, TimeSeriesValue columnName, long value) {
+
+    }
+
+    @Override
+    public void flushLink() {
+
+    }
+
+    @Override
+    public void flushAvgMax() {
+
+    }
 }
