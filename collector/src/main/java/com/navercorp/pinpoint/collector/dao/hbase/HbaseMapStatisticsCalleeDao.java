@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallerColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.DefaultBulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -53,13 +53,13 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private final TimeSlot timeSlot;
 
     private final IgnoreStatFilter ignoreStatFilter;
-    private final BulkWriter bulkWriter;
+    private final DefaultBulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapStatisticsCalleeDao(MapLinkConfiguration mapLinkConfiguration,
                                        IgnoreStatFilter ignoreStatFilter,
                                        AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                       @Qualifier("calleeBulkWriter") BulkWriter bulkWriter) {
+                                       @Qualifier("calleeBulkWriter") DefaultBulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
