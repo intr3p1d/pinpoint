@@ -18,8 +18,22 @@ package com.navercorp.pinpoint.collector.dao.redis.statistics;
 /**
  * @author intr3p1d
  */
-public record TimeSeriesValue(long callCount) {
-    public long getCallCount() {
-        return callCount;
+public enum TimeSeriesLabel {
+    TABLE_KIND("tableKind"),
+    TENANT_ID("tenantId"),
+    MAIN_SERVICE_ID("mainServiceId"),
+    MAIN_APPLICATION_NAME("mainApplicationName"),
+    SUB_SERVICE_ID("subServiceId"),
+    SUB_APPLICATION_NAME("subApplicationName"),
+    SUB_SERVICE_TYPE_SLOT("subServiceTypeSlot");
+
+    private final String label;
+
+    TimeSeriesLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 }

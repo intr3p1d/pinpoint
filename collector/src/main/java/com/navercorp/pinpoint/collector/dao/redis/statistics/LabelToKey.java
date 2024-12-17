@@ -18,8 +18,12 @@ package com.navercorp.pinpoint.collector.dao.redis.statistics;
 /**
  * @author intr3p1d
  */
-public record TimeSeriesValue(long callCount) {
-    public long getCallCount() {
-        return callCount;
+public record LabelToKey(TimeSeriesLabel label, String value) {
+    public String getLabel() {
+        return label.getLabel();
+    }
+
+    public String getValue() {
+        return value;
     }
 }
