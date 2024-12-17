@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.dao.redis.statistics;
+package com.navercorp.pinpoint.collector.applicationmap.redis.statistics;
 
 /**
  * @author intr3p1d
  */
-public enum ApplicationMapTable {
-    Inbound("ApplicationMapInbound"),
-    Outbound("ApplicationMapOutbound"),
-    Self("ApplicationMapSelf");
+public enum TimeSeriesLabel {
+    TABLE_KIND("tableKind"),
+    TENANT_ID("tenantId"),
+    MAIN_SERVICE_ID("mainServiceId"),
+    MAIN_APPLICATION_NAME("mainApplicationName"),
+    SUB_SERVICE_ID("subServiceId"),
+    SUB_APPLICATION_NAME("subApplicationName"),
+    SUB_SERVICE_TYPE_SLOT("subServiceTypeSlot");
 
-    private final String table;
+    private final String label;
 
-    ApplicationMapTable(String table) {
-        this.table = table;
+    TimeSeriesLabel(String label) {
+        this.label = label;
     }
 
-    public String getTable() {
-        return table;
+    public String getLabel() {
+        return label;
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.dao.redis.statistics;
+package com.navercorp.pinpoint.collector.applicationmap.redis.statistics;
 
 import com.navercorp.pinpoint.redis.timeseries.protocol.Labels;
 

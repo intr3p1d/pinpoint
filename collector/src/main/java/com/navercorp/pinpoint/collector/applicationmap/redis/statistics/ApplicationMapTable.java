@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.dao.redis.statistics;
+package com.navercorp.pinpoint.collector.applicationmap.redis.statistics;
 
 /**
  * @author intr3p1d
  */
-public record TimeSeriesValue(long callCount) {
-    public long getCallCount() {
-        return callCount;
+public enum ApplicationMapTable {
+    Inbound("ApplicationMapInbound"),
+    Outbound("ApplicationMapOutbound"),
+    Self("ApplicationMapSelf");
+
+    private final String table;
+
+    ApplicationMapTable(String table) {
+        this.table = table;
+    }
+
+    public String getTable() {
+        return table;
     }
 }

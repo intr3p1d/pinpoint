@@ -17,9 +17,8 @@ package com.navercorp.pinpoint.collector.applicationmap.redis;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.InboundDao;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
-import com.navercorp.pinpoint.collector.dao.redis.RedisBulkWriter;
+import com.navercorp.pinpoint.collector.applicationmap.redis.statistics.RedisBulkWriter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
