@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.applicationmap.redis.statistics;
+package com.navercorp.pinpoint.collector.applicationmap.redis.schema;
 
 /**
  * @author intr3p1d
  */
-public record TimeSeriesValue(long callCount) {
-    public long getCallCount() {
-        return callCount;
+public record LabelToKey(TimeSeriesLabel label, String value) {
+    public String getLabel() {
+        return label.getLabel();
+    }
+
+    public String getValue() {
+        return value;
     }
 }
