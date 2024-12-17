@@ -18,8 +18,23 @@ package com.navercorp.pinpoint.collector.applicationmap.redis.schema;
 /**
  * @author intr3p1d
  */
-public record TimeSeriesValue(long callCount) {
+public class TimeSeriesValue {
+    private long callCount;
+    private final long timestamp;
+
+    public TimeSeriesValue(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public long getCallCount() {
         return callCount;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setCallCount(long callCount) {
+        this.callCount = callCount;
     }
 }

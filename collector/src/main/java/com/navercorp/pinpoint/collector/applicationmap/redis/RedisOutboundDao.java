@@ -15,48 +15,43 @@
  */
 package com.navercorp.pinpoint.collector.applicationmap.redis;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.InboundDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.OutboundDao;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.ApplicationMapTable;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesKey;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesValue;
+import com.navercorp.pinpoint.collector.applicationmap.redis.statistics.RedisBulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
-import com.navercorp.pinpoint.collector.applicationmap.redis.statistics.RedisBulkWriter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
-@Repository
-public class RedisInboundDao implements InboundDao {
+public class RedisOutboundDao implements OutboundDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AcceptedTimeService acceptedTimeService;
-    private final IgnoreStatFilter ignoreStatFilter;
     private final RedisBulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public RedisInboundDao(
+    public RedisOutboundDao(
             MapLinkConfiguration mapLinkConfiguration,
             AcceptedTimeService acceptedTimeService,
             IgnoreStatFilter ignoreStatFilter,
-            @Qualifier("inboundBulkWriter") RedisBulkWriter bulkWriter
+            @Qualifier("outboundBulkWriter") RedisBulkWriter bulkWriter
     ) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
-        this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "inboundBulkWriter");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "outboundBulkWriter");
     }
 
 
@@ -66,45 +61,39 @@ public class RedisInboundDao implements InboundDao {
             String destServiceName, String destApplicationName, ServiceType destApplicationType,
             String srcHost, int elapsed, boolean isError
     ) {
-        Objects.requireNonNull(srcServiceName, "srcServiceName");
+        // outbound (rowKey src -> columnName dest)
         Objects.requireNonNull(destServiceName, "destServiceName");
-        Objects.requireNonNull(srcApplicationName, "srcApplicationName");
-        Objects.requireNonNull(destServiceName, "destApplicationName");
+        Objects.requireNonNull(srcServiceName, "srcServiceName");
+        Objects.requireNonNull(destApplicationName, "destApplicationName");
+        Objects.requireNonNull(srcServiceName, "srcApplicationName");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Inbound] {} {}({}) <- {} {}({})[{}]",
-                    destServiceName, destApplicationName, destApplicationType,
-                    srcServiceName, srcApplicationName, srcApplicationType, srcHost
+            logger.debug("[Outbound] {} {}({})[{}] -> {} {}({})",
+                    srcServiceName, srcApplicationName, srcApplicationType, srcHost,
+                    destServiceName, destApplicationName, destApplicationType
             );
         }
 
-        if (ignoreStatFilter.filter(srcApplicationType, srcHost)) {
-            logger.debug("[Ignore-Inbound] {} {}({}) <- {} {}({})[{}]",
-                    destServiceName, destApplicationName, destApplicationType,
-                    srcServiceName, srcApplicationName, srcApplicationType, srcHost
-            );
-            return;
-        }
-
-        final short srcSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(srcApplicationType, elapsed, isError);
-        HistogramSchema histogramSchema = srcApplicationType.getHistogramSchema();
+        final short destSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(destApplicationType, elapsed, isError);
+        HistogramSchema histogramSchema = destApplicationType.getHistogramSchema();
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
 
-        // for inbound, main is destination
-        // and sub is source
+        // for outbound, main is source
+        // and sub is destination
         final TimeSeriesKey applicationTypeKey = new TimeSeriesKey(
-                ApplicationMapTable.Inbound, "tenantId",
-                destServiceName, destApplicationName,
-                srcServiceName, srcApplicationName, srcSlotNumber
+                ApplicationMapTable.Outbound, "tenantId",
+                srcServiceName, srcApplicationName,
+                destServiceName, destApplicationName, destSlotNumber
         );
-        TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
+
+        final TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
         this.bulkWriter.increment(applicationTypeKey, addOne);
 
         if (mapLinkConfiguration.isEnableAvg()) {
             final TimeSeriesKey sumStatKey = new TimeSeriesKey(
-                    ApplicationMapTable.Inbound, "tenantId",
-                    destServiceName, destApplicationName,
+                    ApplicationMapTable.Outbound, "tenantId",
                     srcServiceName, srcApplicationName,
+                    destServiceName, destApplicationName,
                     histogramSchema.getSumStatSlot().getSlotTime()
             );
             final TimeSeriesValue sumValue = new TimeSeriesValue(acceptedTime);
@@ -112,16 +101,16 @@ public class RedisInboundDao implements InboundDao {
         }
         if (mapLinkConfiguration.isEnableMax()) {
             final TimeSeriesKey maxStatKey = new TimeSeriesKey(
-                    ApplicationMapTable.Inbound, "tenantId",
-                    destServiceName, destApplicationName,
+                    ApplicationMapTable.Outbound, "tenantId",
                     srcServiceName, srcApplicationName,
+                    destServiceName, destApplicationName,
                     histogramSchema.getMaxStatSlot().getSlotTime()
             );
             final TimeSeriesValue maxValue = new TimeSeriesValue(acceptedTime);
             this.bulkWriter.updateMax(maxStatKey, maxValue, elapsed);
         }
-
     }
+
 
     @Override
     public void flushLink() {

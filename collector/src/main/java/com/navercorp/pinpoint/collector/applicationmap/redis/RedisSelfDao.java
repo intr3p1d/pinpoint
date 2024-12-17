@@ -15,13 +15,15 @@
  */
 package com.navercorp.pinpoint.collector.applicationmap.redis;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.InboundDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.SelfDao;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.ApplicationMapTable;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesKey;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesValue;
-import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.applicationmap.redis.statistics.RedisBulkWriter;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -30,81 +32,64 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
-@Repository
-public class RedisInboundDao implements InboundDao {
+public class RedisSelfDao implements SelfDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AcceptedTimeService acceptedTimeService;
-    private final IgnoreStatFilter ignoreStatFilter;
+
+    private final TimeSlot timeSlot;
     private final RedisBulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public RedisInboundDao(
-            MapLinkConfiguration mapLinkConfiguration,
-            AcceptedTimeService acceptedTimeService,
-            IgnoreStatFilter ignoreStatFilter,
-            @Qualifier("inboundBulkWriter") RedisBulkWriter bulkWriter
-    ) {
+    public RedisSelfDao(MapLinkConfiguration mapLinkConfiguration,
+                        AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+                        @Qualifier("applicationMapSelfBulkWriter") RedisBulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
-        this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "inboundBulkWriter");
+        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
 
     @Override
-    public void update(
-            String srcServiceName, String srcApplicationName, ServiceType srcApplicationType,
-            String destServiceName, String destApplicationName, ServiceType destApplicationType,
-            String srcHost, int elapsed, boolean isError
+    public void received(
+            String serviceName, String applicationName, ServiceType applicationType,
+            int elapsed, boolean isError
     ) {
-        Objects.requireNonNull(srcServiceName, "srcServiceName");
-        Objects.requireNonNull(destServiceName, "destServiceName");
-        Objects.requireNonNull(srcApplicationName, "srcApplicationName");
-        Objects.requireNonNull(destServiceName, "destApplicationName");
+        Objects.requireNonNull(serviceName, "serviceName");
+        Objects.requireNonNull(applicationName, "applicationName");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Inbound] {} {}({}) <- {} {}({})[{}]",
-                    destServiceName, destApplicationName, destApplicationType,
-                    srcServiceName, srcApplicationName, srcApplicationType, srcHost
-            );
+            logger.debug("[Received] {} {} ({})", serviceName, applicationName, applicationType);
         }
 
-        if (ignoreStatFilter.filter(srcApplicationType, srcHost)) {
-            logger.debug("[Ignore-Inbound] {} {}({}) <- {} {}({})[{}]",
-                    destServiceName, destApplicationName, destApplicationType,
-                    srcServiceName, srcApplicationName, srcApplicationType, srcHost
-            );
-            return;
-        }
-
-        final short srcSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(srcApplicationType, elapsed, isError);
-        HistogramSchema histogramSchema = srcApplicationType.getHistogramSchema();
+        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationType, elapsed, isError);
+        HistogramSchema histogramSchema = applicationType.getHistogramSchema();
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
 
-        // for inbound, main is destination
-        // and sub is source
+        // for self, main is me
+        // and sub is also me
         final TimeSeriesKey applicationTypeKey = new TimeSeriesKey(
-                ApplicationMapTable.Inbound, "tenantId",
-                destServiceName, destApplicationName,
-                srcServiceName, srcApplicationName, srcSlotNumber
+                ApplicationMapTable.Self, "tenantId",
+                serviceName, applicationName,
+                serviceName, applicationName,
+                slotNumber
         );
         TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
         this.bulkWriter.increment(applicationTypeKey, addOne);
 
         if (mapLinkConfiguration.isEnableAvg()) {
             final TimeSeriesKey sumStatKey = new TimeSeriesKey(
-                    ApplicationMapTable.Inbound, "tenantId",
-                    destServiceName, destApplicationName,
-                    srcServiceName, srcApplicationName,
+                    ApplicationMapTable.Self, "tenantId",
+                    serviceName, applicationName,
+                    serviceName, applicationName,
                     histogramSchema.getSumStatSlot().getSlotTime()
             );
             final TimeSeriesValue sumValue = new TimeSeriesValue(acceptedTime);
@@ -112,16 +97,42 @@ public class RedisInboundDao implements InboundDao {
         }
         if (mapLinkConfiguration.isEnableMax()) {
             final TimeSeriesKey maxStatKey = new TimeSeriesKey(
-                    ApplicationMapTable.Inbound, "tenantId",
-                    destServiceName, destApplicationName,
-                    srcServiceName, srcApplicationName,
+                    ApplicationMapTable.Self, "tenantId",
+                    serviceName, applicationName,
+                    serviceName, applicationName,
                     histogramSchema.getMaxStatSlot().getSlotTime()
             );
             final TimeSeriesValue maxValue = new TimeSeriesValue(acceptedTime);
             this.bulkWriter.updateMax(maxStatKey, maxValue, elapsed);
         }
-
     }
+
+    @Override
+    public void updatePing(
+            String serviceName, String applicationName, ServiceType applicationType,
+            int elapsed, boolean isError
+    ) {
+        Objects.requireNonNull(serviceName, "serviceName");
+        Objects.requireNonNull(applicationName, "applicationName");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("[Received] {} {} ({})", serviceName, applicationName, applicationType);
+        }
+
+        // make row key. rowkey is me
+        final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationType, elapsed, isError);
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+
+        final TimeSeriesKey selfPingKey = new TimeSeriesKey(
+                ApplicationMapTable.Self, "tenantId",
+                serviceName, applicationName,
+                serviceName, applicationName,
+                slotNumber
+        );
+        TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
+        this.bulkWriter.increment(selfPingKey, addOne);
+    }
+
 
     @Override
     public void flushLink() {
@@ -132,5 +143,4 @@ public class RedisInboundDao implements InboundDao {
     public void flushAvgMax() {
         this.bulkWriter.flushAvgMax();
     }
-
 }

@@ -40,7 +40,7 @@ public class TimeSeriesKey {
             ApplicationMapTable tableKind, String tenantId,
             String mainServiceId, String mainApplicationName,
             String subServiceId, String subApplicationName,
-            String subServiceTypeSlot
+            short subServiceTypeSlot
     ) {
         this.tableKind = new LabelToKey(TimeSeriesLabel.TABLE_KIND, tableKind.getTable());
         this.tenantId = new LabelToKey(TimeSeriesLabel.TENANT_ID, tenantId);
@@ -48,7 +48,7 @@ public class TimeSeriesKey {
         this.mainApplicationName = new LabelToKey(TimeSeriesLabel.MAIN_APPLICATION_NAME, mainApplicationName);
         this.subServiceId = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_ID, subServiceId);
         this.subApplicationName = new LabelToKey(TimeSeriesLabel.SUB_APPLICATION_NAME, subApplicationName);
-        this.subServiceTypeSlot = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, subServiceTypeSlot);
+        this.subServiceTypeSlot = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, String.valueOf(subServiceTypeSlot));
     }
 
     public String getKey() {
