@@ -13,17 +13,6 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="uriStatSummaryOld" type="UriStatSummary">
-        <constructor>
-            <arg column="uri" javaType="string"/>
-            <arg column="totalCount" javaType="_double"/>
-            <arg column="failureCount" javaType="_double"/>
-            <arg column="maxLatencyMs" javaType="_double"/>
-            <arg column="totalTimeMs" javaType="_double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
-    </resultMap>
-
     <select id="uriStatSummary" resultMap="uriStatSummary" parameterType="UriStatSummaryQueryParameter">
         SELECT
             uri,

@@ -34,7 +34,7 @@ public class UriStatSummaryServiceImpl implements UriStatSummaryService {
     }
 
     @Override
-    public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatSummaryQueryParameter queryParameter) {
+    public List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         return uriStatSummaryDao.getUriStatPagedSummary(queryParameter);
     }
 }

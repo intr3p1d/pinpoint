@@ -91,7 +91,7 @@ public class UriStatController {
                 .setLimit(count)
                 .build();
 
-        return uriStatService.getUriStatApplicationPagedSummary(query);
+        return uriStatService.getUriStatPagedSummary(query);
     }
 
     @GetMapping("/chart")
@@ -121,10 +121,6 @@ public class UriStatController {
     }
 
     private List<UriStatChartValue> getChartData(UriStatChartType chartType, UriStatChartQueryParameter query) {
-        if (query.isApplicationStat()) {
-            return uriStatChartService.getUriStatChartDataApplication(chartType, query);
-        } else {
-            return uriStatChartService.getUriStatChartDataAgent(chartType, query);
-        }
+        return uriStatChartService.getUriStatChartData(chartType, query);
     }
 }
