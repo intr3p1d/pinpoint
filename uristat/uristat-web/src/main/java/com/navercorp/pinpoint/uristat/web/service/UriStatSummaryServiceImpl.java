@@ -34,18 +34,6 @@ public class UriStatSummaryServiceImpl implements UriStatSummaryService {
     }
 
     @Override
-    @Deprecated
-    public List<UriStatSummary> getUriStatApplicationSummary(UriStatSummaryQueryParameter queryParameter) {
-        return uriStatSummaryDao.getUriStatApplicationSummary(queryParameter);
-    }
-
-    @Override
-    @Deprecated
-    public List<UriStatSummary> getUriStatAgentSummary(UriStatSummaryQueryParameter queryParameter) {
-        return uriStatSummaryDao.getUriStatAgentSummary(queryParameter);
-    }
-
-    @Override
     public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         return uriStatSummaryDao.getUriStatApplicationPagedSummary(queryParameter);
     }

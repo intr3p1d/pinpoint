@@ -98,30 +98,6 @@ public class UriStatController {
         }
     }
 
-    @GetMapping("top50")
-    @Deprecated
-    public List<UriStatSummary> getUriStatSummary(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to
-    ) {
-        Range range = checkTimeRange(from, to);
-        UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
-                .setTenantId(tenantProvider.getTenantId())
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(range)
-                .build();
-
-        if (query.isApplicationStat()) {
-            return uriStatService.getUriStatApplicationSummary(query);
-        } else {
-            return uriStatService.getUriStatAgentSummary(query);
-        }
-    }
-
-    @Deprecated
     @GetMapping("/chart")
     public UriStatView getCollectedUriStat(
             @RequestParam("applicationName") String applicationName,

@@ -60,39 +60,4 @@
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{limit}
     </select>
-
-    <select id="top50UriStatApplication" resultMap="uriStatSummaryOld" parameterType="UriStatSummaryQueryParameter">
-        SELECT
-            uri,
-            sum("count") as totalCount,
-            max(maxLatencyMs) as maxLatencyMs,
-            sum(totalTimeMs) as totalTimeMs,
-            sum(failureCount) as failureCount,
-            version
-        FROM uriStat
-        WHERE tenantId = #{tenantId}
-         AND applicationName = #{applicationName}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        GROUP BY uri, version
-        ORDER BY totalCount desc
-        LIMIT 50
-    </select>
-
-    <select id="top50UriStatAgent" resultMap="uriStatSummaryOld" parameterType="UriStatSummaryQueryParameter">
-        SELECT
-            uri,
-            sum("count") as totalCount,
-            max(maxLatencyMs) as maxLatencyMs,
-            sum(totalTimeMs) as totalTimeMs,
-            sum(failureCount) as failureCount,
-            version
-        FROM uriStat
-        WHERE tenantId = #{tenantId}
-          AND applicationName = #{applicationName}
-          AND agentId = #{agentId}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        GROUP BY uri, version
-        ORDER BY totalCount desc
-        LIMIT 50
-    </select>
 </mapper>
