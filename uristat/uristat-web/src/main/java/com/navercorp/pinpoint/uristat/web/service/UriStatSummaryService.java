@@ -23,6 +23,4 @@ import java.util.List;
 
 public interface UriStatSummaryService {
     List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatSummaryQueryParameter queryParameter);
-    List<UriStatSummary> getUriStatAgentPagedSummary(UriStatSummaryQueryParameter queryParameter);
-
 }

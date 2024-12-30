@@ -49,7 +49,7 @@ public class UriStatController {
     private final TenantProvider tenantProvider;
     private final UriStatChartService uriStatChartService;
     private final UriStatChartTypeFactory chartTypeFactory;
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
+    private static final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
     private final RangeValidator rangeValidator;
 
     public UriStatController(UriStatSummaryService uriStatService,
@@ -91,11 +91,7 @@ public class UriStatController {
                 .setLimit(count)
                 .build();
 
-        if (query.isApplicationStat()) {
-            return uriStatService.getUriStatApplicationPagedSummary(query);
-        } else {
-            return uriStatService.getUriStatAgentPagedSummary(query);
-        }
+        return uriStatService.getUriStatApplicationPagedSummary(query);
     }
 
     @GetMapping("/chart")

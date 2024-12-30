@@ -32,7 +32,7 @@ public class PinotUriStatSummaryDao implements UriStatSummaryDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String NAMESPACE = PinotUriStatSummaryDao.class.getName() + ".";
-
+    private static final String SELECT_URI_STAT_SUMMARY = "uriStatSummary";
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
     public PinotUriStatSummaryDao(@Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
@@ -40,12 +40,8 @@ public class PinotUriStatSummaryDao implements UriStatSummaryDao {
     }
 
     @Override
-    public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatSummaryQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "uriStatApplicationSummary", queryParameter);
+    public List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_URI_STAT_SUMMARY, queryParameter);
     }
 
-    @Override
-    public List<UriStatSummary> getUriStatAgentPagedSummary(UriStatSummaryQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "uriStatAgentSummary", queryParameter);
-    }
 }

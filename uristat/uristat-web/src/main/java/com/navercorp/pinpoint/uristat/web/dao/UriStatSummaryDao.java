@@ -22,7 +22,5 @@ import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import java.util.List;
 
 public interface UriStatSummaryDao {
-    List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatSummaryQueryParameter uriStatQueryParameter);
-    List<UriStatSummary> getUriStatAgentPagedSummary(UriStatSummaryQueryParameter uriStatQueryParameter);
-
+    List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter uriStatQueryParameter);
 }
