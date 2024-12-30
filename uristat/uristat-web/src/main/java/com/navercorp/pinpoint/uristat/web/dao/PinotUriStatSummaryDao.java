@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.dao;
 
+import com.navercorp.pinpoint.uristat.web.mapper.EntityToModelMapper;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import org.apache.logging.log4j.LogManager;
@@ -34,9 +35,14 @@ public class PinotUriStatSummaryDao implements UriStatSummaryDao {
     private static final String NAMESPACE = PinotUriStatSummaryDao.class.getName() + ".";
     private static final String SELECT_URI_STAT_SUMMARY = "uriStatSummary";
     private final SqlSessionTemplate sqlPinotSessionTemplate;
+    private final EntityToModelMapper mapper;
 
-    public PinotUriStatSummaryDao(@Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
+    public PinotUriStatSummaryDao(
+            @Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate,
+            EntityToModelMapper mapper
+    ) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @Override

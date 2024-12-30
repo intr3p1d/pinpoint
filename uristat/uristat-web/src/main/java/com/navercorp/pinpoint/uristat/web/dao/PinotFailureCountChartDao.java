@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.dao;
 
+import com.navercorp.pinpoint.uristat.web.mapper.EntityToModelMapper;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -15,9 +16,14 @@ public class PinotFailureCountChartDao implements UriStatChartDao {
     private static final String SELECT_FAILURE_CHART = "selectFailedUriStat";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
+    private final EntityToModelMapper mapper;
 
-    public PinotFailureCountChartDao(@Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
+    public PinotFailureCountChartDao(
+            @Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate,
+            EntityToModelMapper mapper
+    ) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @Override
