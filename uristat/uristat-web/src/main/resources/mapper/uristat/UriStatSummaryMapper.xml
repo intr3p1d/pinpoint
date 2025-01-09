@@ -24,4 +24,63 @@
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{limit}
     </select>
+
+
+    <sql id="totalChart">
+            sum(fail0) as fail0,
+            sum(fail1) as fail1,
+            sum(fail2) as fail2,
+            sum(fail3) as fail3,
+            sum(fail4) as fail4,
+            sum(fail5) as fail5,
+            sum(fail6) as fail6,
+            sum(fail7) as fail7,
+    </sql>
+
+    <sql id="failureChart">
+            sum(fail0) as fail0,
+            sum(fail1) as fail1,
+            sum(fail2) as fail2,
+            sum(fail3) as fail3,
+            sum(fail4) as fail4,
+            sum(fail5) as fail5,
+            sum(fail6) as fail6,
+            sum(fail7) as fail7,
+    </sql>
+
+    <sql id="apdexChart">
+            sum(apdexRaw) as apdexRaw,
+            sum("count") as count,
+    </sql>
+
+    <sql id="latencyChart">
+            sum(totalTimeMs) as totalTimeMs,
+            max(maxLatencyMs) as maxLatencyMs,
+            sum("count") as count,
+    </sql>
+
+    <select id="uriStatSummaryTotal" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        SELECT
+        DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        <include refid="totalChart"></include>
+        uri,
+        sum(apdexRaw) as apdexRaw,
+        sum("count") as totalCount,
+        max(maxLatencyMs) as maxTimeMs,
+        sum(totalTimeMs) as totalTimeMs,
+        sum(failureCount) as failureCount,
+        version
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        GROUP BY "timestamp", uri, version
+        ORDER BY ${orderBy} ${isDesc}
+        LIMIT #{limit}
+    </select>
+
 </mapper>

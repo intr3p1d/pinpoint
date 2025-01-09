@@ -16,12 +16,8 @@
 package com.navercorp.pinpoint.uristat.web.mapper;
 
 import com.google.common.primitives.Doubles;
-import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.util.MathUtils;
-import com.navercorp.pinpoint.uristat.web.entity.ApdexChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.FailureChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.LatencyChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.TotalChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
@@ -68,29 +64,29 @@ public interface EntityToModelMapper {
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toTotalHistogram")
-    UriStatChartValue toModel(TotalChartEntity entity);
+    UriStatChartValue toTotalChart(UriStatChartEntity entity);
 
     @ToChartValue
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toFailureHistogram")
-    UriStatChartValue toModel(FailureChartEntity entity);
+    UriStatChartValue toFailureChart(UriStatChartEntity entity);
 
     @ToChartValue
     @Mapping(target = "chartType", constant = "line")
     @Mapping(target = "unit", constant = "ms")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toLatency")
-    UriStatChartValue toModel(LatencyChartEntity entity);
+    UriStatChartValue toLatencyChart(UriStatChartEntity entity);
 
 
     @ToChartValue
     @Mapping(target = "chartType", constant = "line")
     @Mapping(target = "unit", constant = "")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toApdexList")
-    UriStatChartValue toModel(ApdexChartEntity entity);
+    UriStatChartValue toApdexChart(UriStatChartEntity entity);
 
     @Named("toTotalHistogram")
-    default List<Double> toTotalHistogram(TotalChartEntity entity) {
+    default List<Double> toTotalHistogram(UriStatChartEntity entity) {
         return toHistogram(
                 entity.getTot0(), entity.getTot1(), entity.getTot2(), entity.getTot3(),
                 entity.getTot4(), entity.getTot5(), entity.getTot6(), entity.getTot7()
@@ -98,7 +94,7 @@ public interface EntityToModelMapper {
     }
 
     @Named("toFailureHistogram")
-    default List<Double> toFailureHistogram(FailureChartEntity entity) {
+    default List<Double> toFailureHistogram(UriStatChartEntity entity) {
         return toHistogram(
                 entity.getFail0(), entity.getFail1(), entity.getFail2(), entity.getFail3(),
                 entity.getFail4(), entity.getFail5(), entity.getFail6(), entity.getFail7()
@@ -113,12 +109,12 @@ public interface EntityToModelMapper {
     }
 
     @Named("toLatency")
-    default List<Double> toLatency(LatencyChartEntity entity) {
+    default List<Double> toLatency(UriStatChartEntity entity) {
         return Doubles.asList((entity.getCount() == 0) ? -1 : (entity.getTotalTimeMs() / entity.getCount()), entity.getMaxLatencyMs());
     }
 
     @Named("toApdexList")
-    default List<Double> toApdexList(ApdexChartEntity entity) {
+    default List<Double> toApdexList(UriStatChartEntity entity) {
         return Doubles.asList((entity.getCount() == 0) ? -1 : (entity.getApdexRaw() / entity.getCount()));
     }
 }

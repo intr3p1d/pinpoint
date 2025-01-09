@@ -78,7 +78,8 @@ public class UriStatController {
             @RequestParam("to") long to,
             @RequestParam("orderby") String column,
             @RequestParam("isDesc") boolean isDesc,
-            @RequestParam("count") int count
+            @RequestParam("count") int count,
+            @RequestParam(value = "type", required = false) String type
     ) {
         Range range = checkTimeRange(from, to);
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
@@ -90,6 +91,7 @@ public class UriStatController {
                 .setDesc(isDesc)
                 .setLimit(count)
                 .build();
+        UriStatChartType chartType = chartTypeFactory.valueOf(type.toLowerCase());
 
         return uriStatService.getUriStatPagedSummary(query);
     }
