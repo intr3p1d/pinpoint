@@ -40,9 +40,19 @@ import java.util.List;
 )
 public interface EntityToModelMapper {
 
+    @Retention(RetentionPolicy.CLASS)
     @Mapping(target = "apdex", source = "entity", qualifiedByName = "toApdex")
     @Mapping(target = "avgTimeMs", source = "entity", qualifiedByName = "toAvgTimeMs")
+    public @interface ToStatSummary {
+    }
+
+    @ToStatSummary
+    @Mapping(target = "chartValue", ignore = true)
     UriStatSummary toModel(UriStatSummaryEntity entity);
+
+    @ToStatSummary
+    @Mapping(target = "chartValue", source = "entity", qualifiedByName = "toTotalChart")
+    UriStatSummary toTotalSummary(UriStatSummaryEntity entity);
 
     @Named("toApdex")
     default Double toApdex(UriStatSummaryEntity entity) {
@@ -61,18 +71,21 @@ public interface EntityToModelMapper {
     }
 
     @ToChartValue
+    @Named("toTotalChart")
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toTotalHistogram")
     UriStatChartValue toTotalChart(UriStatChartEntity entity);
 
     @ToChartValue
+    @Named("toFailureChart")
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toFailureHistogram")
     UriStatChartValue toFailureChart(UriStatChartEntity entity);
 
     @ToChartValue
+    @Named("toLatencyChart")
     @Mapping(target = "chartType", constant = "line")
     @Mapping(target = "unit", constant = "ms")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toLatency")
@@ -80,6 +93,7 @@ public interface EntityToModelMapper {
 
 
     @ToChartValue
+    @Named("toApdexChart")
     @Mapping(target = "chartType", constant = "line")
     @Mapping(target = "unit", constant = "")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toApdexList")

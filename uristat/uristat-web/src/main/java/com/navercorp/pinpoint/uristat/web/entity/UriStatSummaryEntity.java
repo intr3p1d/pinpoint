@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.uristat.web.entity;
 /**
  * @author intr3p1d
  */
-public class UriStatSummaryEntity {
+public class UriStatSummaryEntity extends UriStatChartEntity {
     private String uri;
     private Double apdexRaw;
     private Double totalCount;
