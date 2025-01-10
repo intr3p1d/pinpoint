@@ -25,12 +25,14 @@ import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartTypeFactory;
+import com.navercorp.pinpoint.uristat.web.mapper.ModelToViewMapper;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.service.UriStatChartService;
 import com.navercorp.pinpoint.uristat.web.service.UriStatSummaryService;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
+import com.navercorp.pinpoint.uristat.web.view.UriStatSummaryView;
 import com.navercorp.pinpoint.uristat.web.view.UriStatView;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -51,17 +54,22 @@ public class UriStatController {
     private final UriStatChartTypeFactory chartTypeFactory;
     private static final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
     private final RangeValidator rangeValidator;
+    private final ModelToViewMapper mapper;
 
-    public UriStatController(UriStatSummaryService uriStatService,
-                             UriStatChartService uriStatChartService,
-                             TenantProvider tenantProvider,
-                             UriStatChartTypeFactory chartTypeFactory,
-                             @Qualifier("rangeValidator30d") RangeValidator rangeValidator) {
+    public UriStatController(
+            UriStatSummaryService uriStatService,
+            UriStatChartService uriStatChartService,
+            TenantProvider tenantProvider,
+            UriStatChartTypeFactory chartTypeFactory,
+            @Qualifier("rangeValidator30d") RangeValidator rangeValidator,
+            ModelToViewMapper mapper
+    ) {
         this.uriStatService = Objects.requireNonNull(uriStatService);
         this.uriStatChartService = Objects.requireNonNull(uriStatChartService);
         this.chartTypeFactory = Objects.requireNonNull(chartTypeFactory);
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
         this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     private Range checkTimeRange(long from, long to) {
@@ -71,7 +79,7 @@ public class UriStatController {
     }
 
     @GetMapping("/summary")
-    public List<UriStatSummary> getUriStatPagedSummary(
+    public List<UriStatSummaryView> getUriStatPagedSummary(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") long from,
@@ -82,6 +90,8 @@ public class UriStatController {
             @RequestParam(value = "type", required = false) String type
     ) {
         Range range = checkTimeRange(from, to);
+        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
+
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -91,9 +101,20 @@ public class UriStatController {
                 .setDesc(isDesc)
                 .setLimit(count)
                 .build();
-        UriStatChartType chartType = chartTypeFactory.valueOf(type.toLowerCase());
 
-        return uriStatService.getUriStatPagedSummary(query);
+        if (type == null) {
+            List<UriStatSummary> summaries = uriStatService.getUriStatPagedSummary(query);
+            return summaries.stream()
+                    .map(mapper::toSummaryView
+                    ).toList();
+        } else {
+            UriStatChartType chartType = chartTypeFactory.valueOf(type.toLowerCase());
+            List<UriStatSummary> summaries = uriStatService.getUriStatMiniChart(chartType, query);
+            return summaries.stream()
+                    .map((UriStatSummary e)
+                            -> mapper.toSummaryView(e, timeWindow, chartType)
+                    ).toList();
+        }
     }
 
     @GetMapping("/chart")

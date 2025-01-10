@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.service;
 
+import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.dao.UriStatSummaryDao;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
@@ -36,5 +37,10 @@ public class UriStatSummaryServiceImpl implements UriStatSummaryService {
     @Override
     public List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         return uriStatSummaryDao.getUriStatPagedSummary(queryParameter);
+    }
+
+    @Override
+    public List<UriStatSummary> getUriStatMiniChart(UriStatChartType type, UriStatSummaryQueryParameter queryParameter) {
+        return type.getSummaryDao().getUriStatPagedSummary(queryParameter);
     }
 }
