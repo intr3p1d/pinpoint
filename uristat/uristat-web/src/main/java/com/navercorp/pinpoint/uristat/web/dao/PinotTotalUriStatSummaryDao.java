@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +32,7 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
+@Repository
 public class PinotTotalUriStatSummaryDao implements UriStatSummaryDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
