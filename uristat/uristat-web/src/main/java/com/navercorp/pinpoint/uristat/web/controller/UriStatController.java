@@ -53,6 +53,7 @@ public class UriStatController {
     private final UriStatChartService uriStatChartService;
     private final UriStatChartTypeFactory chartTypeFactory;
     private static final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
+    private static final TimeWindowSampler ROUGH_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 10);
     private final RangeValidator rangeValidator;
     private final ModelToViewMapper mapper;
 
@@ -90,13 +91,15 @@ public class UriStatController {
             @RequestParam(value = "type", required = false) String type
     ) {
         Range range = checkTimeRange(from, to);
-        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = new TimeWindow(range, ROUGH_TIME_WINDOW_SAMPLER);
 
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(range)
+                .setTimeSize((int) timeWindow.getWindowSlotSize())
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
                 .setOrderby(column)
                 .setDesc(isDesc)
                 .setLimit(count)
