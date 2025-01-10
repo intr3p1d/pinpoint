@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.uristat.web.dao;
 
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import com.navercorp.pinpoint.uristat.web.mapper.EntityToModelMapper;
+import com.navercorp.pinpoint.uristat.web.mapper.MapperUtils;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import org.apache.logging.log4j.LogManager;
@@ -52,8 +53,9 @@ public class PinotTotalUriStatSummaryDao implements UriStatSummaryDao {
         List<UriStatSummaryEntity> entities = sqlPinotSessionTemplate.selectList(
                 NAMESPACE + SELECT_URI_STAT_SUMMARY_TOTAL, queryParameter
         );
-        return entities.stream()
-                .map(mapper::toModel
+        List<List<UriStatSummaryEntity>> listOfEntities = MapperUtils.groupByUriAndVersion(entities);
+        return listOfEntities.stream()
+                .map(mapper::toTotalSummary
                 ).toList();
     }
 }

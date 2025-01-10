@@ -15,9 +15,32 @@
  */
 package com.navercorp.pinpoint.uristat.web.view;
 
+import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
+
+import java.util.List;
+
 /**
  * @author intr3p1d
  */
 public class UriStatSummaryWithChart {
+
+    UriStatSummary summary;
+    UriStatView chartView;
+
+    public UriStatSummaryWithChart(UriStatSummary summary, UriStatView chartView) {
+        this.summary = summary;
+        this.chartView = chartView;
+    }
+
+    public List<UriStatSummaryWithChart> reduce(List<UriStatSummary> summaries) {
+        // summaries 를 uri, version 기준으로 groupby 하여
+        // 같은 group 내의 totalCount, failureCount, maxTimeMs, avgTimeMs, apdex 는 합산하고
+        // chartValue 는 List 로 묶는다.
+        // 그리고 그룹별로 UriStatSummaryWithChart 를 생성하여 List 로 반환한다.
+
+//        List<List<UriStatSummary>> listOfSummaries = summaries.stream().
+
+        return null;
+    }
 
 }

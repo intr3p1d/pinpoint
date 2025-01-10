@@ -30,15 +30,18 @@ import org.mapstruct.Named;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author intr3p1d
  */
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        uses = {MapperUtils.class}
 )
 public interface EntityToModelMapper {
+
 
     @Retention(RetentionPolicy.CLASS)
     @Mapping(target = "apdex", source = "entity", qualifiedByName = "toApdex")
@@ -50,18 +53,33 @@ public interface EntityToModelMapper {
     @Mapping(target = "chartValue", ignore = true)
     UriStatSummary toModel(UriStatSummaryEntity entity);
 
-    @ToStatSummary
-    @Mapping(target = "chartValue", source = "entity", qualifiedByName = "toTotalChart")
-    UriStatSummary toTotalSummary(UriStatSummaryEntity entity);
-
-    @Named("toApdex")
-    default Double toApdex(UriStatSummaryEntity entity) {
-        return MathUtils.average(entity.getApdexRaw(), entity.getTotalCount());
+    default UriStatSummary toTotalSummary(List<UriStatSummaryEntity> entity) {
+        return mergeSummary(entity, this::toTotalChart);
     }
 
-    @Named("toAvgTimeMs")
-    default Double toAvgTimeMs(UriStatSummaryEntity entity) {
-        return MathUtils.average(entity.getTotalTimeMs(), entity.getTotalCount());
+    default UriStatSummary toFailureSummary(List<UriStatSummaryEntity> entity) {
+        return mergeSummary(entity, this::toFailureChart);
+    }
+
+    default UriStatSummary toLatencySummary(List<UriStatSummaryEntity> entity) {
+        return mergeSummary(entity, this::toLatencyChart);
+    }
+
+    default UriStatSummary toApdexSummary(List<UriStatSummaryEntity> entity) {
+        return mergeSummary(entity, this::toApdexChart);
+    }
+
+    default UriStatSummary mergeSummary(
+            List<UriStatSummaryEntity> entities,
+            Function<UriStatChartEntity, UriStatChartValue> mapper
+    ) {
+        UriStatSummaryEntity mergedEntity = MapperUtils.mergeSummaryEntities(entities, mapper);
+        List<UriStatChartValue> chartValues = entities.stream()
+                .map(mapper)
+                .toList();
+        UriStatSummary summary = toModel(mergedEntity);
+        summary.setChartValue(chartValues);
+        return summary;
     }
 
     @Retention(RetentionPolicy.CLASS)
@@ -99,36 +117,4 @@ public interface EntityToModelMapper {
     @Mapping(target = "values", source = "entity", qualifiedByName = "toApdexList")
     UriStatChartValue toApdexChart(UriStatChartEntity entity);
 
-    @Named("toTotalHistogram")
-    default List<Double> toTotalHistogram(UriStatChartEntity entity) {
-        return toHistogram(
-                entity.getTot0(), entity.getTot1(), entity.getTot2(), entity.getTot3(),
-                entity.getTot4(), entity.getTot5(), entity.getTot6(), entity.getTot7()
-        );
-    }
-
-    @Named("toFailureHistogram")
-    default List<Double> toFailureHistogram(UriStatChartEntity entity) {
-        return toHistogram(
-                entity.getFail0(), entity.getFail1(), entity.getFail2(), entity.getFail3(),
-                entity.getFail4(), entity.getFail5(), entity.getFail6(), entity.getFail7()
-        );
-    }
-
-    default List<Double> toHistogram(
-            Double hist0, Double hist1, Double hist2, Double hist3,
-            Double hist4, Double hist5, Double hist6, Double hist7
-    ) {
-        return Doubles.asList(hist0, hist1, hist2, hist3, hist4, hist5, hist6, hist7);
-    }
-
-    @Named("toLatency")
-    default List<Double> toLatency(UriStatChartEntity entity) {
-        return Doubles.asList((entity.getCount() == 0) ? -1 : (entity.getTotalTimeMs() / entity.getCount()), entity.getMaxLatencyMs());
-    }
-
-    @Named("toApdexList")
-    default List<Double> toApdexList(UriStatChartEntity entity) {
-        return Doubles.asList((entity.getCount() == 0) ? -1 : (entity.getApdexRaw() / entity.getCount()));
-    }
 }
