@@ -73,7 +73,7 @@ public interface EntityToModelMapper {
             List<UriStatSummaryEntity> entities,
             Function<UriStatChartEntity, UriStatChartValue> mapper
     ) {
-        UriStatSummaryEntity mergedEntity = MapperUtils.mergeSummaryEntities(entities, mapper);
+        UriStatSummaryEntity mergedEntity = entities.get(0);
         List<UriStatChartValue> chartValues = entities.stream()
                 .map(mapper)
                 .toList();

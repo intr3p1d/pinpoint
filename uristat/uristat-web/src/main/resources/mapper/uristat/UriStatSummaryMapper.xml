@@ -25,6 +25,9 @@
         LIMIT #{limit}
     </select>
 
+    <sql id="useMultiStageEngine">
+        SET useMultiStageEngine = true;
+    </sql>
 
     <sql id="totalChart">
             sum(tot0) as tot0,
@@ -58,14 +61,14 @@
     </sql>
 
     <sql id="selectStatSummary">
-        DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        DATETIMECONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
         uri,
-        sum(apdexRaw) as apdexRaw,
-        sum("count") as totalCount,
-        max(maxLatencyMs) as maxTimeMs,
-        sum(totalTimeMs) as totalTimeMs,
-        sum(failureCount) as failureCount,
+        sum(sum(apdexRaw)) OVER (PARTITION BY uri, version) as apdexRaw,
+        sum(sum("count")) OVER (PARTITION BY uri, version) as totalCount,
+        max(max(maxLatencyMs)) OVER (PARTITION BY uri, version) as maxTimeMs,
+        sum(sum(totalTimeMs)) OVER (PARTITION BY uri, version) as totalTimeMs,
+        sum(sum(failureCount)) OVER (PARTITION BY uri, version) as failureCount,
         version
         FROM uriStat
         WHERE tenantId = #{tenantId}
@@ -80,24 +83,28 @@
     </sql>
 
     <select id="uriStatSummaryTotal" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
         SELECT
         <include refid="totalChart"></include>
         <include refid="selectStatSummary"></include>
     </select>
 
     <select id="uriStatSummaryFailure" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
         SELECT
         <include refid="failureChart"></include>
         <include refid="selectStatSummary"></include>
     </select>
 
     <select id="uriStatSummaryApdex" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
         SELECT
         <include refid="apdexChart"></include>
         <include refid="selectStatSummary"></include>
     </select>
 
     <select id="uriStatSummaryLatency" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
         SELECT
         <include refid="latencyChart"></include>
         <include refid="selectStatSummary"></include>

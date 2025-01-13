@@ -31,42 +31,18 @@ import java.util.stream.Collectors;
  * @author intr3p1d
  */
 public class MapperUtils {
-    public static List<List<UriStatSummaryEntity>> groupByUriAndVersion(List<UriStatSummaryEntity> entities) {
+    public static List<List<UriStatSummaryEntity>> groupByUriAndVersion(
+            List<UriStatSummaryEntity> entities,
+            long originalLimit
+    ) {
         // Use LinkedHashMap to preserve the order of the entities as much as possible
         return entities.stream()
                 .collect(
                         Collectors.groupingBy(
                                 entity -> entity.getUri() + entity.getVersion(), LinkedHashMap::new, Collectors.toList()
                         )
-                ).values().stream().toList();
+                ).values().stream().toList().subList(0, (int) originalLimit);
     }
-
-    public static UriStatSummaryEntity mergeSummaryEntities(
-            List<UriStatSummaryEntity> entities,
-            Function<UriStatChartEntity, UriStatChartValue> mapper
-    ) {
-        UriStatSummaryEntity mergedEntity = new UriStatSummaryEntity();
-        mergedEntity.setApdexRaw(
-                entities.stream().mapToDouble(UriStatSummaryEntity::getApdexRaw).sum()
-        );
-        mergedEntity.setTotalCount(
-                entities.stream().mapToDouble(UriStatSummaryEntity::getTotalCount).sum()
-        );
-        mergedEntity.setFailureCount(
-                entities.stream().mapToDouble(UriStatSummaryEntity::getFailureCount).sum()
-        );
-        mergedEntity.setMaxTimeMs(
-                entities.stream().mapToDouble(UriStatSummaryEntity::getMaxTimeMs).max().orElse(0)
-        );
-        mergedEntity.setTotalTimeMs(
-                entities.stream().mapToDouble(UriStatSummaryEntity::getTotalTimeMs).sum()
-        );
-        mergedEntity.setUri(entities.get(0).getUri());
-        mergedEntity.setVersion(entities.get(0).getVersion());
-
-        return mergedEntity;
-    }
-
 
     @Named("toApdex")
     public static Double toApdex(UriStatSummaryEntity entity) {

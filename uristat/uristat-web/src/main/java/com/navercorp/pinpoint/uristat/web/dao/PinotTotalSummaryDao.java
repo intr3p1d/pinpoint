@@ -55,7 +55,7 @@ public class PinotTotalSummaryDao implements UriStatSummaryDao {
         List<UriStatSummaryEntity> entities = sqlPinotSessionTemplate.selectList(
                 NAMESPACE + URI_STAT_SUMMARY_TOTAL, queryParameter
         );
-        List<List<UriStatSummaryEntity>> listOfEntities = MapperUtils.groupByUriAndVersion(entities);
+        List<List<UriStatSummaryEntity>> listOfEntities = MapperUtils.groupByUriAndVersion(entities, queryParameter.getLimit());
         return listOfEntities.stream()
                 .map(mapper::toTotalSummary
                 ).toList();

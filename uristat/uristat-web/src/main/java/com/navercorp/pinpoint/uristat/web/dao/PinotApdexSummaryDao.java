@@ -54,7 +54,7 @@ public class PinotApdexSummaryDao implements UriStatSummaryDao {
         List<UriStatSummaryEntity> entities = sqlPinotSessionTemplate.selectList(
                 NAMESPACE + URI_STAT_SUMMARY_APDEX, uriStatQueryParameter
         );
-        List<List<UriStatSummaryEntity>> listOfEntities = MapperUtils.groupByUriAndVersion(entities);
+        List<List<UriStatSummaryEntity>> listOfEntities = MapperUtils.groupByUriAndVersion(entities, uriStatQueryParameter.getLimit());
         return listOfEntities.stream()
                 .map(mapper::toApdexSummary
                 ).toList();
