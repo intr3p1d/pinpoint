@@ -38,32 +38,35 @@ public class UriStatChartTypeConfiguration {
     @Bean
     public UriStatChartType uriStatTotalChart(
             @Qualifier("pinotTotalCountChartDao") UriStatChartDao chartDao,
-            @Qualifier("pinotTotalUriStatSummaryDao") UriStatSummaryDao summaryDao
+            @Qualifier("pinotTotalSummaryDao") UriStatSummaryDao summaryDao
     ) {
         return new DefaultUriStatChartType("total", HISTOGRAM_FIELD, chartDao, summaryDao);
     }
 
     @Bean
     public UriStatChartType uriStatFailureChart(
-            @Qualifier("pinotFailureCountChartDao") UriStatChartDao chartDao
+            @Qualifier("pinotFailureCountChartDao") UriStatChartDao chartDao,
+            @Qualifier("pinotFailureSummaryDao") UriStatSummaryDao summaryDao
     ) {
-        return new DefaultUriStatChartType("failure", HISTOGRAM_FIELD, chartDao, null);
+        return new DefaultUriStatChartType("failure", HISTOGRAM_FIELD, chartDao, summaryDao);
     }
 
     @Bean
     public UriStatChartType uriStatLatencyChart(
-            @Qualifier("pinotLatencyChartDao") UriStatChartDao chartDao
+            @Qualifier("pinotLatencyChartDao") UriStatChartDao chartDao,
+            @Qualifier("pinotLatencySummaryDao") UriStatSummaryDao summaryDao
     ) {
         List<String> field = List.of("avg", "max");
-        return new DefaultUriStatChartType("latency", field, chartDao, null);
+        return new DefaultUriStatChartType("latency", field, chartDao, summaryDao);
     }
 
     @Bean
     public UriStatChartType uriStatApdexChart(
-            @Qualifier("pinotApdexChartDao") UriStatChartDao chartDao
+            @Qualifier("pinotApdexChartDao") UriStatChartDao chartDao,
+            @Qualifier("pinotApdexSummaryDao") UriStatSummaryDao summaryDao
     ) {
         List<String> field = List.of("apdex");
-        return new DefaultUriStatChartType("apdex", field, chartDao, null);
+        return new DefaultUriStatChartType("apdex", field, chartDao, summaryDao);
     }
 
 

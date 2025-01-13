@@ -33,16 +33,16 @@ import java.util.Objects;
  * @author intr3p1d
  */
 @Repository
-public class PinotTotalUriStatSummaryDao implements UriStatSummaryDao {
+public class PinotTotalSummaryDao implements UriStatSummaryDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String NAMESPACE = PinotUriStatSummaryDao.class.getName() + ".";
-    private static final String SELECT_URI_STAT_SUMMARY_TOTAL = "uriStatSummaryTotal";
+    private static final String URI_STAT_SUMMARY_TOTAL = "uriStatSummaryTotal";
     private final SqlSessionTemplate sqlPinotSessionTemplate;
     private final EntityToModelMapper mapper;
 
-    public PinotTotalUriStatSummaryDao(
+    public PinotTotalSummaryDao(
             @Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate,
             EntityToModelMapper mapper
     ) {
@@ -53,7 +53,7 @@ public class PinotTotalUriStatSummaryDao implements UriStatSummaryDao {
     @Override
     public List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         List<UriStatSummaryEntity> entities = sqlPinotSessionTemplate.selectList(
-                NAMESPACE + SELECT_URI_STAT_SUMMARY_TOTAL, queryParameter
+                NAMESPACE + URI_STAT_SUMMARY_TOTAL, queryParameter
         );
         List<List<UriStatSummaryEntity>> listOfEntities = MapperUtils.groupByUriAndVersion(entities);
         return listOfEntities.stream()

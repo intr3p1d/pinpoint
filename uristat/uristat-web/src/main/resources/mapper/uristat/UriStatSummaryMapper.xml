@@ -49,21 +49,17 @@
     </sql>
 
     <sql id="apdexChart">
-            sum(apdexRaw) as apdexRaw,
-            sum("count") as count,
+            sum("count") as "count",
     </sql>
 
     <sql id="latencyChart">
-            sum(totalTimeMs) as totalTimeMs,
             max(maxLatencyMs) as maxLatencyMs,
-            sum("count") as count,
+            sum("count") as "count",
     </sql>
 
-    <select id="uriStatSummaryTotal" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
-        SELECT
+    <sql id="selectStatSummary">
         DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
         '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
-        <include refid="totalChart"></include>
         uri,
         sum(apdexRaw) as apdexRaw,
         sum("count") as totalCount,
@@ -81,6 +77,30 @@
         GROUP BY "timestamp", uri, version
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{tenTimesLimit}
+    </sql>
+
+    <select id="uriStatSummaryTotal" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        SELECT
+        <include refid="totalChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
+    <select id="uriStatSummaryFailure" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        SELECT
+        <include refid="failureChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
+    <select id="uriStatSummaryApdex" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        SELECT
+        <include refid="apdexChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
+    <select id="uriStatSummaryLatency" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        SELECT
+        <include refid="latencyChart"></include>
+        <include refid="selectStatSummary"></include>
     </select>
 
 </mapper>
