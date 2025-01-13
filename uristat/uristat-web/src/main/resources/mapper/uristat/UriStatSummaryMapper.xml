@@ -27,14 +27,14 @@
 
 
     <sql id="totalChart">
-            sum(fail0) as fail0,
-            sum(fail1) as fail1,
-            sum(fail2) as fail2,
-            sum(fail3) as fail3,
-            sum(fail4) as fail4,
-            sum(fail5) as fail5,
-            sum(fail6) as fail6,
-            sum(fail7) as fail7,
+            sum(tot0) as tot0,
+            sum(tot1) as tot1,
+            sum(tot2) as tot2,
+            sum(tot3) as tot3,
+            sum(tot4) as tot4,
+            sum(tot5) as tot5,
+            sum(tot6) as tot6,
+            sum(tot7) as tot7,
     </sql>
 
     <sql id="failureChart">

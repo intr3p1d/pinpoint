@@ -40,7 +40,8 @@ public class DefaultUriStatChartType implements UriStatChartType {
         this.type = Objects.requireNonNull(type, "type");
         this.fieldNames = Objects.requireNonNull(fieldNames, "fieldNames");
         this.chartDao = Objects.requireNonNull(chartDao, "chartDao");
-        this.summaryDao = Objects.requireNonNull(summaryDao, "summaryDao");
+        // this.summaryDao = Objects.requireNonNull(summaryDao, "summaryDao");
+        this.summaryDao = summaryDao;
     }
 
     @Override

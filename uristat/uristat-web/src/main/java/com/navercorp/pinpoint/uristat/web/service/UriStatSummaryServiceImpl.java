@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.dao.UriStatSummaryDao;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +31,9 @@ public class UriStatSummaryServiceImpl implements UriStatSummaryService {
 
     private final UriStatSummaryDao uriStatSummaryDao;
 
-    public UriStatSummaryServiceImpl(UriStatSummaryDao uriStatDao) {
+    public UriStatSummaryServiceImpl(
+            @Qualifier("pinotUriStatSummaryDao") UriStatSummaryDao uriStatDao
+    ) {
         this.uriStatSummaryDao = Objects.requireNonNull(uriStatDao);
     }
 
