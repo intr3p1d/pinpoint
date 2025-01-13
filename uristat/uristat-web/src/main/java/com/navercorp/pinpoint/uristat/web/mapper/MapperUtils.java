@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import org.mapstruct.Named;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,10 +32,11 @@ import java.util.stream.Collectors;
  */
 public class MapperUtils {
     public static List<List<UriStatSummaryEntity>> groupByUriAndVersion(List<UriStatSummaryEntity> entities) {
+        // Use LinkedHashMap to preserve the order of the entities as much as possible
         return entities.stream()
                 .collect(
                         Collectors.groupingBy(
-                                entity -> entity.getUri() + entity.getVersion()
+                                entity -> entity.getUri() + entity.getVersion(), LinkedHashMap::new, Collectors.toList()
                         )
                 ).values().stream().toList();
     }
