@@ -15,9 +15,11 @@
  */
 package com.navercorp.pinpoint.task;
 
+import com.navercorp.pinpoint.servermap.service.ServerMapService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.TimerTask;
 
 /**
@@ -26,21 +28,17 @@ import java.util.TimerTask;
 @Component
 public class ServerMapTasks {
 
+    ServerMapService serverMapService;
+
+    public ServerMapTasks(
+            ServerMapService serverMapService
+    ) {
+        this.serverMapService = Objects.requireNonNull(serverMapService, "serverMapService");
+    }
+
     @Scheduled(fixedRate = 5 * 60 * 1000)
     public void run() {
-        updateServerMap();
+        serverMapService.updateData();
     }
 
-    public void updateServerMap() {
-        readData();
-        writeData();
-    }
-
-    public void readData() {
-        // Read data from the database (Redis)
-    }
-
-    public void writeData() {
-        // Write data to the database (HBase)
-    }
 }

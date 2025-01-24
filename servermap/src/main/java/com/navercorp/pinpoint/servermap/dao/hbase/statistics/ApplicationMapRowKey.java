@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.servermap.dao.hbase;
+package com.navercorp.pinpoint.servermap.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.server.applicationmap.ApplicationMapUtils;
 
@@ -22,44 +22,44 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class ApplicationMapColumnName {
+public class ApplicationMapRowKey {
     private final String serviceName;
-    private final short applicationTypeCode;
+    private final short applicationType;
     private final String applicationName;
-    private final short columnSlotNumber;
+    private final long rowTimeSlot;
 
     // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
-    public ApplicationMapColumnName(
+    public ApplicationMapRowKey(
             String serviceName,
-            short applicationTypeCode, String applicationName,
-            short columnSlotNumber
+            short applicationType,
+            String applicationName,
+            long rowTimeSlot
     ) {
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
-        this.applicationTypeCode = applicationTypeCode;
+        this.applicationType = applicationType;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-        this.columnSlotNumber = columnSlotNumber;
+        this.rowTimeSlot = rowTimeSlot;
     }
 
-    public byte[] getColumnName() {
-        return ApplicationMapUtils.makeColumnName(
+    public byte[] getRowKey() {
+        return ApplicationMapUtils.makeRowKey(
                 serviceName,
-                applicationName, applicationTypeCode,
-                columnSlotNumber
+                applicationName, applicationType,
+                rowTimeSlot
         );
     }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApplicationMapColumnName that = (ApplicationMapColumnName) o;
+        ApplicationMapRowKey that = (ApplicationMapRowKey) o;
 
-        if (applicationTypeCode != that.applicationTypeCode) return false;
-        if (columnSlotNumber != that.columnSlotNumber) return false;
+        if (applicationType != that.applicationType) return false;
+        if (rowTimeSlot != that.rowTimeSlot) return false;
         if (hash != that.hash) return false;
         if (!serviceName.equals(that.serviceName)) return false;
         return applicationName.equals(that.applicationName);
@@ -68,20 +68,21 @@ public class ApplicationMapColumnName {
     @Override
     public int hashCode() {
         int result = serviceName.hashCode();
-        result = 31 * result + (int) applicationTypeCode;
+        result = 31 * result + (int) applicationType;
         result = 31 * result + applicationName.hashCode();
-        result = 31 * result + (int) columnSlotNumber;
+        result = 31 * result + (int) (rowTimeSlot ^ (rowTimeSlot >>> 32));
         result = 31 * result + hash;
         return result;
     }
 
     @Override
     public String toString() {
-        return "ApplicationMapColumnName{" +
-                "serviceName='" + serviceName + '\'' +
-                ", applicationTypeCode=" + applicationTypeCode +
-                ", applicationName='" + applicationName + '\'' +
-                ", columnSlotNumber=" + columnSlotNumber +
+        return "ServiceGroupRowKey{" +
+                "callServiceGroup='" + serviceName + '\'' +
+                ", thisServiceType=" + applicationType +
+                ", thisApplicationName='" + applicationName + '\'' +
+                ", rowTimeSlot=" + rowTimeSlot +
+                ", hash=" + hash +
                 '}';
     }
 }

@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.servermap.bo.DirectionalBo;
 import com.navercorp.pinpoint.servermap.dao.InboundDao;
 import com.navercorp.pinpoint.servermap.dao.OutboundDao;
 import com.navercorp.pinpoint.servermap.dao.SelfDao;
+import com.navercorp.pinpoint.servermap.dao.hbase.HbaseApplicationMapDao;
 import com.navercorp.pinpoint.servermap.dao.redis.RedisDao;
 import org.springframework.stereotype.Service;
 
@@ -30,28 +31,21 @@ import java.util.Objects;
  */
 @Service
 public class ServerMapService {
-
-    InboundDao hbaseInboundDao;
-    OutboundDao hbaseOutboundDao;
-    SelfDao hbaseSelfDao;
-
     RedisDao redisDao;
+    HbaseApplicationMapDao hbaseApplicationMapDao;
 
     public ServerMapService(
-            RedisDao redisDao
+            RedisDao redisDao,
+            HbaseApplicationMapDao hbaseApplicationMapDao
     ) {
         this.redisDao = Objects.requireNonNull(redisDao, "redisDao");
+        this.hbaseApplicationMapDao = Objects.requireNonNull(hbaseApplicationMapDao, "hbaseApplicationMapDao");
     }
 
     public void updateData() {
         List<DirectionalBo> directionalBoList = redisDao.readData();
-
         for (DirectionalBo directionalBo : directionalBoList) {
-            hbaseInboundDao.update(directionalBo);
+            hbaseApplicationMapDao.insert(directionalBo);
         }
-
     }
-
-
-
 }
