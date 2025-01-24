@@ -32,4 +32,13 @@ public enum TableName {
     public String getTableName() {
         return tableName;
     }
+
+    public static TableName of(String tableName) {
+        for (TableName value : values()) {
+            if (value.getTableName().equals(tableName)) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant " + TableName.class.getCanonicalName() + "." + tableName);
+    }
 }

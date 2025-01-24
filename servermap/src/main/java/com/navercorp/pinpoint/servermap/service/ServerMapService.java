@@ -15,10 +15,15 @@
  */
 package com.navercorp.pinpoint.servermap.service;
 
+import com.navercorp.pinpoint.servermap.bo.DirectionalBo;
 import com.navercorp.pinpoint.servermap.dao.InboundDao;
 import com.navercorp.pinpoint.servermap.dao.OutboundDao;
 import com.navercorp.pinpoint.servermap.dao.SelfDao;
+import com.navercorp.pinpoint.servermap.dao.redis.RedisDao;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author intr3p1d
@@ -30,8 +35,20 @@ public class ServerMapService {
     OutboundDao hbaseOutboundDao;
     SelfDao hbaseSelfDao;
 
+    RedisDao redisDao;
 
-    public void updateInboundData() {
+    public ServerMapService(
+            RedisDao redisDao
+    ) {
+        this.redisDao = Objects.requireNonNull(redisDao, "redisDao");
+    }
+
+    public void updateData() {
+        List<DirectionalBo> directionalBoList = redisDao.readData();
+
+        for (DirectionalBo directionalBo : directionalBoList) {
+            hbaseInboundDao.update(directionalBo);
+        }
 
     }
 

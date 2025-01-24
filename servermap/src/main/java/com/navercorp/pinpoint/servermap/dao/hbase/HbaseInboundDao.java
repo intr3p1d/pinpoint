@@ -88,7 +88,7 @@ public class HbaseInboundDao implements InboundDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
 
         // rowKey is dest in inbound
-        final ServerMapRowKey destRowKey = new ApplicationMapRowKey(destServiceName, destApplicationType.getCode(), destApplicationName, rowTimeSlot);
+        final ApplicationMapRowKey destRowKey = new ApplicationMapRowKey(destServiceName, destApplicationType.getCode(), destApplicationName, rowTimeSlot);
 
         // columnName is src in outbound
         final short srcSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(srcApplicationType, elapsed, isError);

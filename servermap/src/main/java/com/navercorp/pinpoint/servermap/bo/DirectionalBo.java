@@ -25,7 +25,7 @@ public class DirectionalBo {
 //    ts:tableKind:tenantId:mainServiceId:mainApplicationName:
 //    subServiceId:subApplicationName:subServiceTypeSlot
 
-    private final String tableName;
+    private final TableName tableName;
     private final String tenantId;
     private final String mainServiceId;
     private final String mainApplicationName;
@@ -43,7 +43,8 @@ public class DirectionalBo {
             String subServiceId, String subApplicationName,
             int subServiceTypeSlot
     ) {
-        this.tableName = Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(tableName, "tableName");
+        this.tableName = TableName.of(tableName);
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.mainServiceId = Objects.requireNonNull(mainServiceId, "mainServiceId");
         this.mainApplicationName = Objects.requireNonNull(mainApplicationName, "mainApplicationName");
@@ -64,7 +65,7 @@ public class DirectionalBo {
         return new DirectionalBo(parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], Integer.parseInt(parts[7]));
     }
 
-    public String getTableName() {
+    public TableName getTableName() {
         return tableName;
     }
 
