@@ -15,15 +15,21 @@
  */
 package com.navercorp.pinpoint.servermap.dao.hbase;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.servermap.bo.CallCount;
 import com.navercorp.pinpoint.servermap.bo.DirectionalBo;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -33,6 +39,8 @@ import java.util.Objects;
 public class HbaseApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final HbaseColumnFamily.InboundServiceMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_INBOUND_SERVICE_GROUP_COUNTER;
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
@@ -46,12 +54,14 @@ public class HbaseApplicationMapDao {
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
-
     public void insert(DirectionalBo directionalBo) {
         Objects.requireNonNull(directionalBo, "directionalBo");
         if (logger.isDebugEnabled()) {
             logger.debug("insert application map data: {}", directionalBo);
         }
+
+        ArrayList<Put> puts = new ArrayList<>();
+
         for (CallCount callCount : directionalBo.getCallCountList()) {
 
             ApplicationMapRowKey rowKey = new ApplicationMapRowKey(
@@ -61,10 +71,23 @@ public class HbaseApplicationMapDao {
                     callCount.timestamp()
             );
 
+            ApplicationMapColumnName columnName = new ApplicationMapColumnName(
+                    directionalBo.getSubServiceId(),
+                    directionalBo.getSubServiceType(),
+                    directionalBo.getSubApplicationName(),
+                    directionalBo.getSlotNumber()
+            );
+
+            Put put = new Put(rowKey.getRowKey());
+            put.addColumn(
+                    DESCRIPTOR.getName(),
+                    columnName.getColumnName(),
+                    Bytes.toBytes(callCount.callCount())
+            );
+            puts.add(put);
         }
 
-
+        TableName applicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        this.hbaseTemplate.put(applicationMapTableName, puts);
     }
-
-
 }

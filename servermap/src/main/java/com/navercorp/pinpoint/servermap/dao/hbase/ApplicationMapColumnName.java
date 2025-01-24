@@ -27,7 +27,6 @@ public class ApplicationMapColumnName {
     private final short applicationTypeCode;
     private final String applicationName;
     private final short columnSlotNumber;
-    private final long callCount;
 
     // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
@@ -35,14 +34,12 @@ public class ApplicationMapColumnName {
     public ApplicationMapColumnName(
             String serviceName,
             short applicationTypeCode, String applicationName,
-            short columnSlotNumber,
-            long callCount
+            short columnSlotNumber
     ) {
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationTypeCode = applicationTypeCode;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.columnSlotNumber = columnSlotNumber;
-        this.callCount = callCount;
     }
 
     public byte[] getColumnName() {
@@ -53,9 +50,6 @@ public class ApplicationMapColumnName {
         );
     }
 
-    public long getCallCount() {
-        return callCount;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -67,7 +61,6 @@ public class ApplicationMapColumnName {
         if (applicationTypeCode != that.applicationTypeCode) return false;
         if (columnSlotNumber != that.columnSlotNumber) return false;
         if (hash != that.hash) return false;
-        if (callCount != that.callCount) return false;
         if (!serviceName.equals(that.serviceName)) return false;
         return applicationName.equals(that.applicationName);
     }
@@ -79,7 +72,6 @@ public class ApplicationMapColumnName {
         result = 31 * result + applicationName.hashCode();
         result = 31 * result + (int) columnSlotNumber;
         result = 31 * result + hash;
-        result = 31 * result + (int) (callCount ^ (callCount >>> 32));
         return result;
     }
 
@@ -90,7 +82,6 @@ public class ApplicationMapColumnName {
                 ", applicationTypeCode=" + applicationTypeCode +
                 ", applicationName='" + applicationName + '\'' +
                 ", columnSlotNumber=" + columnSlotNumber +
-                ", callCount=" + callCount +
                 '}';
     }
 }
