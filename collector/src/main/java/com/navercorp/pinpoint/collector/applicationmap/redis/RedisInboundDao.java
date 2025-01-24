@@ -94,8 +94,9 @@ public class RedisInboundDao implements InboundDao {
         // and sub is source
         final TimeSeriesKey applicationTypeKey = new TimeSeriesKey(
                 ApplicationMapTable.Inbound, "tenantId",
-                destServiceName, destApplicationName,
-                srcServiceName, srcApplicationName, srcSlotNumber
+                destServiceName, destApplicationName, destApplicationType.getCode(),
+                srcServiceName, srcApplicationName, srcApplicationType.getCode(),
+                srcSlotNumber
         );
         TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
         this.bulkWriter.increment(applicationTypeKey, addOne);
@@ -103,8 +104,8 @@ public class RedisInboundDao implements InboundDao {
         if (mapLinkConfiguration.isEnableAvg()) {
             final TimeSeriesKey sumStatKey = new TimeSeriesKey(
                     ApplicationMapTable.Inbound, "tenantId",
-                    destServiceName, destApplicationName,
-                    srcServiceName, srcApplicationName,
+                    destServiceName, destApplicationName, destApplicationType.getCode(),
+                    srcServiceName, srcApplicationName, srcApplicationType.getCode(),
                     histogramSchema.getSumStatSlot().getSlotTime()
             );
             final TimeSeriesValue sumValue = new TimeSeriesValue(acceptedTime);
@@ -113,8 +114,8 @@ public class RedisInboundDao implements InboundDao {
         if (mapLinkConfiguration.isEnableMax()) {
             final TimeSeriesKey maxStatKey = new TimeSeriesKey(
                     ApplicationMapTable.Inbound, "tenantId",
-                    destServiceName, destApplicationName,
-                    srcServiceName, srcApplicationName,
+                    destServiceName, destApplicationName, destApplicationType.getCode(),
+                    srcServiceName, srcApplicationName, srcApplicationType.getCode(),
                     histogramSchema.getMaxStatSlot().getSlotTime()
             );
             final TimeSeriesValue maxValue = new TimeSeriesValue(acceptedTime);

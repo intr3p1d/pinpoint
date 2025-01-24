@@ -20,13 +20,9 @@ import com.navercorp.pinpoint.collector.applicationmap.redis.schema.ApplicationM
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesKey;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesValue;
 import com.navercorp.pinpoint.collector.applicationmap.redis.statistics.RedisBulkWriter;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
@@ -46,16 +42,16 @@ public class RedisSelfDao implements SelfDao {
 
     private final AcceptedTimeService acceptedTimeService;
 
-    private final TimeSlot timeSlot;
     private final RedisBulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public RedisSelfDao(MapLinkConfiguration mapLinkConfiguration,
-                        AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                        @Qualifier("applicationMapSelfBulkWriter") RedisBulkWriter bulkWriter) {
+    public RedisSelfDao(
+            MapLinkConfiguration mapLinkConfiguration,
+            AcceptedTimeService acceptedTimeService,
+            @Qualifier("applicationMapSelfBulkWriter") RedisBulkWriter bulkWriter
+    ) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
-        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
@@ -80,8 +76,8 @@ public class RedisSelfDao implements SelfDao {
         // and sub is also me
         final TimeSeriesKey applicationTypeKey = new TimeSeriesKey(
                 ApplicationMapTable.Self, "tenantId",
-                serviceName, applicationName,
-                serviceName, applicationName,
+                serviceName, applicationName, applicationType.getCode(),
+                serviceName, applicationName, applicationType.getCode(),
                 slotNumber
         );
         TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
@@ -90,8 +86,8 @@ public class RedisSelfDao implements SelfDao {
         if (mapLinkConfiguration.isEnableAvg()) {
             final TimeSeriesKey sumStatKey = new TimeSeriesKey(
                     ApplicationMapTable.Self, "tenantId",
-                    serviceName, applicationName,
-                    serviceName, applicationName,
+                    serviceName, applicationName, applicationType.getCode(),
+                    serviceName, applicationName, applicationType.getCode(),
                     histogramSchema.getSumStatSlot().getSlotTime()
             );
             final TimeSeriesValue sumValue = new TimeSeriesValue(acceptedTime);
@@ -100,8 +96,8 @@ public class RedisSelfDao implements SelfDao {
         if (mapLinkConfiguration.isEnableMax()) {
             final TimeSeriesKey maxStatKey = new TimeSeriesKey(
                     ApplicationMapTable.Self, "tenantId",
-                    serviceName, applicationName,
-                    serviceName, applicationName,
+                    serviceName, applicationName, applicationType.getCode(),
+                    serviceName, applicationName, applicationType.getCode(),
                     histogramSchema.getMaxStatSlot().getSlotTime()
             );
             final TimeSeriesValue maxValue = new TimeSeriesValue(acceptedTime);
@@ -127,8 +123,8 @@ public class RedisSelfDao implements SelfDao {
 
         final TimeSeriesKey selfPingKey = new TimeSeriesKey(
                 ApplicationMapTable.Self, "tenantId",
-                serviceName, applicationName,
-                serviceName, applicationName,
+                serviceName, applicationName, applicationType.getCode(),
+                serviceName, applicationName, applicationType.getCode(),
                 slotNumber
         );
         TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);

@@ -32,30 +32,38 @@ public class TimeSeriesKey {
     private final LabelToKey tenantId;
     private final LabelToKey mainServiceId;
     private final LabelToKey mainApplicationName;
+    private final LabelToKey mainServiceType;
     private final LabelToKey subServiceId;
     private final LabelToKey subApplicationName;
-    private final LabelToKey subServiceTypeSlot;
+    private final LabelToKey subServiceType;
+    private final LabelToKey slotNumber;
 
     public TimeSeriesKey(
             ApplicationMapTable tableKind, String tenantId,
             String mainServiceId, String mainApplicationName,
+            short mainServiceType,
             String subServiceId, String subApplicationName,
-            short subServiceTypeSlot
+            short subServiceType,
+            short slotNumber
     ) {
         this.tableKind = new LabelToKey(TimeSeriesLabel.TABLE_KIND, tableKind.getTable());
         this.tenantId = new LabelToKey(TimeSeriesLabel.TENANT_ID, tenantId);
         this.mainServiceId = new LabelToKey(TimeSeriesLabel.MAIN_SERVICE_ID, mainServiceId);
         this.mainApplicationName = new LabelToKey(TimeSeriesLabel.MAIN_APPLICATION_NAME, mainApplicationName);
+        this.mainServiceType = new LabelToKey(TimeSeriesLabel.MAIN_SERVICE_TYPE, String.valueOf(mainServiceType));
         this.subServiceId = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_ID, subServiceId);
         this.subApplicationName = new LabelToKey(TimeSeriesLabel.SUB_APPLICATION_NAME, subApplicationName);
-        this.subServiceTypeSlot = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, String.valueOf(subServiceTypeSlot));
+        this.subServiceType = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, String.valueOf(subServiceType));
+        this.slotNumber = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, String.valueOf(slotNumber));
     }
 
     public String getKey() {
         return "ts:" + tableKind.getValue() + ":" + tenantId.getValue()
                 + ":" + mainServiceId.getValue() + ":" + mainApplicationName.getValue()
+                + ":" + mainServiceType.getValue()
                 + ":" + subServiceId.getValue() + ":" + subApplicationName.getValue()
-                + ":" + subServiceTypeSlot.getValue();
+                + ":" + subServiceType.getValue()
+                + ":" + slotNumber.getValue();
     }
 
     public Labels toLabels() {
@@ -64,9 +72,11 @@ public class TimeSeriesKey {
         labels.addLabel(tenantId.getLabel(), tenantId.getValue());
         labels.addLabel(mainServiceId.getLabel(), mainServiceId.getValue());
         labels.addLabel(mainApplicationName.getLabel(), mainApplicationName.getValue());
+        labels.addLabel(mainServiceType.getLabel(), mainServiceType.getValue());
         labels.addLabel(subServiceId.getLabel(), subServiceId.getValue());
         labels.addLabel(subApplicationName.getLabel(), subApplicationName.getValue());
-        labels.addLabel(subServiceTypeSlot.getLabel(), subServiceTypeSlot.getValue());
+        labels.addLabel(subServiceType.getLabel(), subServiceType.getValue());
+        labels.addLabel(slotNumber.getLabel(), slotNumber.getValue());
         return labels;
     }
 }

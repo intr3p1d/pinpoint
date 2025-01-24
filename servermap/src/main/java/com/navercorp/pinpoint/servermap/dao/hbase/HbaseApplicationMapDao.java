@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.servermap.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.servermap.bo.CallCount;
 import com.navercorp.pinpoint.servermap.bo.DirectionalBo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +38,6 @@ public class HbaseApplicationMapDao {
     private final TableNameProvider tableNameProvider;
 
 
-
-
     public HbaseApplicationMapDao(
             HbaseOperations hbaseTemplate,
             TableNameProvider tableNameProvider
@@ -53,15 +52,19 @@ public class HbaseApplicationMapDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert application map data: {}", directionalBo);
         }
+        for (CallCount callCount : directionalBo.getCallCountList()) {
 
-        ApplicationMapRowKey rowKey = new ApplicationMapRowKey(
-                directionalBo.getMainServiceId(),
-                directionalBo.getMainApplicationName(), directionalBo.
-        );
+            ApplicationMapRowKey rowKey = new ApplicationMapRowKey(
+                    directionalBo.getMainServiceId(),
+                    directionalBo.getMainServiceType(),
+                    directionalBo.getMainApplicationName(),
+                    callCount.timestamp()
+            );
+
+        }
 
 
     }
-
 
 
 }

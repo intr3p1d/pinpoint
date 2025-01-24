@@ -22,16 +22,20 @@ import java.util.Objects;
  * @author intr3p1d
  */
 public class DirectionalBo {
-//    ts:tableKind:tenantId:mainServiceId:mainApplicationName:
-//    subServiceId:subApplicationName:subServiceTypeSlot
+//    ts:tableKind:tenantId
+//    :mainServiceId:mainApplicationName:mainServiceType
+//    :subServiceId:subApplicationName:subServiceType
+//    :(main)slotNumber
 
     private final TableName tableName;
     private final String tenantId;
     private final String mainServiceId;
     private final String mainApplicationName;
+    private final short mainServiceType;
     private final String subServiceId;
     private final String subApplicationName;
-    private final int subServiceTypeSlot;
+    private final short subServiceType;
+    private final short slotNumber;
 
     private List<CallCount> callCountList;
 
@@ -39,18 +43,20 @@ public class DirectionalBo {
     public DirectionalBo(
             String tableName,
             String tenantId,
-            String mainServiceId, String mainApplicationName,
-            String subServiceId, String subApplicationName,
-            int subServiceTypeSlot
+            String mainServiceId, String mainApplicationName, short mainServiceType,
+            String subServiceId, String subApplicationName, short subServiceType,
+            short slotNumber
     ) {
         Objects.requireNonNull(tableName, "tableName");
         this.tableName = TableName.of(tableName);
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.mainServiceId = Objects.requireNonNull(mainServiceId, "mainServiceId");
         this.mainApplicationName = Objects.requireNonNull(mainApplicationName, "mainApplicationName");
+        this.mainServiceType = mainServiceType;
         this.subServiceId = Objects.requireNonNull(subServiceId, "subServiceId");
         this.subApplicationName = Objects.requireNonNull(subApplicationName, "subApplicationName");
-        this.subServiceTypeSlot = subServiceTypeSlot;
+        this.subServiceType = subServiceType;
+        this.slotNumber = slotNumber;
     }
 
     public static DirectionalBo fromKey(String key) {
@@ -58,11 +64,16 @@ public class DirectionalBo {
         if (!Objects.equals(parts[0], "ts")) {
             throw new IllegalArgumentException("Invalid key format: " + key);
         }
-        if (parts.length != 8) {
+        if (parts.length != 10) {
             throw new IllegalArgumentException("Invalid key format: " + key);
         }
 
-        return new DirectionalBo(parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], Integer.parseInt(parts[7]));
+        return new DirectionalBo(
+                parts[1], parts[2],
+                parts[3], parts[4], Short.parseShort(parts[5]),
+                parts[6], parts[7], Short.parseShort(parts[8]),
+                Short.parseShort(parts[9])
+        );
     }
 
     public TableName getTableName() {
@@ -81,6 +92,10 @@ public class DirectionalBo {
         return mainApplicationName;
     }
 
+    public short getMainServiceType() {
+        return mainServiceType;
+    }
+
     public String getSubServiceId() {
         return subServiceId;
     }
@@ -89,8 +104,12 @@ public class DirectionalBo {
         return subApplicationName;
     }
 
-    public int getSubServiceTypeSlot() {
-        return subServiceTypeSlot;
+    public short getSubServiceType() {
+        return subServiceType;
+    }
+
+    public short getSlotNumber() {
+        return slotNumber;
     }
 
     public List<CallCount> getCallCountList() {
@@ -104,13 +123,15 @@ public class DirectionalBo {
     @Override
     public String toString() {
         return "DirectionalBo{" +
-                "tableName='" + tableName + '\'' +
+                "tableName=" + tableName +
                 ", tenantId='" + tenantId + '\'' +
                 ", mainServiceId='" + mainServiceId + '\'' +
                 ", mainApplicationName='" + mainApplicationName + '\'' +
+                ", mainServiceType=" + mainServiceType +
                 ", subServiceId='" + subServiceId + '\'' +
                 ", subApplicationName='" + subApplicationName + '\'' +
-                ", subServiceTypeSlot=" + subServiceTypeSlot +
+                ", subServiceType=" + subServiceType +
+                ", slotNumber=" + slotNumber +
                 ", callCountList=" + callCountList +
                 '}';
     }

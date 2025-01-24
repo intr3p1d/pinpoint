@@ -23,6 +23,7 @@ public enum TimeSeriesLabel {
     TENANT_ID("tenantId"),
     MAIN_SERVICE_ID("mainServiceId"),
     MAIN_APPLICATION_NAME("mainApplicationName"),
+    MAIN_SERVICE_TYPE("mainServiceType"),
     SUB_SERVICE_ID("subServiceId"),
     SUB_APPLICATION_NAME("subApplicationName"),
     SUB_SERVICE_TYPE_SLOT("subServiceTypeSlot");

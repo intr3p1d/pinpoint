@@ -84,8 +84,9 @@ public class RedisOutboundDao implements OutboundDao {
         // and sub is destination
         final TimeSeriesKey applicationTypeKey = new TimeSeriesKey(
                 ApplicationMapTable.Outbound, "tenantId",
-                srcServiceName, srcApplicationName,
-                destServiceName, destApplicationName, destSlotNumber
+                srcServiceName, srcApplicationName, srcApplicationType.getCode(),
+                destServiceName, destApplicationName, destApplicationType.getCode(),
+                destSlotNumber
         );
 
         final TimeSeriesValue addOne = new TimeSeriesValue(acceptedTime);
@@ -94,8 +95,8 @@ public class RedisOutboundDao implements OutboundDao {
         if (mapLinkConfiguration.isEnableAvg()) {
             final TimeSeriesKey sumStatKey = new TimeSeriesKey(
                     ApplicationMapTable.Outbound, "tenantId",
-                    srcServiceName, srcApplicationName,
-                    destServiceName, destApplicationName,
+                    srcServiceName, srcApplicationName, srcApplicationType.getCode(),
+                    destServiceName, destApplicationName, destApplicationType.getCode(),
                     histogramSchema.getSumStatSlot().getSlotTime()
             );
             final TimeSeriesValue sumValue = new TimeSeriesValue(acceptedTime);
@@ -104,8 +105,8 @@ public class RedisOutboundDao implements OutboundDao {
         if (mapLinkConfiguration.isEnableMax()) {
             final TimeSeriesKey maxStatKey = new TimeSeriesKey(
                     ApplicationMapTable.Outbound, "tenantId",
-                    srcServiceName, srcApplicationName,
-                    destServiceName, destApplicationName,
+                    srcServiceName, srcApplicationName, srcApplicationType.getCode(),
+                    destServiceName, destApplicationName, destApplicationType.getCode(),
                     histogramSchema.getMaxStatSlot().getSlotTime()
             );
             final TimeSeriesValue maxValue = new TimeSeriesValue(acceptedTime);

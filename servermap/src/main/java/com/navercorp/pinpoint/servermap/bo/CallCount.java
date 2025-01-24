@@ -18,22 +18,7 @@ package com.navercorp.pinpoint.servermap.bo;
 /**
  * @author intr3p1d
  */
-public class CallCount {
-    private final long timestamp;
-    private final long callCount;
-
-    public CallCount(long timestamp, long callCount) {
-        this.timestamp = timestamp;
-        this.callCount = callCount;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getCallCount() {
-        return callCount;
-    }
+public record CallCount(long timestamp, long callCount) {
 
     @Override
     public String toString() {
