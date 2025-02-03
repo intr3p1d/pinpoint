@@ -27,35 +27,51 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
-@Repository
-public class HbaseApplicationMapDao {
-
+public class HbaseDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.InboundServiceMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_INBOUND_SERVICE_GROUP_COUNTER;
-
+    private final HbaseColumnFamily descriptor;
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
+    private final HbaseBatchWriter hbaseBatchWriter;
 
 
-    public HbaseApplicationMapDao(
+    public HbaseDao(
+            HbaseColumnFamily descriptor,
             HbaseOperations hbaseTemplate,
-            TableNameProvider tableNameProvider
+            TableNameProvider tableNameProvider,
+            HbaseBatchWriter hbaseBatchWriter
     ) {
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.hbaseBatchWriter = Objects.requireNonNull(hbaseBatchWriter, "hbaseBatchWriter");
     }
+
+
+    public void insert(List<DirectionalBo> directionalBoList) {
+        Objects.requireNonNull(directionalBoList, "directionalBoList");
+        for (DirectionalBo directionalBo : directionalBoList) {
+            insert(directionalBo);
+        }
+    }
+
+
 
     public void insert(DirectionalBo directionalBo) {
         Objects.requireNonNull(directionalBo, "directionalBo");
+        if (!Objects.equals(directionalBo.getTableName().getName(), descriptor.getTable().getName())) {
+            return;
+        }
+
         if (logger.isDebugEnabled()) {
             logger.debug("insert application map data: {}", directionalBo);
         }
@@ -80,14 +96,21 @@ public class HbaseApplicationMapDao {
 
             Put put = new Put(rowKey.getRowKey());
             put.addColumn(
-                    DESCRIPTOR.getName(),
+                    descriptor.getName(),
                     columnName.getColumnName(),
                     Bytes.toBytes(callCount.callCount())
             );
             puts.add(put);
         }
 
-        TableName applicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName applicationMapTableName = tableNameProvider.getTableName(descriptor.getTable());
         this.hbaseTemplate.put(applicationMapTableName, puts);
+
+        // Maybe later
+        // this.hbaseBatchWriter.put(applicationMapTableName, puts);
+
     }
+
+
+
 }

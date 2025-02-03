@@ -45,7 +45,7 @@ import java.util.Objects;
 @Repository
 public class RedisDao {
 
-    // "ts:ApplicationMapInbound:tenantId:default:test-local-SY:default:test-local-SY:32765"
+    // "ts:ApplicationMapInbound:tenantId:default:test-local-SY:32765:default:test-local-SY:32765"
     private final RedisCommands<String, String> redisCommands;
     private final RedisTimeseriesAsyncCommands redisTimeseriesAsyncCommands;
     private final RedisCodec<String, String> commandCodec = StringCodec.ASCII;
@@ -67,7 +67,7 @@ public class RedisDao {
         List<String> keys = getKeys();
         List<DirectionalBo> bos = new ArrayList<>();
         for (String key : keys) {
-            logger.info("Key: " + key);
+            logger.info("Key: {}", key);
             CommandArgs<String, String> args = new CommandArgs<>(commandCodec)
                     .addKey(key)
                     .add("-")
@@ -104,17 +104,17 @@ public class RedisDao {
         String pattern = "ts:*";
         ScanCursor cursor = new ScanCursor();
         cursor.setCursor("0");
-        logger.info("SCAN -> " + cursor.getCursor());
+        logger.info("SCAN -> {}", cursor.getCursor());
         KeyScanCursor<String> result;
         List<String> keys = new ArrayList<>();
         do {
             result = getKeys(cursor, cursor.getCursor(), 20, pattern);
             int i = 1;
             for (String key : result.getKeys()) {
-                logger.info("  " + (i++) + ") " + key);
+                logger.info("  {} ) {}", i++, key);
             }
 
-            logger.info("Next cursor: " + result.getCursor());
+            logger.info("Next cursor: {}", result.getCursor());
             cursor.setCursor(result.getCursor());
 
             keys.addAll(result.getKeys());
@@ -128,6 +128,5 @@ public class RedisDao {
         ScanArgs args = ScanArgs.Builder.limit(count).match(pattern);
         return redisCommands.scan(cursor, args);
     }
-
 
 }

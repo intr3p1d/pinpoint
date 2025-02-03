@@ -13,32 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.servermap.bo;
+package com.navercorp.pinpoint.servermap.dao.hbase;
+
+import com.navercorp.pinpoint.servermap.dao.BatchWriter;
+import org.springframework.stereotype.Component;
 
 /**
  * @author intr3p1d
  */
-public enum TableName {
-    INBOUND("ApplicationMapInbound"),
-    OUTBOUND("ApplicationMapOutbound"),
-    SELF("ApplicationMapSelf");
-
-    private final String name;
-
-    TableName(String name) {
-        this.name = name;
+@Component
+public class HbaseBatchWriter implements BatchWriter {
+    @Override
+    public void push() {
+        // do something
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public void flush() {
+        // do something
     }
 
-    public static TableName of(String tableName) {
-        for (TableName value : values()) {
-            if (value.getName().equals(tableName)) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("No enum constant " + TableName.class.getCanonicalName() + "." + tableName);
+    @Override
+    public void close() {
+        // do something
     }
 }
