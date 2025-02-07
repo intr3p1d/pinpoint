@@ -33,6 +33,7 @@ import org.springframework.core.env.StandardEnvironment;
         WebMvcConfig.class,
         WebSocketConfig.class,
         WebServiceConfig.class,
+        ProblemSpringWebConfig.class,
         RealtimeConfig.class,
         MainDataSourceConfiguration.class,
 
