@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkHistogramSummaryView;
@@ -38,6 +39,7 @@ import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -190,6 +192,54 @@ public class MapHistogramController {
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
         return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
     }
+
+    @GetMapping(value = "/getResponseTimeHistogramDataV2")
+    public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
+            @Valid @ModelAttribute
+            SearchDepthForm depthForm,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState
+    ) {
+        final Range range = toRange(rangeForm);
+
+        final SearchOption searchOption = searchOptionBuilder()
+                .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
+
+        final Application application = getApplication(appForm);
+
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+
+        final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
+        final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
+                .Builder(application, range, fromApplications, toApplications)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+
+        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
+        ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
+    }
+
+    private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
+
+    private SearchOption.Builder searchOptionBuilder() {
+        return SearchOption.newBuilder(DEFAULT_MAX_SEARCH_DEPTH);
+    }
+
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
         final List<Application> result = new ArrayList<>(applicationNames.size());
