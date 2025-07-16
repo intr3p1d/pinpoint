@@ -19,7 +19,10 @@ import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.NodeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchDepthForm;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
@@ -53,7 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -71,6 +73,7 @@ public class ServerMapHistogramController {
     private final ResponseTimeHistogramService responseTimeHistogramService;
     private final HistogramService histogramService;
     private final ApplicationFactory applicationFactory;
+    private final ServiceTypeRegistryService registry;
     private final RangeValidator rangeValidator;
     private final ApplicationValidator applicationValidator;
     private final HyperLinkFactory hyperLinkFactory;
@@ -79,6 +82,7 @@ public class ServerMapHistogramController {
             ResponseTimeHistogramService responseTimeHistogramService,
             HistogramService histogramService,
             ApplicationFactory applicationFactory,
+            ServiceTypeRegistryService registryService,
             ApplicationValidator applicationValidator,
             HyperLinkFactory hyperLinkFactory,
             Duration limitDay
@@ -87,6 +91,7 @@ public class ServerMapHistogramController {
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.histogramService = Objects.requireNonNull(histogramService, "histogramService");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.registry = Objects.requireNonNull(registryService, "registryService");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
@@ -102,7 +107,8 @@ public class ServerMapHistogramController {
             RangeForm rangeForm,
             @Valid @ModelAttribute
             SearchDepthForm depthForm,
-            @RequestParam(value = "nodeName", required = false) String nodeName,
+            @Valid @ModelAttribute
+            NodeForm nodeForm,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
@@ -110,8 +116,6 @@ public class ServerMapHistogramController {
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
-        String focusedNodeName = nodeName != null ? nodeName : appForm.getApplicationName();
-
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
@@ -132,11 +136,15 @@ public class ServerMapHistogramController {
 
         final List<Application> fromApplications = this.histogramService.getFromApplications(map);
         final List<Application> toApplications = this.histogramService.getToApplications(map);
-        final Application nodeApplication = this.histogramService.findApplicationByName(fromApplications, toApplications, focusedNodeName);
+
+        final ServiceType nodeServiceType = getServiceType(nodeForm);
+        final Application nodeApplication = this.histogramService.findApplicationByNode(
+                fromApplications, toApplications, nodeForm.getNodeName(), nodeServiceType
+        );
 
         if (nodeApplication == null) {
-            logger.error("No matching application found for node name: {}", focusedNodeName);
-            throw new IllegalArgumentException("No matching application found for node name: " + focusedNodeName);
+            logger.error("No matching application found for node name: {}", nodeForm.getNodeName());
+            throw new IllegalArgumentException("No matching application found for node name: " + nodeForm.getNodeName());
         }
 
         final ResponseTimeHistogramServiceOption histogramServiceOption = new ResponseTimeHistogramServiceOption
@@ -160,6 +168,26 @@ public class ServerMapHistogramController {
 
     private SearchOption.Builder searchOptionBuilder() {
         return SearchOption.newBuilder(DEFAULT_MAX_SEARCH_DEPTH);
+    }
+
+    private ServiceType getServiceType(NodeForm nodeForm) {
+        // use serviceTypeCode if available, otherwise use serviceTypeName
+        ServiceType serviceType;
+
+        if (nodeForm.getNodeServiceTypeCode() != ServiceType.UNDEFINED.getCode()) {
+            serviceType = this.registry.findServiceType(nodeForm.getNodeServiceTypeCode());
+            if (serviceType == null || serviceType.getCode() == ServiceType.UNDEFINED.getCode()) {
+                throw new IllegalArgumentException("Invalid serviceTypeCode: " + nodeForm.getNodeServiceTypeCode());
+            }
+        } else if (nodeForm.getNodeServiceTypeName() != null) {
+            serviceType = this.registry.findServiceTypeByName(nodeForm.getNodeServiceTypeName());
+            if (serviceType == null || serviceType.getCode() == ServiceType.UNDEFINED.getCode()) {
+                throw new IllegalArgumentException("Invalid serviceTypeName: " + nodeForm.getNodeServiceTypeName());
+            }
+        } else {
+            throw new IllegalArgumentException("Either serviceTypeCode or serviceTypeName must be provided");
+        }
+        return serviceType;
     }
 
     private Application getApplication(ApplicationForm appForm) {

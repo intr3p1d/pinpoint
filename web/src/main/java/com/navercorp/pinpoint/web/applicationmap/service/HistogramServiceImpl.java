@@ -15,13 +15,19 @@
  */
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -30,9 +36,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author intr3p1d
@@ -113,21 +121,45 @@ public class HistogramServiceImpl implements HistogramService {
     }
 
     @Override
-    public Application findApplicationByName(List<Application> fromApplications, List<Application> toApplications, String nodeName) {
+    public Application findApplicationByNode(
+            List<Application> fromApplications, List<Application> toApplications,
+            String nodeName, ServiceType nodeServiceType) {
         Objects.requireNonNull(fromApplications, "fromApplications");
         Objects.requireNonNull(toApplications, "toApplications");
         Objects.requireNonNull(nodeName, "nodeName");
+        Objects.requireNonNull(nodeServiceType, "nodeServiceType");
 
-        for (Application application : fromApplications) {
-            if (application.getName().equals(nodeName)) {
-                return application;
-            }
+        List<Application> allApplications = new ArrayList<>(fromApplications);
+        allApplications.addAll(toApplications);
+
+        if (nodeServiceType.isWas() || nodeServiceType.isTerminal()) {
+            return traverseAndFind(allApplications, Application::getName, nodeName);
+        } else if (nodeServiceType.isQueue()) {
+
+        } else if (nodeServiceType.isUser()) {
+            return traverseAndFind(allApplications, Application::getServiceType, nodeServiceType);
+        } else {
+            return null;
         }
-        for (Application application : toApplications) {
-            if (application.getName().equals(nodeName)) {
+    }
+
+    private <T> Application traverseAndFind(
+            List<Application> applications,
+            Function<Application, T> predicate,
+            T target
+    ) {
+        for (Application application : applications) {
+            if (predicate.apply(application).equals(target)) {
                 return application;
             }
         }
         return null;
     }
+
+    private NodeHistogramSummary createEmptyNodeHistogramSummary(ServerGroupListFactory serverGroupListFactory, Application application, Range range) {
+        ServerGroupList serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
+        NodeHistogram emptyNodeHistogram = NodeHistogram.empty(application, range);
+        return new NodeHistogramSummary(application, serverGroupList, emptyNodeHistogram);
+    }
+
 }

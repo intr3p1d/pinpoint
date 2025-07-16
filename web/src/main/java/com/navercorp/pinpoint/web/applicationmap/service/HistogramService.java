@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -27,5 +28,6 @@ public interface HistogramService {
     LinkDataDuplexMap selectLinkDataDuplexMap(MapServiceOption option);
     List<Application> getFromApplications(LinkDataDuplexMap linkDataDuplexMap);
     List<Application> getToApplications(LinkDataDuplexMap linkDataDuplexMap);
-    Application findApplicationByName(List<Application> fromApplications, List<Application> toApplications, String nodeName);
+    Application findApplicationByNode(List<Application> fromApplications, List<Application> toApplications,
+                                      String nodeName, ServiceType nodeServiceType);
 }
