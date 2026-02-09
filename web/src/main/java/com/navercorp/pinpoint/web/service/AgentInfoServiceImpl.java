@@ -109,7 +109,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
+    public List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
         List<String> applicationNameList = applicationIndexService.selectAllApplicationNames();
@@ -117,11 +117,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         for (String applicationName : applicationNameList) {
             agents.addAll(getDetailedAgentsByApplicationName(applicationName, range.getTo()));
         }
-
-        return AgentsMapByApplication.newDetailedAgentInfoMap(
-                filter,
-                agents
-        );
+        return agents;
     }
 
     @Override

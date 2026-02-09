@@ -44,7 +44,7 @@ public interface AgentInfoService {
 
     AgentsMapByApplication<AgentAndStatus> getAllAgentsList(AgentStatusFilter filter, Range range);
 
-    AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
+    List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter);
 

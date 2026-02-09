@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
+import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
@@ -249,30 +250,26 @@ public class AgentListController implements AccessDeniedExceptionHandler {
 
     @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics")
-    public TreeView<InstancesList<DetailedAgentInfo>> getAllAgentStatistics() {
+    public List<DetailedAgentAndStatus> getAllAgentStatistics() {
         final long timestamp = System.currentTimeMillis();
-        final AgentsMapByApplication<DetailedAgentInfo> allAgentsList =
-                this.agentInfoService.getAllAgentsStatisticsList(
+        return this.agentInfoService.getAllAgentsStatisticsList(
                         AgentStatusFilters.acceptAll(),
                         Range.between(timestamp, timestamp)
                 );
-        return treeView(allAgentsList);
     }
 
     @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics", params = {"from", "to"})
-    public TreeView<InstancesList<DetailedAgentInfo>> getAllAgentStatistics(
+    public List<DetailedAgentAndStatus> getAllAgentStatistics(
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to
     ) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
-        final AgentsMapByApplication<DetailedAgentInfo> allAgentsList =
-                this.agentInfoService.getAllAgentsStatisticsList(
+        return this.agentInfoService.getAllAgentsStatisticsList(
                         AgentStatusFilters.acceptAll(),
                         range
                 );
-        return treeView(allAgentsList);
     }
 
     private Application createApplication(String applicationName, Short serviceTypeCode, String serviceTypeName) {
