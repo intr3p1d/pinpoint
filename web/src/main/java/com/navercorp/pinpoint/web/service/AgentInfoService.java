@@ -42,8 +42,6 @@ public interface AgentInfoService {
 
     int NO_DURATION = -1;
 
-    AgentsMapByApplication<AgentAndStatus> getAllAgentsList(AgentStatusFilter filter, Range range);
-
     List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter);
