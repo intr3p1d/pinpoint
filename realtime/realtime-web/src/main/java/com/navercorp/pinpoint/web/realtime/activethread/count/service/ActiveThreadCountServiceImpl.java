@@ -169,7 +169,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
             REF.set(this, agents);
         }
 
-        private void putAgent(ActiveThreadCountResponse response, ClusterKey agent, long now) {
+        private void putAgent(ActiveThreadCountResponse response, ClusterKey agent, String agentName, long now) {
             ATCSupply supply = supplyMap.get(agent);
             Long updatedAt = updatedAtMap.get(agent);
 

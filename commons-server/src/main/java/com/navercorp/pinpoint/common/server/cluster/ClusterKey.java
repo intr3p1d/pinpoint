@@ -21,11 +21,7 @@ public class ClusterKey {
     }
 
     public static String compose(String applicationName, String agentId, long startTimestamp) {
-        return applicationName +
-                DELIMITER_CHAR +
-                agentId +
-                DELIMITER_CHAR +
-                startTimestamp;
+        return String.join(DELIMITER, applicationName, agentId, String.valueOf(startTimestamp));
     }
 
     public ClusterKey(String applicationName, String agentId, long startTimestamp) {
