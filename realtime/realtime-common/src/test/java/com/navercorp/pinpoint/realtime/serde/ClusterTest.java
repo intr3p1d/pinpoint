@@ -35,8 +35,8 @@ class ClusterTest {
         ClusterKey clusterKey = deserializer.deserialize(parser, null);
 
         assertNotNull(clusterKey);
-        assertEquals("app1", clusterKey.applicationName());
-        assertEquals("agentId1", clusterKey.agentId());
-        assertEquals(1234, clusterKey.startTimestamp());
+        assertEquals("app1", clusterKey.getApplicationName());
+        assertEquals("agentId1", clusterKey.getAgentId());
+        assertEquals(1234, clusterKey.getStartTimestamp());
     }
 }

@@ -52,16 +52,16 @@ public class ActiveThreadCountResponse {
     }
 
     public void putSuccessAgent(ClusterKey agentKey, List<Integer> values) {
-        putAgent(agentKey.agentId(), 0, "OK", values);
+        putAgent(agentKey.getAgentId(), 0, "OK", values);
     }
 
     public void putFailureAgent(ClusterKey agentKey, ATCSupply supply, long connectUntil) {
         final String message = decideMessage(supply, connectUntil);
-        putAgent(agentKey.agentId(), -1, message, List.of());
+        putAgent(agentKey.getAgentId(), -1, message, List.of());
     }
 
     public void putFailureAgent(ClusterKey agentKey, String message) {
-        putAgent(agentKey.agentId(), -1, message, List.of());
+        putAgent(agentKey.getAgentId(), -1, message, List.of());
     }
 
     private String decideMessage(ATCSupply supply, long connectUntil) {

@@ -27,7 +27,6 @@ public class ATCDemand implements RealtimeDemand {
     private long id;
     private String applicationName;
     private String agentId;
-    private String agentName;
     private long startTimestamp;
 
     public long getId() {
@@ -52,14 +51,6 @@ public class ATCDemand implements RealtimeDemand {
 
     public void setAgentId(String agentId) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-    }
-
-    public String getAgentName() {
-        return agentName;
-    }
-
-    public void setAgentName(String agentName) {
-        this.agentName = agentName;
     }
 
     public long getStartTimestamp() {

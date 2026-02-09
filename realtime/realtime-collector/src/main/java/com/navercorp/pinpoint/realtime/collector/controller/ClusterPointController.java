@@ -147,15 +147,15 @@ public class ClusterPointController {
             }
             ClusterKey destClusterInfo = clusterPoint.getClusterKey();
 
-            if (!destClusterInfo.applicationName().equals(applicationName)) {
+            if (!destClusterInfo.getApplicationName().equals(applicationName)) {
                 continue;
             }
 
-            if (StringUtils.hasText(agentId) && !destClusterInfo.agentId().equals(agentId)) {
+            if (StringUtils.hasText(agentId) && !destClusterInfo.getAgentId().equals(agentId)) {
                 continue;
             }
 
-            if (startTimestamp > 0 && destClusterInfo.startTimestamp() != startTimestamp) {
+            if (startTimestamp > 0 && destClusterInfo.getStartTimestamp() != startTimestamp) {
                 continue;
             }
 

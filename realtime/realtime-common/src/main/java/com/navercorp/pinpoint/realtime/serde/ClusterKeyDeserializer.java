@@ -38,9 +38,8 @@ public class ClusterKeyDeserializer extends StdDeserializer<ClusterKey> {
 
         String applicationName = clusterNode.get("applicationName").asText();
         String agentId = clusterNode.get("agentId").asText();
-        String agentName = clusterNode.get("agentName").asText();
         long startTimestamp = clusterNode.get("startTimestamp").asLong();
-        return new ClusterKey(applicationName, agentId, agentName, startTimestamp);
+        return new ClusterKey(applicationName, agentId, startTimestamp);
     }
 
 }
