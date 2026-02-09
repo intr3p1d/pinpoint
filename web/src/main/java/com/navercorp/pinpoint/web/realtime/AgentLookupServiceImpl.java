@@ -64,7 +64,7 @@ class AgentLookupServiceImpl implements AgentLookupService {
     }
 
     private static ClusterKey intoClusterKey(AgentInfo src) {
-        return new ClusterKey(src.getApplicationName(), src.getAgentId(), src.getStartTimestamp());
+        return new ClusterKey(src.getApplicationName(), src.getAgentId(), src.getAgentName(), src.getStartTimestamp());
     }
 
 }

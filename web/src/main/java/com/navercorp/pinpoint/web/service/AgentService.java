@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
  */
 public interface AgentService {
 
-    ClusterKey getClusterKey(String applicationName, String agentId);
-    ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp);
-    ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
+    ClusterKey getClusterKey(String applicationName, String agentId, String agentName);
+    ClusterKey getClusterKey(String applicationName, String agentId, String agentName, long startTimeStamp);
+    ClusterKey getClusterKey(String applicationName, String agentId, String agentName, long startTimeStamp, boolean checkDB);
 
 }

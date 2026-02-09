@@ -27,6 +27,7 @@ public class ATCSupply implements RealtimeSupply {
 
     private String applicationName;
     private String agentId;
+    private String agentName;
     private long startTimestamp;
     private String collectorId;
     private List<Integer> values;
@@ -47,6 +48,14 @@ public class ATCSupply implements RealtimeSupply {
 
     public void setAgentId(String agentId) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+    }
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
     }
 
     public long getStartTimestamp() {

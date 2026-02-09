@@ -73,6 +73,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
             ClusterKey clusterKey = new ClusterKey(
                     demand.getApplicationName(),
                     demand.getAgentId(),
+                    demand.getAgentName(),
                     demand.getStartTimestamp());
 
             return this.fluxCache.get(clusterKey, () -> this.buildFlux(clusterKey)).take(this.demandDuration);
@@ -114,9 +115,9 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
         supply.setMessage(ATCSupply.Message.OK);
         supply.setValues(res.getActiveThreadCountList());
         supply.setCollectorId(COLLECTOR_ID);
-        supply.setApplicationName(clusterKey.getApplicationName());
-        supply.setAgentId(clusterKey.getAgentId());
-        supply.setStartTimestamp(clusterKey.getStartTimestamp());
+        supply.setApplicationName(clusterKey.applicationName());
+        supply.setAgentId(clusterKey.agentId());
+        supply.setStartTimestamp(clusterKey.startTimestamp());
         return supply;
     }
 

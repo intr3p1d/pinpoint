@@ -37,7 +37,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public ClusterKey getClusterKey(String applicationName, String agentId) {
+    public ClusterKey getClusterKey(String applicationName, String agentId, String agentName) {
         long currentTime = System.currentTimeMillis();
 
         Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
@@ -59,12 +59,12 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp) {
-        return getClusterKey(applicationName, agentId, startTimeStamp, false);
+    public ClusterKey getClusterKey(String applicationName, String agentId, String agentName, long startTimeStamp) {
+        return getClusterKey(applicationName, agentId, agentName, startTimeStamp, false);
     }
 
     @Override
-    public ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp, boolean checkDB) {
+    public ClusterKey getClusterKey(String applicationName, String agentId, String agentName, long startTimeStamp, boolean checkDB) {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
@@ -87,13 +87,13 @@ public class AgentServiceImpl implements AgentService {
             }
             return null;
         } else {
-            return new ClusterKey(applicationName, agentId, startTimeStamp);
+            return new ClusterKey(applicationName, agentId, agentName, startTimeStamp);
         }
     }
 
     private static ClusterKey buildClusterKey(AgentInfo info) {
         Objects.requireNonNull(info, "info");
-        return new ClusterKey(info.getApplicationName(), info.getAgentId(), info.getStartTimestamp());
+        return new ClusterKey(info.getApplicationName(), info.getAgentId(), info.getAgentName(), info.getStartTimestamp());
     }
 
 }
