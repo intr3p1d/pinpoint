@@ -23,12 +23,13 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentNameGroup;
+import com.navercorp.pinpoint.web.vo.agent.AgentNameGroupView;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,11 +78,24 @@ public class AgentsFactory {
         return agentStatusAndLinks;
     }
 
-    public static List<AgentNameGroup> groupByAgentName(List<AgentStatusAndLink> agents) {
+    public static List<AgentNameGroupView> groupByAgentName(List<AgentStatusAndLink> agents) {
         return agents.stream()
                 .collect(Collectors.groupingBy(a -> a.getAgentInfo().getAgentName()))
-                .entrySet().stream()
-                .map(e -> new AgentNameGroup(e.getKey(), e.getValue()))
+                .values().stream()
+                .map(group -> {
+                    AgentStatusAndLink latest = group.stream()
+                            .max(Comparator.comparingLong(a -> a.getAgentInfo().getStartTimestamp()))
+                            .orElseThrow();
+                    List<String> agentIds = group.stream()
+                            .map(a -> a.getAgentInfo().getAgentId())
+                            .toList();
+                    return new AgentNameGroupView(
+                            latest.getAgentInfo(),
+                            agentIds,
+                            latest.getStatus(),
+                            latest.getHyperLinkList()
+                    );
+                })
                 .toList();
     }
 

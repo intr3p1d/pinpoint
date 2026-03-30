@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
 import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
-import com.navercorp.pinpoint.web.vo.agent.AgentNameGroup;
+import com.navercorp.pinpoint.web.vo.agent.AgentNameGroupView;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
@@ -136,7 +136,7 @@ public class AgentsController {
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/overview/v2", params = {"application"})
-    public List<AgentNameGroup> getAgentsListGroupedByName(
+    public List<AgentNameGroupView> getAgentsListGroupedByName(
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
