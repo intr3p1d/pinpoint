@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
 import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
+import com.navercorp.pinpoint.web.vo.agent.AgentNameGroup;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
@@ -132,6 +133,24 @@ public class AgentsController {
         );
     }
 
+
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @GetMapping(value = "/overview/v2", params = {"application"})
+    public List<AgentNameGroup> getAgentsListGroupedByName(
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam(value = "query", required = false) String query) {
+        final ApplicationAgentListQueryRule rule = ApplicationAgentListQueryRule
+                .getByValue(query, ApplicationAgentListQueryRule.ALL);
+        final long timestamp = System.currentTimeMillis();
+        final Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        Range between = Range.between(timestamp, timestamp);
+        TimeWindow timeWindow = new TimeWindow(between);
+        List<AgentStatusAndLink> agents = agentsService.getAgentsByApplicationName(
+                application, timeWindow, rule, AgentInfoFilters.acceptAll());
+        return AgentsFactory.groupByAgentName(agents);
+    }
 
     //use only for server map list
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")

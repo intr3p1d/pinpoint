@@ -23,12 +23,14 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentNameGroup;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -73,6 +75,14 @@ public class AgentsFactory {
             }
         }
         return agentStatusAndLinks;
+    }
+
+    public static List<AgentNameGroup> groupByAgentName(List<AgentStatusAndLink> agents) {
+        return agents.stream()
+                .collect(Collectors.groupingBy(a -> a.getAgentInfo().getAgentName()))
+                .entrySet().stream()
+                .map(e -> new AgentNameGroup(e.getKey(), e.getValue()))
+                .toList();
     }
 
     private static List<HyperLink> newHyperLink(HyperLinkFactory hyperLinkFactory, ServerInstance serverInstance) {
