@@ -86,8 +86,12 @@ public class OtlpTraceMapper {
                 List<Span> childSpanList = new ArrayList<>();
                 initRootAndChild(entry.getValue(), rootSpanList, childSpanList);
 
+                final Map<ByteString, Span> spanIdMap = new HashMap<>();
                 for (Span span : entry.getValue()) {
-                    exceptionMapper.map(idAndName, span).ifPresent(mapperData::addExceptionMetaDataBo);
+                    spanIdMap.put(span.getSpanId(), span);
+                }
+                for (Span span : entry.getValue()) {
+                    exceptionMapper.map(idAndName, span, spanIdMap).ifPresent(mapperData::addExceptionMetaDataBo);
                 }
 
                 for (Span rootSpan : rootSpanList) {

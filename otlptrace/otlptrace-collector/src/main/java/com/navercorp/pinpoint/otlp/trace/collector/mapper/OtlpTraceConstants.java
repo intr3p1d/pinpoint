@@ -30,6 +30,8 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET = "messaging.kafka.message.offset";
     public static final String ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID = "messaging.destination.partition.id";
     public static final String ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME = "messaging.destination.name";
+    public static final String ATTRIBUTE_KEY_HTTP_ROUTE = "http.route";
+    public static final String ATTRIBUTE_KEY_URL_FULL = "url.full";
     public static final String ATTRIBUTE_KEY_URL_PATH = "url.path";
     public static final String ATTRIBUTE_KEY_HTTP_URL = "http.url";
     public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";

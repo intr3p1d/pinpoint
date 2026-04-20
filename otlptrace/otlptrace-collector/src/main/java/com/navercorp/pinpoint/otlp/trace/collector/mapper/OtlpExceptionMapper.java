@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,8 @@ import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConsta
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_EXCEPTION_MESSAGE;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_EXCEPTION_STACKTRACE;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_EXCEPTION_TYPE;
+import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE;
+import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.EVENT_NAME_EXCEPTION;
 
 @Component
@@ -44,7 +47,7 @@ public class OtlpExceptionMapper {
 
     private static final String EMPTY = "";
 
-    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span span) {
+    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span span, Map<ByteString, Span> spanIdMap) {
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() != span.getStatus().getCodeValue()) {
             return Optional.empty();
         }
@@ -54,11 +57,11 @@ public class OtlpExceptionMapper {
             return Optional.empty();
         }
 
+        final Map<String, Object> spanAttrs = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
         final Map<String, Object> eventAttrs = OtlpTraceMapperUtils.getAttributeToMap(exceptionEvent.getAttributesList());
+
         String exceptionType = AttributeUtils.getStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_TYPE, null);
         if (exceptionType == null) {
-            // fallback: span attribute의 error.type
-            final Map<String, Object> spanAttrs = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
             exceptionType = AttributeUtils.getStringValue(spanAttrs, ATTRIBUTE_KEY_ERROR_TYPE, null);
         }
         if (!StringUtils.hasLength(exceptionType)) {
@@ -91,10 +94,29 @@ public class OtlpExceptionMapper {
                 ServiceType.OPENTELEMETRY_SERVER.getCode(),
                 idAndName.applicationName(),
                 idAndName.agentId(),
-                span.getName()
+                resolveUriTemplate(spanAttrs, span, spanIdMap)
         );
         bo.setExceptionWrapperBos(List.of(wrapper));
         return Optional.of(bo);
+    }
+
+    private String resolveUriTemplate(Map<String, Object> spanAttrs, Span span, Map<ByteString, Span> spanIdMap) {
+        String route = AttributeUtils.getStringValue(spanAttrs, ATTRIBUTE_KEY_HTTP_ROUTE, null);
+        if (route != null) return route;
+
+        if (!span.getParentSpanId().isEmpty()) {
+            Span parentSpan = spanIdMap.get(span.getParentSpanId());
+            if (parentSpan != null) {
+                Map<String, Object> parentAttrs = OtlpTraceMapperUtils.getAttributeToMap(parentSpan.getAttributesList());
+                String parentRoute = AttributeUtils.getStringValue(parentAttrs, ATTRIBUTE_KEY_HTTP_ROUTE, null);
+                if (parentRoute != null) return parentRoute;
+            }
+        }
+
+        String urlFull = AttributeUtils.getStringValue(spanAttrs, ATTRIBUTE_KEY_URL_FULL, null);
+        if (urlFull != null) return OtlpTraceSpanMapper.extractPath(urlFull);
+
+        return span.getName();
     }
 
     private Span.Event findExceptionEvent(Span span) {
